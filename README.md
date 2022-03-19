@@ -4,7 +4,7 @@ Welcome to my Open-Source-Website hosted by github and my DNS-Provider. I came u
 ## Contents:
  - [Introducion](test-seite-fuer-domain)
   - [Contents](#Contents)
-  - [Inspiration] (#Inspiration)
+  - [Inspiration](#Inspiration)
   - [Responsebillity](#Responsebillity)
   - [License](#License)
 
