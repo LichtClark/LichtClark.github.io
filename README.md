@@ -4,14 +4,14 @@ Welcome to my Open-Source-Website hosted by github and my DNS-Provider. I came u
 ## Contents:
  - [Introducion](test-seite-fuer-domain)
   - [Contents](#Contents)
-  - [Inspired by Github] (#Inspired by Github)
+  - [Inspiration] (#Inspiration)
   - [Responsebillity](#Responsebillity)
   - [License](#License)
 
 See following to reproduce: 
 
-## Inspired by Github:
-Thereforce you need to read the githubpages which explains how to use GitHub Pages sites and add your A Records with a DNS.
+## Inspiration:
+I got Inspired by the Github Documentition. Thereforce you need to read the githubpages which explains how to use GitHub Pages sites and add your A Records with a DNS.
 To get an active SSL-Certificate Github is not responsible for your SLL-Encryption, rather your DNS-provider does offer those services (creating one should be duty)
 which you can activate then on your github Pages to get a Secured http connection.
  - [Github Documentation](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site)
