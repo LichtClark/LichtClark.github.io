@@ -19,7 +19,7 @@ To get an active SSL-Certificate Github is not responsible for your SLL-Encrypti
 ## Responsebillity:
 This a open-source hosted website which provides Source-Code basements just for Research Education and Nothing else.
 I won't be responsible for any harm or damage. Any action you take will get documented in a log file of a server. Keep that in mind. For further information please look at:  
-- [Github Documentation](https://docs.gitlab.com/ee/administration/logs.html)
+- [Log System](https://docs.gitlab.com/ee/administration/logs.html)
 
 THIS WEBSITE PROBABLY WILL END ITS DNS ON JANUARY 1ST 2023!
 
