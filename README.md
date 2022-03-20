@@ -19,7 +19,7 @@ which you can activate then on your github Pages to get a Secured http connectio
 ## Responsebillity:
 This a open-source hosted website which provides Source-Code basements just for Reseach Education and Nothing else.
 
-THIS WEBSITE PROBABLY WILL END ITS DOMAIN ON JANUARY 1ST 2023.!
+THIS WEBSITE PROBABLY WILL END ITS DNS ON JANUARY 1ST 2023.!
 
 ## License:
 [![CC0](https://licensebuttons.net/p/zero/1.0/88x31.png)](https://creativecommons.org/publicdomain/zero/1.0/)
