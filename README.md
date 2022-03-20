@@ -17,7 +17,7 @@ which you can activate then on your github Pages to get a Secured http connectio
  - [Github Documentation](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site)
 
 ## Responsebillity:
-This a a open-source hosted website which provides Source-Code basements just for Reseach Education and Nothing else.
+This a open-source hosted website which provides Source-Code basements just for Reseach Education and Nothing else.
 THIS WEBSITE PROBABLY WILL END ITS DOMAIN ON JANUARY 1ST 2023.!
 
 ## License:
