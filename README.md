@@ -14,7 +14,7 @@ See following to reproduce:
 ## Inspiration:
 I got Inspired by the Github Documentition. Thereforce you need to read the githubpages which explains how to use GitHub Pages sites and add your A Records with a DNS.
 To get an active SSL-Certificate Github is not responsible for your SLL-Encryption, rather your DNS-provider does offer those services (creating one should be duty since browsers dont trust only-http sites in 2022 anymore), which you can activate then on your github Pages to get a Secured http connection.
- - [Github Documentation](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site)
+ - [Github Documentation about seting up DNS](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site)
 
 ## Responsebillity:
 This a open-source hosted website which provides Source-Code basements just for Research Education and Nothing else.
