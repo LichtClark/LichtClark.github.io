@@ -1,0 +1,36 @@
+<div id="container">
+    <div id="left" class="halfwidthcontainer">
+        <div id="left-image" class="image"></div>
+    </div>
+    <div id="right" class="halfwidthcontainer">
+        <div id="right-image" class="image"></div>
+    </div>
+</div>
+
+<style>
+html, body, #container, #left, #right, #left-image, #right-image {
+    height:100%;
+}
+
+.halfwidthcontainer {
+    float: left;
+    width: 50%;
+}
+
+.image {
+    background-size: container;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+
+}
+
+#left-image {
+    background-color: red;
+    background-image: url('leo2.png');
+}
+
+#right-image {
+    background-color: blue;
+    background-image: url('leo1.png');
+}
+</style>
