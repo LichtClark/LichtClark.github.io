@@ -1,4 +1,4 @@
-# test-seite-fuer-domain
+# [INACTIVE !!! NO DOMAIN] test-seite-fuer-domain
 Welcome to my Open-Source-Website hosted by GitHub and my DNS-Provider. I came up with this idea since I was trying to host on GitHub with my domain Records.
 A null plus ultra was also that I would have to pay extra for storage hosting (custom HTML aot.) and I only want to pay €1/ 12-months, which is a great deal in combination with an SSL Cert.
 
