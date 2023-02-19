@@ -1,1 +1,1 @@
-+exec autoexec.cfg -freq 240 -d3d9ex -novid -no-browser +mat_queue_mode 2 +fps_max 0 +cl_interp_ratio 1 +cl_interp 0.031 -tickrate 128 +cl_cmdrate 128 +cl_updaterate 128 +cl_forcepreload 1
++exec autoexec.cfg -novid -nojoy -tickrate 128 -nothreadsockets -freq 240 -disable_d3d9ex -no-browser +mat_queue_mode 2 +fps_max 0 +cl_interp_ratio 1 +cl_interp 0.031 +cl_cmdrate 128 +cl_updaterate 128 +cl_forcepreload 1 +mat_disable_fancy_blending 1 
