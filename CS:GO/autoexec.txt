@@ -1,5 +1,8 @@
 // Autoexec 2023
 unbindall
+
+// Launch Options: +exec autoexec.cfg -novid -nojoy -tickrate 128 -nothreadsockets -freq 240 -disable_d3d9ex -no-browser +mat_queue_mode 2 +fps_max 0 +cl_interp_ratio 1 +cl_interp 0.031 +cl_cmdrate 128 +cl_updaterate 128 
+
 echo "###########################################";
 echo "##  Loading autoexec.cfg... version 1.2  ##";
 echo "###########################################";
