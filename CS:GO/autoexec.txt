@@ -1,117 +1,218 @@
 // Autoexec 2022 
 unbindall
-bind "1" "slot1"
-bind "2" "slot2"
-bind "3" "slot3"
-bind "4" "slot4"
-bind "5" "slot5"
-bind "a" "+moveleft"
-bind "b" "buymenu"
-bind "c" "radio2"
-bind "d" "+moveright"
-bind "e" "+use"
-bind "f" "+lookatweapon"
-bind "g" "drop"
-bind "h" "+speed"
-bind "m" "teammenu"
-bind "q" "lastinv"
-bind "r" "+reload;r_cleardecals"
-bind "s" "+back"
-bind "t" "+spray_menu"
-bind "u" "say_team"
-bind "v" "+voicerecord"
-bind "w" "+forward"
-bind "y" "say"
-bind "z" "radio"
-bind "SPACE" "+jump; -jump"
-bind "TAB" "+showscores"
-bind "SHIFT" "+speed"
-bind "CTRL" "+duck"
-bind "F3" "rebuy"
-bind "f11" toggleconsole
+echo "###########################################";
+echo "##  Loading autoexec.cfg... version 1.2  ##";
+echo "###########################################";
 
-cl_interp 0;
-cl_interp_ratio 1;
+//Syntax
+//------------------------
+// [cvar] [value];                      // [default] Description
+
+
+// MISC SETTINGS
+//------------------------
 cl_predict "1";
 cl_lagcompensation "1";
-fps_max 0;
-alias "+jumpthrow" "+jump;-attack";-jump";
-alias "-jumpthrow" "-jump";
-bind alt "+jumpthrow";
+cl_disablefreezecam "1"		
+cl_radar_icon_scale_min 0.4;
+cl_showloadout 1;
+cl_autowepswitch "0";
+cl_use_opens_buy_menu "0";
+cl_color "2"; 
+cl_parachute_autodeploy "1"; //DangerZone Parachute
+cl_join_advertise "2";
+r_drawtracers_firstperson "1
+fps_max 250;
 
-bind "MOUSE1" "+attack"
-bind "MOUSE2" "+attack2"
-bind "MOUSE3" "player_ping"
-bind "MOUSE4" "lastinv" "+attack" "lastinv"
-bind "MOUSE5" "+secondarycommand"
-bind "MWHEELUP" "invprev"
-bind "MWHEELDOWN" "invnext"
- 
-//-------- 1. Hud
 
-cl_disablefreezecam "1"									//Freezecam (Rec: Enabled)
- 
-//--------- 2. Radar
-cl_radar_icon_scale_min 0.4							//Player icon scale (0.4 - 1.25 Rec: 0.6)
- 
-//---------- 3. Zoom Sensitivity
-
-sensitivity "0.85"
-zoom_sensitivity_ratio_mouse "0.818933027098955175"		//Adjusts your zoom sensitivity to act as your true sensitivity (Default: 1)
-
-//----------- 4. Viewmodel (Forced + Personal preference)
-
-bind "x" cl_righthand "1"										//Move your gun to your left or right hand (Default: 1 = RIGHT)
-viewmodel_presetpos "0"									//Force custom viewmodel
-viewmodel_offset_x "2"									//Changes viewmodel view in X scale (-2 to 3)
-viewmodel_offset_y "2"									//Changes viewmodel view in Y scale (-2 to 2)
-viewmodel_offset_z "-2"									//Changes viewmodel view in Z scale (-2 to 2)
-viewmodel_fov "68"										//Highest viewmodel FOV (54 to 68)
-viewmodel_recoil "0"									//Amount of weapon recoil/aimpunch to display on viewmodel (Default: 1)
-
-//------------ 5. Bob (Viewmodel movement)
-
-cl_bob_lower_amt "5"									//Viewmodel lowers when running (5 - 30 Default: 21)
-cl_bobamt_lat "0.1"										//Viewmodel moves side to side when running (0.1 - 2 Default: 0.4)
-cl_bobamt_vert "0.1"									//Viewmodel moves up and down when running, set to lowest for less distraction
-cl_viewmodel_shift_left_amt "0.5"						//Crouching animation moving left (0.5 - 2 Default: 1.5)
-cl_viewmodel_shift_right_amt "0.25"						//Crouching animation moving right (0.25 - 2 Default: 0.75)
-
-//------------- 6. Network (settings are optimized for fastest connection)
-
-rate "786432"											//Your download rate to the server (Max rate: 786432 Default: 196608)
-cl_cmdrate "128"										//Number of command packets sent to server per second (Max: 128 Default: 64)
-cl_updaterate "128"										//Number of packets per second you are requesting from the server (Max: 128 Default: 64)
-cl_interp_ratio "2"										//Sets the interpolation amount (Default: 2)
+// NETWORK SETTINGS
+//------------------------
+cl_interp 0;
+cl_interp_ratio 1;
+cl_cmdrate "128";										
+cl_updaterate "128";										
+cl_interp_ratio "2";										
 cl_predict "1";
+cl_allowdownload 1;
+cl_downloadfilter 0;
+rate "786432";
+voice_enable 1;
 
-//-------------- 7. Netgraph
 
-net_graph "0"											//Netgraph (Default: 0)
-net_graphheight "0"										//Height of netgraph (Default: 64)
-net_graphpos "2"										//Positioning of netgraph (Default: 1)
-net_graphproportionalfont "1"							//Proportionate font size for netgraph (Default: 0)
+// NET-GRAPH SETTINGS
+//------------------------
+net_graph "0";
+net_graphheight "0";
+net_graphpos "2";
+net_graphproportionalfont "1";
  
-//--------------- 8. Other
+  
+// MOUSE SETTINGS
+//------------------------
+sensitivity "0.85";
+zoom_sensitivity_ratio_mouse "0.818933027098955175";
+m_mousespeed 0;
 
-r_drawtracers_firstperson "1"							//Hide first person tracers, does not hide other players tracers (hide: 0)
-cl_parachute_autodeploy "1"								//Automatically deploy parachute in Danger Zone (Default: 1)
-fps_max "0"												//Limit FPS with Rivatuner
-cl_autowepswitch "0"									//Disabling auto-weapon switch
+
+// CROSSAIR
+//------------------------
+apply_crosshair_code CSGO-GDSsP-AXvbH-BUfHd-ByZ28-yfCcO;
+cl_crosshair_drawoutline 0;
+cl_crosshair_dynamic_maxdist_splitratio 0.300000;
+cl_crosshair_dynamic_splitalpha_innermod 1;
+cl_crosshair_dynamic_splitalpha_outermod 0.5;
+cl_crosshair_dynamic_splitdist 7;
+cl_crosshair_friendly_warning 1;
+cl_crosshair_outlinethickness 1.000000;
+cl_crosshair_recoil 0;
+cl_crosshair_sniper_show_normal_inaccuracy 0;
+cl_crosshair_sniper_width 3;
+cl_crosshair_t 0;
+cl_crosshairalpha 255;
+cl_crosshaircolor 2;
+cl_crosshaircolor_b 255;
+cl_crosshaircolor_g 155;
+cl_crosshaircolor_r 0;
+cl_crosshairdot 0;
+cl_crosshairgap -3.000000;
+cl_crosshairgap_useweaponvalue 0;
+cl_crosshairsize 2;
+cl_crosshairstyle 4;
+cl_crosshairthickness 0.000000;
+cl_crosshairusealpha 1;
 
 
-//------------------------------------------
+// SOUND SETTINGS
+//------------------------
+volume "0.35";
+snd_deathcamera_volume "0.0";
+snd_mapobjective_volume "0.0";
+snd_menumusic_volume "0.0";
+snd_mvp_volume "0.1";
+snd_roundend_volume "0.0";
+snd_roundstart_volume "0.0"
+snd_tensecondwarning_volume "0.1";
+voice_scale "0.25";
 
-// Toggle netgraph
+
+// VIEWMODEL SETTINGS 
+//------------------------										
+viewmodel_presetpos "0";									
+viewmodel_offset_x "2";								
+viewmodel_offset_y "2";									
+viewmodel_offset_z "-2";								
+viewmodel_fov "68";										
+viewmodel_recoil "0";	
+cl_righthand "1";	
+cl_viewmodel_shift_left_amt 1.5;
+cl_viewmodel_shift_right_amt 0.75;
+
+
+// BOB SETTINGS 
+//------------------------
+cl_bob_lower_amt "5";									
+cl_bobamt_lat "0.1";										
+cl_bobamt_vert "0.1";	
+cl_bobcycle 0.98;									
+cl_viewmodel_shift_left_amt "0.5";							
+cl_viewmodel_shift_right_amt "0.25";						
+
+
+// RADAR SETTINGS
+//------------------------  
+cl_hud_radar_scale "1.2";
+cl_radar_always_centered "0";
+cl_radar_icon_scale_min "1";
+cl_radar_rotate "1";
+cl_radar_scale "0.5";
+cl_hud_bomb_under_radar "1";
+
+
+// DISPLAY DAMAGE INFO SCRIPT
+//------------------------
+developer 1;
+con_filter_enable 2;                
+con_filter_text_out "Player:";
+con_filter_text "damage Given";
+
+
+// TOGGLE NETGRAPH WITH SCOREBOARD
+//------------------------
+net_graph "1";
+net_graphpos "2";
+net_graphheight "1";
+alias "+scorenet" "+showscores; net_graph 1";
+alias "-scorenet" "-showscores; net_graph 0";
+bind "tab" "+scorenet";
+
+
+// JUMPTHROW GRENADES
+//------------------------
+alias "+jumpthrow" "+jump;-attack";
+alias "-jumpthrow" "-jump";
+bind "alt" "+jumpthrow";
+
+
+// INCREASE VOLUME WHILE WALKING
+//------------------------
+alias +incvol "incrementvar volume 0 1 0.2;+speed";
+alias -incvol "incrementvar volume 0 1 -0.2;-speed";
+bind SHIFT +incvol;
+
+
+// KEYS-KEYBOARD
+//------------------------
+bind "1" "slot1";
+bind "2" "slot2";
+bind "3" "slot3";
+bind "4" "slot4";
+bind "5" "slot5";
+bind "a" "+moveleft";
+bind "b" "buymenu";
+bind "c" "radio2";
+bind "d" "+moveright";
+bind "e" "+use; r_cleardecals; +cl_show_team_equipment; -use"
+bind "f" "+lookatweapon";
+bind "g" "drop";
+bind "h" "+speed";
+bind "m" "teammenu";
+bind "q" "lastinv";
+bind "r" "+reload;r_cleardecals";
+bind "s" "+back";
+bind "t" "+spray_menu";
+bind "u" "say_team";
+bind "v" "+voicerecord";
+bind "w" "+forward";
+bind "y" "say";
+bind "z" "radio";
+bind "SPACE" "+jump; -jump";
+bind "TAB" "+showscores";
+bind "SHIFT" "+speed";
+bind "CTRL" "+duck";
+bind "F3" "rebuy";
+bind "f11" toggleconsole;
+
+
+// KEYS-MOUSE
+//------------------------
+bind "MOUSE1" "+attack";
+bind "MOUSE2" "+attack2";
+bind "MOUSE3" "player_ping";
+bind "MWHEELUP" "invprev";
+bind "MWHEELDOWN" "invnext";
+
+
+// ALIAS BINDS
+//------------------------
+alias "fixlag" "logaddress_add 1";
 alias "togglenet" "togglenet_on"
 alias "togglenet_on" "net_graph 1; alias togglenet "togglenet_off""
 alias "togglenet_off" "net_graph 0; alias togglenet "togglenet_on""
 
-alias "fixlag" "logaddress_add 1"
- 
-//---------------- Final part
-host_writeconfig //Useful for forcing viewmodel settings
 
-echo "###########################"
-echo "#### auto exec loaded #####"
-echo "###########################"
+// CONFIRM AND COMMIT TO CONFIG
+//------------------------
+echo "#"; echo "# Autoexec.cfg loaded.";
+play items/nvg_on;  
+host_writeconfig;   
+echo "# Config changes saved."; echo "#";
