@@ -1,8 +1,5 @@
-// Autoexec 2023
+// Autoexec 2022 
 unbindall
-
-// Launch Options: +exec autoexec.cfg -novid -nojoy -tickrate 128 -nothreadsockets -freq 240 -disable_d3d9ex -no-browser +mat_queue_mode 2 +fps_max 0 +cl_interp_ratio 1 +cl_interp 0.031 +cl_cmdrate 128 +cl_updaterate 128 
-
 echo "###########################################";
 echo "##  Loading autoexec.cfg... version 1.2  ##";
 echo "###########################################";
@@ -195,6 +192,19 @@ bind "CTRL" "+duck";
 bind "F3" "rebuy";
 bind "f11" toggleconsole;
 
+// NUMPAD CHAT
+//------------------------
+bind "kp_end" "say   BENCH BENCH BENCH";
+bind "kp_downarrow" "say   MID MID MID MID";
+bind "kp_pgdn" "say   CON CON CON";
+bind "kp_leftarrow" "say   KITCHEN KITCHEN KITCHEN";
+bind "kp_5" "say   UNDER UNDER UNDER";
+bind "kp_rightarrow" "say   PALACE PALACE PALACE";
+bind "kp_home" "say   SHORT SHORT SHORT";
+bind "kp_uparrow" "say   CAR CAR CAR";
+bind "kp_pgup" "say   APS APS APS";
+bind "kp_ins" "say   BACKSIDE BACKSIDE BACKSIDE";
+bind "NUMLOCK" "say   RAMP RAMPE RAMP";
 
 // KEYS-MOUSE
 //------------------------
@@ -215,7 +225,11 @@ alias "togglenet_off" "net_graph 0; alias togglenet "togglenet_on""
 
 // CONFIRM AND COMMIT TO CONFIG
 //------------------------
-echo "#"; echo "# Autoexec.cfg loaded.";
+echo "###########################################";
+echo "##  Successfully loaded autoexec.cfg...  ##";
+echo "###########################################";
 play items/nvg_on;  
 host_writeconfig;   
-echo "# Config changes saved."; echo "#";
+echo "############################################";
+echo "##  Uploaded autoexec.cfg to NVCache...   ##";
+echo "############################################";
