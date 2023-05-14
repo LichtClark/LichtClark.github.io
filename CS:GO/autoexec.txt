@@ -1,7 +1,7 @@
 // Autoexec 2022 
 unbindall
 echo "###########################################";
-echo "##  Loading autoexec.cfg... version 1.2  ##";
+echo "##  Loading autoexec.cfg... version 1.4  ##";
 echo "###########################################";
 
 //Syntax
@@ -22,7 +22,20 @@ cl_color "2";
 cl_parachute_autodeploy "1"; //DangerZone Parachute
 cl_join_advertise "2";
 r_drawtracers_firstperson "1
-fps_max 250;
+fps_max 999;
+fps_max_menu "999"
+
+
+cl_freezecameffects_showholiday "0"
+cl_threaded_bone_setup "1"
+gameinstructor_enable "0"
+option_speed_method "0"
+option_duck_method "0"
+cl_disablehtmlmotd "1"
+mat_queue_mode "2"
+cl_autohelp "0"
+cl_showhelp "0"
+mat_vsync "0"
 
 
 // NETWORK SETTINGS
@@ -84,7 +97,7 @@ apply_crosshair_code CSGO-GDSsP-AXvbH-BUfHd-ByZ28-yfCcO;
 
 // SOUND SETTINGS
 //------------------------
-volume "0.35";
+volume "1.00";
 snd_deathcamera_volume "0.0";
 snd_mapobjective_volume "0.0";
 snd_menumusic_volume "0.0";
@@ -92,7 +105,7 @@ snd_mvp_volume "0.1";
 snd_roundend_volume "0.0";
 snd_roundstart_volume "0.0"
 snd_tensecondwarning_volume "0.1";
-voice_scale "0.25";
+voice_scale "0.03";
 
 
 // VIEWMODEL SETTINGS 
@@ -194,17 +207,17 @@ bind "f11" toggleconsole;
 
 // NUMPAD CHAT
 //------------------------
-bind "kp_end" "say   BENCH BENCH BENCH";
-bind "kp_downarrow" "say   MID MID MID MID";
-bind "kp_pgdn" "say   CON CON CON";
-bind "kp_leftarrow" "say   KITCHEN KITCHEN KITCHEN";
-bind "kp_5" "say   UNDER UNDER UNDER";
-bind "kp_rightarrow" "say   PALACE PALACE PALACE";
-bind "kp_home" "say   SHORT SHORT SHORT";
-bind "kp_uparrow" "say   CAR CAR CAR";
-bind "kp_pgup" "say   APS APS APS";
-bind "kp_ins" "say   BACKSIDE BACKSIDE BACKSIDE";
-bind "NUMLOCK" "say   RAMP RAMPE RAMP";
+bind "kp_end" "say   UwU ";
+bind "kp_downarrow" "say   👉👈 ;
+bind "kp_pgdn" "say Hello am 48 year man from somalia. Sorry for my bed england.  I selled my wife for internet connection for play "conter strik"  and i want to become the goodest player like you I play with  400 ping on brazil and i am global elite 2.  pls no copy pasterino my story.";
+bind "kp_leftarrow" "say Guys Literally Only Want One Thing And It's F**king Disgusting";
+bind "kp_5" "say There are no mistakes, just happy accidents.";
+bind "kp_rightarrow" "Ever make mistakes in life? Let’s make them birds.  Yeah, they’re birds now.";
+bind "kp_home" "say Go out on limb. That’s where the fruit is.";
+bind "kp_uparrow" "say What can be painted can be punished.";
+bind "kp_pgup" "say Just let go - and fall like a little waterfall";
+bind "kp_ins" "say It’s hard to see things when you are too close.  Take a step back and look.";
+bind "NUMLOCK" "say Go out on limb. That’s where the fruit is.";
 
 // KEYS-MOUSE
 //------------------------
@@ -221,6 +234,18 @@ alias "fixlag" "logaddress_add 1";
 alias "togglenet" "togglenet_on"
 alias "togglenet_on" "net_graph 1; alias togglenet "togglenet_off""
 alias "togglenet_off" "net_graph 0; alias togglenet "togglenet_on""
+alias "d" "disconnect"
+alias "q" "quit"
+alias "r" "retry"
+r_dynamic "1"
+cl_color "3"
+
+// Private / Focus
+//------------------------
+cl_hide_avatar_images "2"
+cl_mute_enemy_team "1"
+cl_sanitize_player_names "2"
+mm_dedicated_search_maxping "1"
 
 
 // CONFIRM AND COMMIT TO CONFIG
