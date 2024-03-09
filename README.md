@@ -1,7 +1,10 @@
 # [LichtClark.github.io]
 Welcome to my Open-Source-Website hosted by GitHub and my DNS-Provider. I came up with this idea since I was trying to host on GitHub with my domain Records.
-Shout outs to @ipv64.net
-A null plus ultra was also that I would have to pay extra for storage hosting (custom HTML aot.) and I only want to pay nothing, which is a great deal in combination with an free SSL-Cert trough - [Cloudflare-DNS-Proxy](https://www.cloudflare.com/learning/ssl/what-is-an-ssl-certificate/).
+
+
+## For private Hosting in past:
+A null plus ultra was also that I would have to pay extra for storage hosting (custom HTML aot.) and I only want to pay nothing, which is a great deal in combination with an free SSL-Cert trough - [Cloudflare-DNS-Proxy]
+(https://www.cloudflare.com/learning/ssl/what-is-an-ssl-certificate/).
 
 ## Contents:
  - [Introducion](test-seite-fuer-domain)
