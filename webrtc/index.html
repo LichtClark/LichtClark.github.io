@@ -5,7 +5,8 @@
    </head>
    <style>
       .terminal-line-cursor-effect::after {
-         content: '> _';
+         header: 100px;
+		 content: '> _';
          border: 1px solid grey;
          border-radius: 5px;
          padding: 10px 10px;
@@ -20,7 +21,8 @@
    <script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/0.7.28/ua-parser.min.js"></script>
    <body style="background-color: black; color: darkgreen;">
       <center>
-         <a class="terminal-line-cursor-effect"></a>
+         <p>----------------------------------------------------------------</p>
+		 <a class="terminal-line-cursor-effect"></a>
          <p>----------------------------------------------------------------</p>
          <br>OS: </br>
          <a id="OS"></a>
@@ -30,9 +32,6 @@
          <p>----------------------------------------------------------------</p>
          <br>Graphics Card:</br>   
          <a id="nvidia"></a> 
-         <p>----------------------------------------------------------------</p>
-         <br>Fingerprint / Supercookie:</br> 
-         <a id="fingerprint"></a> 
          <p>----------------------------------------------------------------</p>
          <br>CPU Speed:</br>   
          <a id="cpuspeed1"></a> 
@@ -74,8 +73,6 @@
          <br></br>
          <a id="browserlang"></a>
          <p>----------------------------------------------------------------</p>
-
-         <!-- New Info Section -->
          <br>Screen Resolution:</br>
          <a id="screenResolution"></a>
          <p>----------------------------------------------------------------</p>
@@ -97,6 +94,16 @@
          <br>Browser Plugins:</br>
          <a id="browserPlugins"></a>
          <p>----------------------------------------------------------------</p>
+		 <br>Do Not Track:</br>
+		 <div id="doNotTrack"></div>
+		 <p>----------------------------------------------------------------</p>
+		 <br>VR displays</br>
+		 <div id="activeVRDisplays"></div>
+		 <p>----------------------------------------------------------------</p>
+		 <br>Camera Permission:</br>
+		 <div id="cameraPermission"></div>
+		 <p>----------------------------------------------------------------</p>
+
       </center>
    </body>
    <script src="index.js"></script>
