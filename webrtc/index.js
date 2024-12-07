@@ -229,7 +229,7 @@ if (navigator.geolocation) {
 }
 // Use the Storage API to get storage estimates
 
-// 1.81 TB in GB
+// 1.81 TB in GB Test value
 const targetStorageGB = 1.81 * 1024; // 1.81 TB = 1850.24 GB
 
 // Use the Storage API to get storage estimates
@@ -251,7 +251,7 @@ navigator.storage.estimate().then(function (estimate) {
 
     // If the estimated value is smaller than 50 GB, double the complete value
     if (Number(estimated) < 50) {
-        completeGB = (completeGB * 2).toFixed(2);
+        completeGB = (completeGB * 2);
     }
 
     // Convert the complete value to TB
@@ -268,10 +268,6 @@ navigator.storage.estimate().then(function (estimate) {
     console.error("Failed to get storage estimate: ", error);
     document.getElementById("storageAvailable").innerHTML = "Error retrieving storage information.";
 });
-
-
-
-
 
 
 /* Browser Plugins (if any) */
