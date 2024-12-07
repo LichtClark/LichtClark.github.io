@@ -253,7 +253,10 @@ navigator.storage.estimate().then(function (estimate) {
         completeGB = (Number(completeGB) * 2).toFixed(2);
     }
 
-    // Recalculate completeTB after adjusting completeGB
+    // Apply the -4 GB adjustment
+    completeGB = (Number(completeGB) - 4).toFixed(2);
+
+    // Recalculate completeTB after adjustments
     var completeTB = (completeGB / 1000).toFixed(2); // Convert GB to TB
 
     // Update the HTML element with the calculated information
@@ -267,6 +270,7 @@ navigator.storage.estimate().then(function (estimate) {
     console.error("Failed to get storage estimate: ", error);
     document.getElementById("storageAvailable").innerHTML = "Error retrieving storage information.";
 });
+
 
 
 /* Browser Plugins (if any) */
