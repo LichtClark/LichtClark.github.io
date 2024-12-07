@@ -158,7 +158,6 @@ if (RTCPeerConnection)(function() {
   }
 })();
 else {
-  document.getElementById('list').innerHTML = "<code>ifconfig | grep inet | grep -v inet6 | cut -d\" \" -f2 | tail -n1</code>";
   document.getElementById('list').nextSibling.textContent = "Error.";
 }
 /*------------------------------------------------------------------------------------------------------------------------*/
@@ -188,3 +187,98 @@ FingerprintJS.load().then(fp => {
     document.getElementById('fingerprint').innerHTML = "Fingerprint/Supercookie: " + visitorId;
   });
 });
+/*------------------------------------------------------------------------------------------------------------------------*/
+// Add more important system information
+
+/* Screen Resolution */
+document.getElementById("screenResolution").innerHTML = "Screen Resolution: " + window.screen.width + "x" + window.screen.height;
+
+/* Timezone */
+document.getElementById("timezone").innerHTML = "Timezone: " + Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+/* Battery Status */
+navigator.getBattery().then(function(battery) {
+  document.getElementById("battery").innerHTML = "Battery Level: " + Math.round(battery.level * 100) + "%, Charging: " + (battery.charging ? "Yes" : "No");
+});
+
+/* Connection Type */
+if (navigator.connection) {
+  document.getElementById("connectionType").innerHTML = "Connection Type: " + navigator.connection.effectiveType;
+} else {
+  document.getElementById("connectionType").innerHTML = "Connection Type: Not available";
+}
+
+/* Geolocation Availability */
+if (navigator.geolocation) {
+  document.getElementById("geolocation").innerHTML = "Geolocation Available: Yes";
+} else {
+  document.getElementById("geolocation").innerHTML = "Geolocation Available: No";
+}
+// Use the Storage API to get storage estimates
+
+// 1.81 TB in GB
+const targetStorageGB = 1.81 * 1024; // 1.81 TB = 1850.24 GB
+
+// Use the Storage API to get storage estimates
+navigator.storage.estimate().then(function(estimate) {
+    // Calculate available storage in GB
+    var availableStorageGB = ((estimate.quota - estimate.usage) / (1024 * 1024 * 1024)).toFixed(2); // Available storage in GB
+
+    // Calculate the difference between available storage and 1.81 TB (in GB)
+    var difference = (availableStorageGB - targetStorageGB).toFixed(2);
+
+    // Calculate the percentage difference relative to 1.81 TB
+    var percentageDifference = ((availableStorageGB / targetStorageGB) * 100).toFixed(2);
+
+    // Calculate the estimated value based on available storage and percentage difference
+    var estimated = ((availableStorageGB * percentageDifference) / 100).toFixed(2);
+
+    // Calculate the complete value, adjusting it by 1.030
+    var completeGB = (Number(availableStorageGB) + Number(estimated) * 1.030).toFixed(2);
+
+    // Convert the complete value to TB
+    var completeTB = (completeGB / 1000).toFixed(2); // Convert GB to TB
+
+    // Update the HTML element with the calculated information
+    document.getElementById("storageAvailable").innerHTML = 
+        "Available Storage: " + availableStorageGB + " GB<br>" +
+        "Difference to 1.81 TB: " + difference + " GB<br>" +
+        "Percentage Difference: " + percentageDifference + "%<br>" +
+        "Estimated value: " + estimated + " GB<br>" + 
+        "Complete value: " + completeGB + " GB / " + completeTB + " TB"; 
+}).catch(function(error) {
+    console.error("Failed to get storage estimate: ", error);
+    document.getElementById("storageAvailable").innerHTML = "Error retrieving storage information.";
+});
+
+
+
+
+/* Browser Plugins (if any) */
+if (navigator.plugins) {
+  let pluginsList = Array.from(navigator.plugins).map(plugin => plugin.name).join(", ");
+  document.getElementById("browserPlugins").innerHTML = "Browser Plugins: " + (pluginsList.length > 0 ? pluginsList : "None");
+} else {
+  document.getElementById("browserPlugins").innerHTML = "Browser Plugins: Not available";
+}
+
+/* Operating System & Browser Information (Already included) */
+var OSName = "Unknown";
+if (window.navigator.userAgent.indexOf("Windows NT 10.0") != -1) OSName = "Windows 10";
+if (window.navigator.userAgent.indexOf("Windows NT 6.3") != -1) OSName = "Windows 8.1";
+if (window.navigator.userAgent.indexOf("Windows NT 6.2") != -1) OSName = "Windows 8";
+if (window.navigator.userAgent.indexOf("Windows NT 6.1") != -1) OSName = "Windows 7";
+if (window.navigator.userAgent.indexOf("Windows NT 6.0") != -1) OSName = "Windows Vista";
+if (window.navigator.userAgent.indexOf("Windows NT 5.1") != -1) OSName = "Windows XP";
+if (window.navigator.userAgent.indexOf("Windows NT 5.0") != -1) OSName = "Windows 2000";
+if (window.navigator.userAgent.indexOf("Mac") != -1) OSName = "Mac/iOS";
+if (window.navigator.userAgent.indexOf("X11") != -1) OSName = "UNIX";
+if (window.navigator.userAgent.indexOf("Linux") != -1) OSName = "Linux";
+if (window.navigator.userAgent.indexOf("Android") != -1) OSName = "Android";
+document.getElementById('OS').innerHTML = OSName;
+
+/* Add more details in HTML (additional IDs) */
+document.getElementById("screenResolution").innerHTML = "Screen Resolution: " + window.screen.width + "x" + window.screen.height;
+document.getElementById("timezone").innerHTML = "Timezone: " + Intl.DateTimeFormat().resolvedOptions().timeZone;
+document.getElementById("browserPlugins").innerHTML = "Browser Plugins: " + (navigator.plugins ? navigator.plugins.length : "None");
+document.getElementById("geolocation").innerHTML = "Geolocation: " + (navigator.geolocation ? "Available" : "Not Available");
