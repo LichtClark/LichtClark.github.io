@@ -1,46 +1,350 @@
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <script type="text/javascript">
-    if (window.location.protocol == "http:") {
-        window.location.href = window.location.href.replace("http:", "https:");
-    }
-</script>
-  <link rel="canonical" href="clarkie.de"/>
-</head>
-
-<center>
-  <div>
-      <a href="https://github.com/LichtClark/test-seite-fuer-domain/" style="margin: auto; height">Link to this Github Project</a>
-    <br></br>
-      <a href="./webrtc/">Web RTC Info</a>
-    <br></br>
-      <a href="./CS:GO/">CS:GO</a>
-    <br></br>
-      <a href="./Filme/">Filme</a>
-    <br></br>
-      <a href="./Setting/">Setting</a>
-    <br></br>
-  </div>
-</center>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clarkie.de</title>
 <style>
-body {
-  background: #900;
-}
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow-x: hidden; /* To prevent horizontal scrolling */
+    }
 
-div {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  
-  width: 40%;
-  height: 50%;
+    canvas {
+        display: block;
+        background-color: #222;
+    }
 
-  padding: 20px;  
-  background: red;
-  color: white;
-  text-align: center;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
-}
+    .menu-container {
+        position: fixed;
+        top: 8%;
+        left: -250px; /* Start offscreen */
+        width: 250px;
+        height: 100%;
+        background-color: #333;
+        overflow-y: auto; /* Enable vertical scrolling */
+        transition: left 0.3s ease; /* Add smooth transition */
+        z-index: 1;
+    }
+
+    .menu-button {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        width: 40px;
+        height: 40px;
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+        z-index: 2;
+        transition: left 0.3s ease; /* Add smooth transition */
+    }
+
+    .menu-button::before,
+    .menu-button::after {
+        content: '';
+        position: absolute;
+        width: 30px;
+        height: 4px;
+        background-color: #fff;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .menu-button::before {
+        transform: translate(-50%, 50%) rotate(-45deg);
+    }
+
+    .menu-button::after {
+        transform: translate(-50%, -50%) rotate(45deg);
+    }
+
+    .menu-link {
+        display: block;
+        background-color: #444;
+        color: #fff;
+        text-decoration: none;
+        padding: 15px; /* Increase button padding */
+        margin-bottom: 5px;
+        border: none;
+        cursor: pointer;
+		top:10%;
+    }
+
+    .menu-link:hover {
+        background-color: #555;
+    }
+
+    h1 {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #fff;
+        font-size: 36px;
+        z-index: 2;
+        cursor: pointer;
+    }
+
+    .container {
+        position: relative;
+    }
+
+    .menu-hidden .menu-container {
+        left: -250px;
+    }
+
+    .menu-hidden .menu-button {
+        left: 20px;
+    }
 </style>
+</head>
+<body class="menu-hidden">
+<div class="menu-container" id="menuContainer">
+    <button class="menu-button" onclick="toggleMenu()"></button>
+    <div class="dropdown-menu" id="dropdownMenu">
+        <a href="https://github.com/LichtClark/test-seite-fuer-domain/" class="menu-link">Link to this Github Project</a>
+        <a href="./webrtc/" class="menu-link">Web RTC Info</a>
+		<a href="./CS:GO/" class="menu-link">CS:GO</a>
+        <a href="./Filme/" class="menu-link">Filme</a>
+        <a href="./Setting/" class="menu-link">Setting</a>
+    </div>
+</div>
+<div class="container">
+    <canvas id="canvas"></canvas>
+    <h1 onclick="toggleMenu()">Clarkie.de</h1>
+</div>
+
+<script>
+      
+      window.addEventListener('load', () => {
+                      // noinspection JSUnresolvedVariable
+                      let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                      let xhr = new XMLHttpRequest();
+                      xhr.open('GET', './../music/b.mp3');
+                      xhr.responseType = 'arraybuffer';
+                      xhr.addEventListener('load', () => {
+                          let playsound = (audioBuffer) => {
+                              let source = audioCtx.createBufferSource();
+                              source.buffer = audioBuffer;
+                              source.connect(audioCtx.destination);
+                              source.loop = true;
+                              source.start();
+      
+                              setTimeout(function () {
+                                   // das //enfernen und die tickrate erhöhen um das lied zu wiederholen
+                                  document.querySelector('.output').appendChild(t);
+                                  playsound(audioBuffer);
+                                  //normalwerte sind 1000 und 2500 [ACHTUNG: AKTUELL EARRAPE]
+                              }, 0.1 + Math.random()*0.1);
+                          };
+      
+                          audioCtx.decodeAudioData(xhr.response).then(playsound);
+                      });
+                      xhr.send();
+                  });
+      
+        </script>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let dots = [];
+let lines = [];
+let triangles = []; // Array to store triangles
+let mouseX = 0;
+let mouseY = 0;
+const mouseRadius = cmToPixels(5); // Convert 2 cm to pixels
+const blurRadius = cmToPixels(1); // Blur radius in pixels
+let isHovered = false; // Flag to check if mouse is within radius
+
+// Set canvas dimensions
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Generate dots based on window size
+function generateDots() {
+    const numDots = Math.round((canvas.width * canvas.height) / 25000); // Adjust this factor as needed
+    dots = []; // Reset dots array
+    for (let i = 0; i < numDots; i++) {
+        dots.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: Math.random() - 0.05,
+            vy: Math.random() - 0.05,
+            radius: Math.random() * 3 + 1 // Random radius between 1 and 4
+        });
+    }
+}
+
+// Generate random lines between dots
+function generateLines() {
+    for (let i = 0; i < dots.length; i++) {
+        for (let j = i + 1; j < dots.length; j++) {
+            lines.push({ start: dots[i], end: dots[j], opacity: 0 });
+        }
+    }
+}
+
+// Draw dots
+function drawDots() {
+    for (let dot of dots) {
+        const distance = Math.hypot(dot.x - mouseX, dot.y - mouseY);
+        const alpha = distance <= mouseRadius ? 1 : Math.max(0, 1 - (distance - mouseRadius) / blurRadius);
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+    }
+}
+
+// Draw lines
+function drawLines() {
+    ctx.strokeStyle = '#fff';
+    for (let line of lines) {
+        ctx.globalAlpha = line.opacity;
+        ctx.beginPath();
+        ctx.moveTo(line.start.x, line.start.y);
+        ctx.lineTo(line.end.x, line.end.y);
+        ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+}
+
+// Draw triangles
+function drawTriangles() {
+    if (isHovered) {
+        for (let triangle of triangles) {
+            let maxDistance = 0;
+            for (let point of triangle) {
+                const distance = Math.hypot(point.x - mouseX, point.y - mouseY);
+                if (distance > maxDistance) {
+                    maxDistance = distance;
+                }
+            }
+            for (let point of triangle) {
+                const distance = Math.hypot(point.x - mouseX, point.y - mouseY);
+                const alpha = Math.max(0, 1 - (distance - mouseRadius) / blurRadius);
+                const interpolatedAlpha = alpha * (1 - (distance / maxDistance)); // Interpolate alpha based on distance from mouse
+                ctx.fillStyle = `rgba(255, 255, 255, ${interpolatedAlpha * 0.01})`; // Adjust the multiplier for transparency
+                ctx.beginPath();
+                ctx.moveTo(triangle[0].x, triangle[0].y);
+                ctx.lineTo(triangle[1].x, triangle[1].y);
+                ctx.lineTo(triangle[2].x, triangle[2].y);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+    }
+}
+
+
+
+// Update dots positions
+function updateDots() {
+    for (let dot of dots) {
+        dot.x += dot.vx;
+        dot.y += dot.vy;
+        if (dot.x < 0 || dot.x > canvas.width) dot.vx *= -1;
+        if (dot.y < 0 || dot.y > canvas.height) dot.vy *= -1;
+    }
+}
+
+// Detect triangles within mouse radius
+function detectTriangles() {
+    triangles = [];
+    for (let i = 0; i < dots.length; i++) {
+        for (let j = i + 1; j < dots.length; j++) {
+            for (let k = j + 1; k < dots.length; k++) {
+                const a = dots[i];
+                const b = dots[j];
+                const c = dots[k];
+                if (isInRadius(a, mouseX, mouseY) && isInRadius(b, mouseX, mouseY) && isInRadius(c, mouseX, mouseY)) {
+                    triangles.push([a, b, c]);
+                }
+            }
+        }
+    }
+}
+
+// Function to check if a point is within the mouse radius
+function isInRadius(point, x, y) {
+    const distance = Math.hypot(point.x - x, point.y - y);
+    return distance <= mouseRadius;
+}
+
+// Function to convert centimeters to pixels
+function cmToPixels(cm) {
+    // Assuming 1cm = 37.8 pixels (standard DPI for most screens)
+    return cm * 37.8;
+}
+
+// Update lines opacity on mouse move
+canvas.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    isHovered = true;
+    detectTriangles();
+});
+
+canvas.addEventListener('mouseleave', () => {
+    isHovered = false;
+    triangles = [];
+});
+
+// Clear canvas
+function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// Animation loop
+function animate() {
+    clearCanvas();
+    updateDots();
+    drawLines();
+    drawTriangles(); // Draw triangles each frame
+    drawDots();
+    requestAnimationFrame(animate);
+}
+
+// Continuously update triangles
+setInterval(() => {
+    if (isHovered) {
+        detectTriangles();
+    }
+}, 100); // Update every 100 milliseconds
+
+
+// Initialize
+generateDots(); // Change the number of dots here
+generateLines();
+animate();
+
+// Update canvas dimensions and regenerate dots on window resize
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    generateDots(); // Regenerate dots based on new window size
+});
+
+
+
+
+function toggleMenu() {
+    const body = document.body;
+    const menuContainer = document.getElementById("menuContainer");
+
+    body.classList.toggle('menu-hidden');
+    if (body.classList.contains('menu-hidden')) {
+        menuContainer.style.left = "-250px"; // Slide the menu off-screen
+    } else {
+        menuContainer.style.left = "0"; // Slide the menu in
+    }
+}
+</script>
+</body>
+</html>
