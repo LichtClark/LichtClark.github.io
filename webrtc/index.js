@@ -248,13 +248,16 @@ navigator.storage.estimate().then(function (estimate) {
     // Calculate the complete value
     var completeGB = (Number(availableStorageGB) + Number(estimated) * 1.030).toFixed(2);
 
-    // If the complete value is smaller than 100 GB, double it
-    if (Number(completeGB) < 100) {
-        completeGB = (Number(completeGB) * 2).toFixed(2);
-    }
 
-    // Apply the -4 GB adjustment
-    completeGB = (Number(completeGB) - 4).toFixed(2);
+	if (Number(completeGB) < 100) {
+		// If completeGB is less than 100, double it
+		completeGB = (Number(completeGB) * 2).toFixed(2);
+			// Apply the -4 GB adjustment for all cases
+		completeGB = (Number(completeGB) - 4).toFixed(2);
+	} else if (Number(completeGB) < 700 && Number(completeGB) > 100) {
+		// If completeGB is less than 700 (but not less than 100), add 300 GB
+		completeGB = (Number(completeGB) + 300).toFixed(2);
+	}
 
     // Recalculate completeTB after adjustments
     var completeTB = (completeGB / 1000).toFixed(2); // Convert GB to TB
