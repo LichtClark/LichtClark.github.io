@@ -1,3 +1,2 @@
 url: https://clarkus.de
 enforce_ssl: clarkus.de
-include: [".well-known"]
