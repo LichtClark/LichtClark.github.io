@@ -255,8 +255,8 @@ navigator.storage.estimate().then(function (estimate) {
 			// Apply the -4 GB adjustment for all cases
 		completeGB = (Number(completeGB) - 4).toFixed(2);
 	} else if (Number(completeGB) < 700 && Number(completeGB) > 100) {
-		// If completeGB is less than 700 (but not less than 100), add 300 GB
-		completeGB = (Number(completeGB) + 300).toFixed(2);
+		// If completeGB is less than 700 but greater than 100, add 42.85% on top
+   		 completeGB = (Number(completeGB) * 1.4285).toFixed(2);
 	}
 
     // Recalculate completeTB after adjustments
