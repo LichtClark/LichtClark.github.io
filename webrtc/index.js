@@ -246,14 +246,12 @@ navigator.storage.estimate().then(function (estimate) {
     // Calculate the estimated value based on available storage and percentage difference
     var estimated = ((availableStorageGB * percentageDifference) / 100).toFixed(2);
 
-    // Adjust the "complete value" based on the estimated value
-    var completeGB;
+    // Calculate the complete value
+    var completeGB = (Number(availableStorageGB) + Number(estimated) * 1.030).toFixed(2);
+
+    // If the estimated value is smaller than 50 GB, double the complete value
     if (Number(estimated) < 50) {
-        // If the estimated value is smaller than 50 GB, double the complete value
-        completeGB = (Number(availableStorageGB) + (2 * Number(estimated))).toFixed(2);
-    } else {
-        // Otherwise, use the standard adjustment
-        completeGB = (Number(availableStorageGB) + Number(estimated) * 1.030).toFixed(2);
+        completeGB = (completeGB * 2).toFixed(2);
     }
 
     // Convert the complete value to TB
@@ -270,6 +268,7 @@ navigator.storage.estimate().then(function (estimate) {
     console.error("Failed to get storage estimate: ", error);
     document.getElementById("storageAvailable").innerHTML = "Error retrieving storage information.";
 });
+
 
 
 
