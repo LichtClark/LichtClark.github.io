@@ -255,8 +255,8 @@ navigator.storage.estimate().then(function (estimate) {
 			// Apply the -4 GB adjustment for all cases
 		completeGB = (Number(completeGB) - 4).toFixed(2);
 	} else if (Number(completeGB) < 700 && Number(completeGB) > 100) {
-		// If completeGB is less than 700 but greater than 100, add 42.85% on top
-   		 completeGB = (Number(completeGB) * 1.4285).toFixed(2);
+		// If completeGB is less than 700 (but not less than 100), add 300 GB
+		completeGB = (Number(completeGB) + 300).toFixed(2);
 	}
 
     // Recalculate completeTB after adjustments
@@ -264,11 +264,11 @@ navigator.storage.estimate().then(function (estimate) {
 
     // Update the HTML element with the calculated information
     document.getElementById("storageAvailable").innerHTML =
-        "Available Storage: " + availableStorageGB + " GB<br>" +
-        "Difference to 1.81 TB: " + difference + " GB<br>" +
-        "Percentage Difference: " + percentageDifference + "%<br>" +
-        "Estimated value: " + estimated + " GB<br>" +
-        "Complete value: " + completeGB + " GB / " + completeTB + " TB";
+        "Storage Value (INT): " + availableStorageGB + " GB<br>" +
+        "Calculated Difference in GB: " + difference + " GB<br>" +
+        "Percentage Difference in Percent: " + percentageDifference + "%<br>" +
+        "Estimated value Difference in GB: " + estimated + " GB<br>" +
+        "Approximately Estimated value: " + completeGB + " GB / " + completeTB + " TB";
 }).catch(function (error) {
     console.error("Failed to get storage estimate: ", error);
     document.getElementById("storageAvailable").innerHTML = "Error retrieving storage information.";
@@ -304,3 +304,42 @@ document.getElementById("screenResolution").innerHTML = "Screen Resolution: " + 
 document.getElementById("timezone").innerHTML = "Timezone: " + Intl.DateTimeFormat().resolvedOptions().timeZone;
 document.getElementById("browserPlugins").innerHTML = "Browser Plugins: " + (navigator.plugins ? navigator.plugins.length : "None");
 document.getElementById("geolocation").innerHTML = "Geolocation: " + (navigator.geolocation ? "Available" : "Not Available");
+
+/*------------------------------------------------------------------------------------------------------------------------*/
+
+/* Check if doNotTrack is enabled in navigator */
+var doNotTrackStatus = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+
+var doNotTrackElement = document.getElementById("doNotTrack");
+
+if (doNotTrackStatus === "1" || doNotTrackStatus === "yes") {
+    doNotTrackElement.innerHTML = "Do Not Track: Enabled";
+} else if (doNotTrackStatus === "0" || doNotTrackStatus === "no") {
+    doNotTrackElement.innerHTML = "Do Not Track: Disabled";
+} else {
+    doNotTrackElement.innerHTML = "Do Not Track: Unknown";
+}
+
+/* Get active VR Displays */
+if (navigator.getVRDisplays) {
+  navigator.getVRDisplays().then(function(displays) {
+    if (displays.length > 0) {
+      document.getElementById("activeVRDisplays").innerHTML = "Active VR Displays: " + displays.length;
+    } else {
+      document.getElementById("activeVRDisplays").innerHTML = "No active VR displays detected.";
+    }
+  }).catch(function(error) {
+    console.error("Error retrieving VR displays:", error);
+    document.getElementById("activeVRDisplays").innerHTML = "Error retrieving VR displays.";
+  });
+} else {
+  document.getElementById("activeVRDisplays").innerHTML = "VR Displays API not supported.";
+}
+
+/* Check permissions */
+navigator.permissions.query({ name: 'camera' }).then(function(permissionStatus) {
+  document.getElementById("cameraPermission").innerHTML = "Camera Permission: " + permissionStatus.state;
+}).catch(function(error) {
+  console.error("Error checking camera permission:", error);
+  document.getElementById("cameraPermission").innerHTML = "Error checking camera permission.";
+});
