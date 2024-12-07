@@ -213,7 +213,6 @@ if (navigator.getBattery) {
     document.getElementById("battery").innerHTML = "Battery status API is not supported by your browser.";
 }
 
-
 /* Connection Type */
 if (navigator.connection) {
   document.getElementById("connectionType").innerHTML = "Connection Type: " + navigator.connection.effectiveType;
@@ -236,7 +235,7 @@ const targetStorageGB = 1.81 * 1024; // 1.81 TB = 1850.24 GB
 navigator.storage.estimate().then(function (estimate) {
     // Calculate available storage in GB
     var availableStorageGB = ((estimate.quota - estimate.usage) / (1024 * 1024 * 1024)).toFixed(2); // Available storage in GB
-	
+
     // Calculate the difference between available storage and 1.81 TB (in GB)
     var difference = (availableStorageGB - targetStorageGB).toFixed(2);
 
@@ -249,13 +248,13 @@ navigator.storage.estimate().then(function (estimate) {
     // Calculate the complete value
     var completeGB = (Number(availableStorageGB) + Number(estimated) * 1.030).toFixed(2);
 
-    // Convert the complete value to TB
-    var completeTB = (completeGB / 1000).toFixed(2); // Convert GB to TB
-
-// If the estimated value is smaller than 50 GB, double the complete value
+    // If the complete value is smaller than 100 GB, double it
     if (Number(completeGB) < 100) {
-        completeGB = (completeGB * 2);
+        completeGB = (Number(completeGB) * 2).toFixed(2);
     }
+
+    // Recalculate completeTB after adjusting completeGB
+    var completeTB = (completeGB / 1000).toFixed(2); // Convert GB to TB
 
     // Update the HTML element with the calculated information
     document.getElementById("storageAvailable").innerHTML =
@@ -268,6 +267,7 @@ navigator.storage.estimate().then(function (estimate) {
     console.error("Failed to get storage estimate: ", error);
     document.getElementById("storageAvailable").innerHTML = "Error retrieving storage information.";
 });
+
 
 /* Browser Plugins (if any) */
 if (navigator.plugins) {
