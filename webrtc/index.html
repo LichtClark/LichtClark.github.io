@@ -3,10 +3,32 @@
       <title></title>
       <meta http-equiv="refresh" content="100">
    </head>
-   <body style="background-color:#grey;">
+   <style>
+  .terminal-line-cursor-effect::after {
+  content: '> _';
+  border: 1px solid grey;
+  border-radius: 5px;
+  padding: 10px 10px;
+  animation: animate 1.5s linear infinite;
+}
+
+@keyframes animate {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+   </style>
+   <body  style="background-color: black; color: darkgreen;">
          <a href="./../../">Startseite</a>
     <br></br>
       <center>
+	     <a class="terminal-line-cursor-effect";></a>
          <p>----------------------------------------------------------------</p>
          <br>OS: </br>
          <a id="OS"></a>
