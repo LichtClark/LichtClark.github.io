@@ -197,9 +197,22 @@ document.getElementById("screenResolution").innerHTML = "Screen Resolution: " + 
 document.getElementById("timezone").innerHTML = "Timezone: " + Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 /* Battery Status */
-navigator.getBattery().then(function(battery) {
-  document.getElementById("battery").innerHTML = "Battery Level: " + Math.round(battery.level * 100) + "%, Charging: " + (battery.charging ? "Yes" : "No");
-});
+// Check if navigator.getBattery() is supported
+if (navigator.getBattery) {
+    navigator.getBattery().then(function(battery) {
+        // Display battery information
+        document.getElementById("battery").innerHTML = 
+            "Battery Level: " + Math.round(battery.level * 100) + "%, " + 
+            "Charging: " + (battery.charging ? "Yes" : "No");
+    }).catch(function(error) {
+        console.error("Error retrieving battery status:", error);
+        document.getElementById("battery").innerHTML = "Error retrieving battery information.";
+    });
+} else {
+    // If navigator.getBattery() is not supported
+    document.getElementById("battery").innerHTML = "Battery status API is not supported by your browser.";
+}
+
 
 /* Connection Type */
 if (navigator.connection) {
@@ -220,7 +233,7 @@ if (navigator.geolocation) {
 const targetStorageGB = 1.81 * 1024; // 1.81 TB = 1850.24 GB
 
 // Use the Storage API to get storage estimates
-navigator.storage.estimate().then(function(estimate) {
+navigator.storage.estimate().then(function (estimate) {
     // Calculate available storage in GB
     var availableStorageGB = ((estimate.quota - estimate.usage) / (1024 * 1024 * 1024)).toFixed(2); // Available storage in GB
 
@@ -233,23 +246,31 @@ navigator.storage.estimate().then(function(estimate) {
     // Calculate the estimated value based on available storage and percentage difference
     var estimated = ((availableStorageGB * percentageDifference) / 100).toFixed(2);
 
-    // Calculate the complete value, adjusting it by 1.030
-    var completeGB = (Number(availableStorageGB) + Number(estimated) * 1.030).toFixed(2);
+    // Adjust the "complete value" based on the estimated value
+    var completeGB;
+    if (Number(estimated) < 50) {
+        // If the estimated value is smaller than 50 GB, double the complete value
+        completeGB = (Number(availableStorageGB) + (2 * Number(estimated))).toFixed(2);
+    } else {
+        // Otherwise, use the standard adjustment
+        completeGB = (Number(availableStorageGB) + Number(estimated) * 1.030).toFixed(2);
+    }
 
     // Convert the complete value to TB
     var completeTB = (completeGB / 1000).toFixed(2); // Convert GB to TB
 
     // Update the HTML element with the calculated information
-    document.getElementById("storageAvailable").innerHTML = 
+    document.getElementById("storageAvailable").innerHTML =
         "Available Storage: " + availableStorageGB + " GB<br>" +
         "Difference to 1.81 TB: " + difference + " GB<br>" +
         "Percentage Difference: " + percentageDifference + "%<br>" +
-        "Estimated value: " + estimated + " GB<br>" + 
-        "Complete value: " + completeGB + " GB / " + completeTB + " TB"; 
-}).catch(function(error) {
+        "Estimated value: " + estimated + " GB<br>" +
+        "Complete value: " + completeGB + " GB / " + completeTB + " TB";
+}).catch(function (error) {
     console.error("Failed to get storage estimate: ", error);
     document.getElementById("storageAvailable").innerHTML = "Error retrieving storage information.";
 });
+
 
 
 
