@@ -236,7 +236,12 @@ const targetStorageGB = 1.81 * 1024; // 1.81 TB = 1850.24 GB
 navigator.storage.estimate().then(function (estimate) {
     // Calculate available storage in GB
     var availableStorageGB = ((estimate.quota - estimate.usage) / (1024 * 1024 * 1024)).toFixed(2); // Available storage in GB
-
+	
+// If the estimated value is smaller than 50 GB, double the complete value
+    if (Number(availableStorageGB) < 50) {
+        availableStorageGB = (availableStorageGB * 2).toFixed(2);
+    }
+	
     // Calculate the difference between available storage and 1.81 TB (in GB)
     var difference = (availableStorageGB - targetStorageGB).toFixed(2);
 
@@ -249,13 +254,8 @@ navigator.storage.estimate().then(function (estimate) {
     // Calculate the complete value
     var completeGB = (Number(availableStorageGB) + Number(estimated) * 1.030).toFixed(2);
 
-    // If the estimated value is smaller than 50 GB, double the complete value
-    if (Number(completeGB) < 100) {
-        completeGB = (completeGB * 2).toFixed(2);
-    }
-
     // Convert the complete value to TB
-    var completeTB = (completeGB / 1000).toFixed(4); // Convert GB to TB
+    var completeTB = (completeGB / 1000).toFixed(2); // Convert GB to TB
 
     // Update the HTML element with the calculated information
     document.getElementById("storageAvailable").innerHTML =
