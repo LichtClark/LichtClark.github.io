@@ -100,6 +100,69 @@
     .menu-hidden .menu-button {
         left: 20px;
     }
+	
+    /* Styling für das Overlay */
+    .overlay {
+      display: none; /* Overlay ist zu Beginn unsichtbar */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6); /* Dunkler Hintergrund */
+      color: white;
+      z-index: 1000; /* Stellt sicher, dass es oben bleibt */
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Das eigentliche Fenster (Box) */
+    .window-box {
+      background-color: #333;
+      color: white;
+      width: 400px;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+      text-align: center;
+    }
+
+    /* Der Container für den Hinweis */
+    .overlay-content {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    /* Styling für den Button */
+    .overlay button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 15px 30px;
+      border: 2px solid #4CAF50; /* Boxartiger Rand */
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 5px;
+      text-transform: uppercase;
+      transition: all 0.3s ease; /* Für sanfte Übergänge */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Leichter Schatten */
+    }
+
+    /* Hover-Effekt für den Button */
+    .overlay button:hover {
+      background-color: #45a049;
+      border-color: #45a049; /* Randfarbe ändert sich */
+      transform: scale(1.05); /* Button wächst leicht */
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Stärkerer Schatten */
+    }
+
+    /* Focus-Effekt für den Button */
+    .overlay button:focus {
+      outline: none; /* Entfernt den Standardfokusrahmen */
+      box-shadow: 0 0 0 3px rgba(72, 177, 72, 0.5); /* Grüner Fokusrahmen */
+    }
 </style>
 </head>
 <body class="menu-hidden">
@@ -107,7 +170,7 @@
     <button class="menu-button" onclick="toggleMenu()"></button>
     <div class="dropdown-menu" id="dropdownMenu">
         <a href="https://github.com/LichtClark/test-seite-fuer-domain/" class="menu-link">Link to this Github Project</a>
-        <a href="./webrtc/" class="menu-link">Web RTC Info</a>
+        <a href="javascript:void(0)" class="menu-link" id="webrtcLink">Web RTC Info</a>
 		<a href="./CS:GO/" class="menu-link">CS:GO</a>
         <a href="./Filme/" class="menu-link">Filme</a>
         <a href="./Setting/" class="menu-link">Setting</a>
@@ -118,8 +181,44 @@
     <h1 onclick="toggleMenu()">Clarkie.de</h1>
 </div>
 
+ <!-- Overlay Hinweis -->
+<div class="overlay" id="overlay">
+    <div class="window-box">
+        <div class="overlay-content">
+            <p>Bevor Sie fortfahren, möchten wir Sie darauf hinweisen, dass Sie auf eine Seite zugreifen, die Daten zu Ihrem Gerät sammeln könnte. Um fortzufahren, müssen Sie bestätigen, dass Sie unsere <a href="path/to/privacy-policy.html" target="_blank">Datenschutzerklärung</a> gelesen und verstanden haben.</p>
+            <label>
+                <input type="checkbox" id="privacyConsent" required> Ich habe die Datenschutzerklärung gelesen und akzeptiere diese.
+            </label>
+        </div>
+        <button id="confirmButton" disabled>Bestätigen und fortfahren</button>
+    </div>
+</div>
+
+
 <script>
-      
+// Initially, the overlay is hidden
+    document.getElementById('overlay').style.display = 'none';
+
+    // Variable to track if the overlay has been shown before
+    let overlayShown = false;
+
+    // Function to show the overlay when the link is clicked
+    document.getElementById('webrtcLink').addEventListener('click', function() {
+      if (!overlayShown) {
+        // Show the overlay only when clicked for the first time
+        document.getElementById('overlay').style.display = 'flex';
+        overlayShown = true;
+      }
+    });
+
+    // Function to hide the overlay and redirect after confirmation
+    document.getElementById('confirmButton').addEventListener('click', function() {
+      // Hide the overlay
+      document.getElementById('overlay').style.display = 'none';
+      // Redirect to the WebRTC page
+      window.location.href = './webrtc/'; // Relative URL for redirection
+    });
+	
       window.addEventListener('load', () => {
                       // noinspection JSUnresolvedVariable
                       let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -345,6 +444,16 @@ function toggleMenu() {
         menuContainer.style.left = "0"; // Slide the menu in
     }
 }
+
+  // Auswahl der Checkbox und des Bestätigungsbuttons
+    const checkbox = document.getElementById('privacyConsent');
+    const confirmButton = document.getElementById('confirmButton');
+
+    // Eventlistener für die Checkbox
+    checkbox.addEventListener('change', () => {
+        confirmButton.disabled = !checkbox.checked;
+    });
+
 </script>
 </body>
 </html>
