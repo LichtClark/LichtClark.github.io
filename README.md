@@ -113,16 +113,17 @@ This project draws inspiration from the GitHub Pages documentation and the broad
 This open-source website is provided for educational and research purposes only. The owner assumes no responsibility for any misuse or damage resulting from the use of this information. All actions on this site may be logged for security purposes.
 
 ## Citations
-[1] https://www.blunix.com/blog/how-to-configure-a-hetzner-domains-dns-records-for-cloudflare.html
-[2] https://www.reddit.com/r/hetzner/comments/18czutm/i_want_to_use_cloudflare_with_hetzner/
-[3] https://community.cloudflare.com/t/setup-cloudflare-on-hetzner/59595
-[4] https://www.reddit.com/r/hetzner/comments/18wy2l8/migrate_dns_from_hetzner_to_cloudflare/?tl=de
-[5] https://community.cloudflare.com/t/trying-to-set-up-domain-on-hetzner-nginx-box/316006
-[6] https://www.hetzner.com/dns-console/
-[7] https://www.webhostingtalk.com/showthread.php?t=1897662
-[8] https://www.reddit.com/r/hetzner/comments/18wy2l8/migrate_dns_from_hetzner_to_cloudflare/
-[9] https://community.cloudflare.com/t/configure-ptr-record-in-hetzner-for-cloudflare/635898
 
+1. https://www.blunix.com/blog/how-to-configure-a-hetzner-domains-dns-records-for-cloudflare.html
+2. https://www.reddit.com/r/hetzner/comments/18czutm/i_want_to_use_cloudflare_with_hetzner/
+3. https://community.cloudflare.com/t/setup-cloudflare-on-hetzner/59595
+4. https://www.reddit.com/r/hetzner/comments/18wy2l8/migrate_dns_from_hetzner_to_cloudflare/?tl=de
+5. https://community.cloudflare.com/t/trying-to-set-up-domain-on-hetzner-nginx-box/316006
+6. https://www.hetzner.com/dns-console/
+7. https://www.webhostingtalk.com/showthread.php?t=1897662
+8. https://www.reddit.com/r/hetzner/comments/18wy2l8/migrate_dns_from_hetzner_to_cloudflare/
+9. https://community.cloudflare.com/t/configure-ptr-record-in-hetzner-for-cloudflare/635898
+ 
 
 ## License
 
