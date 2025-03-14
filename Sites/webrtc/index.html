@@ -1,0 +1,116 @@
+<html>
+   <head>
+      <title>System Information</title>
+      <meta http-equiv="refresh" content="100">
+      <link rel="shortcut icon" type="image/x-icon" href="./../favicon.ico" />
+   </head>
+   <style>
+      .terminal-line-cursor-effect::after {
+         header: 100px;
+		 content: '> _';
+         border: 1px solid grey;
+         border-radius: 5px;
+         padding: 10px 10px;
+         animation: animate 1.5s linear infinite;
+      }
+      @keyframes animate {
+         0% { opacity: 0; }
+         50% { opacity: 0.7; }
+         100% { opacity: 0; }
+      }
+   </style>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/0.7.28/ua-parser.min.js"></script>
+   <body style="background-color: black; color: darkgreen;">
+      <center>
+         <p>---------------------------------------------------------------</p>
+		 <a class="terminal-line-cursor-effect"></a>
+         <p>---------------------------------------------------------------</p>
+         <br>OS: </br>
+         <a id="OS"></a>
+         <p>---------------------------------------------------------------</p>
+         <br>External IP:</br>
+         <a id="ip"></a>
+		 <br>City, Country:</br>
+		 <a id="city"></a>
+         <p>---------------------------------------------------------------</p>
+         <br>Graphics Card:</br>   
+         <a id="nvidia"></a> 
+         <p>---------------------------------------------------------------</p>
+	 <br>Fingerprint / Supercookie:</br>
+         <a id="fingerprint"></a>
+         <p>---------------------------------------------------------------</p>
+         <br>CPU Speed:</br>   
+         <a id="cpuspeed1"></a> 
+         <p></p>
+         <a id="cpuspeed1.2"></a>
+         <p></p>
+         <a id="cpuspeed2"></a>
+         <p></p>
+         <a id="cputhread"></a>
+         <p>---------------------------------------------------------------</p>
+         <br>Time: </br>
+         <a id="time"></a>
+         <p>---------------------------------------------------------------</p>
+         <br>Date: </br>
+         <a id="date"></a>
+         <p>---------------------------------------------------------------</p>
+         <br>Browser Info:</br>
+         <a id="browserlang"></a>
+         <br></br>
+         <a id="iscookie"></a>
+         <br></br>
+         <a id="isappname"></a>
+         <br></br>
+         <a id="isappcodename"></a>
+         <br></br>
+         <a id="isprod"></a>
+         <br></br>
+         <a id="isappver"></a>
+         <br></br>
+         <a id="isuseragent"></a>
+         <br></br>
+         <a id="isplatfrom"></a>
+         <br></br>
+         <a id="islanguage"></a>
+         <br></br>
+         <a id="isonline"></a>
+         <br></br>
+         <a id="isjava"></a>
+         <br></br>
+         <a id="browserlang"></a>
+         <p>---------------------------------------------------------------</p>
+         <br>Screen Resolution:</br>
+         <a id="screenResolution"></a>
+         <p>---------------------------------------------------------------</p>
+         <br>Timezone:</br>
+         <a id="timezone"></a>
+         <p>---------------------------------------------------------------</p>
+         <br>Battery Status:</br>
+         <a id="battery"></a>
+         <p>---------------------------------------------------------------</p>
+         <br>Connection Type:</br>
+         <a id="connectionType"></a>
+         <p>---------------------------------------------------------------</p>
+         <br>Geolocation:</br>
+         <a id="geolocation"></a>
+         <p>---------------------------------------------------------------</p>
+         <br>Available Storage:</br>
+         <a id="storageAvailable"></a>
+         <p>---------------------------------------------------------------</p>
+         <br>Browser Plugins:</br>
+         <a id="browserPlugins"></a>
+         <p>---------------------------------------------------------------</p>
+		 <br>Do Not Track:</br>
+		 <div id="doNotTrack"></div>
+		 <p>---------------------------------------------------------------</p>
+		 <br>VR displays</br>
+		 <div id="activeVRDisplays"></div>
+		 <p>---------------------------------------------------------------</p>
+		 <br>Camera Permission:</br>
+		 <div id="cameraPermission"></div>
+		 <p>---------------------------------------------------------------</p>
+
+      </center>
+   </body>
+   <script src="index.js"></script>
+</html>
