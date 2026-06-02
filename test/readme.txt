@@ -1,3 +1,3 @@
 #clear
-irm https://clarkie.de/test/clear.ps1 | iex
-iex (irm 'https://clarkie.de/clean-net.ps1')
+irm https://clarkie.de/test/net.ps1 | iex
+iex (irm 'https://clarkie.de/net.ps1')
