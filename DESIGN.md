@@ -77,6 +77,29 @@ Die Label-Bereinigung entfernt nur exakt das in `data-strip` genannte englische 
 Felder ohne `data-strip` — Speicher, externe IP, Uhrzeit, Datum, Grafikkarte,
 Schleifendurchlauf — bleiben unangetastet.
 
+## Wichtig beim Ändern: Versionsmarke hochzählen
+
+GitHub Pages liefert Skripte und Stylesheets mit `Cache-Control: max-age=14400` aus — vier
+Stunden. Ohne Gegenmaßnahme ist jede Änderung an `assets/*.js`, `assets/style.css` oder
+`webrtc/index.js` für Besucher stundenlang unsichtbar, während der Server längst die neue
+Fassung hat. Genau das hat hier mehrfach zu „ist immer noch falsch“ geführt, obwohl der
+Code stimmte.
+
+Deshalb hängt an jeder eigenen Datei eine Versionsmarke:
+
+```html
+<link rel="stylesheet" href="assets/style.css?v=20260728a">
+<script src="index.js?v=20260728a"></script>
+```
+
+**Nach jeder Änderung an CSS oder JS die Marke in allen HTML-Dateien hochzählen**, sonst
+sehen Besucher weiter die alte Datei. Das HTML selbst wird nur zehn Minuten
+zwischengespeichert und kommt schnell genug durch.
+
+```bash
+find . -name "*.html" -print0 | xargs -0 sed -i 's/?v=20260728a/?v=20260729a/g'
+```
+
 ## Struktur
 
 ```
