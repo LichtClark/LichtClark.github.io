@@ -25,17 +25,20 @@ Menü. Alles andere wurde auf ein gemeinsames System umgestellt.
 
 * **Externe IP unverändert** — weiterhin das Ergebnis der Cloudflare-Abfrage aus `index.js`.
   Zusätzlich zwei neue Zeilen **IPv4** und **IPv6**, getrennt über `icanhazip.com` (Cloudflare).
-* **Speicher: Originalrechnung, um einen zweiten Bezugswert ergänzt.** Der Rechenweg ist
-  unverändert; er läuft jetzt gegen zwei Bezugsgrößen — 1,81 TB (PC) und 256 GB (Handy).
-  Beide Blöcke stehen untereinander in der Karte.
+* **Speicher: Originalrechnung, Schlusszeile über die Geräteklasse.** Die Zwischenzeilen
+  rechnen unverändert wie früher. Die Schlusszeile kann aber nicht aus dem Kontingent
+  stammen: Chromium meldet dort seit der Umstellung auf ein „predictable quota“ fest
+  `Belegung + 10 GiB`, unabhängig vom Datenträger — eingeführt, damit sich
+  Inkognito-Fenster nicht mehr am kleineren Kontingent erkennen lassen. Gemessen wurden
+  9,00 GiB auf dem 2-TB-Rechner und 9,68 GiB auf dem 256-GB-Handy. Praktisch derselbe Wert
+  bei achtfach verschiedener Platte; keine Formel macht daraus zwei Größen. Die
+  60-%-Angabe bei MDN ist überholt.
 
-  Zur Einordnung, weil es beim Lesen der Zahlen hilft: die Plattengröße lässt sich daraus
-  nicht ableiten. Chromium meldet seit der Umstellung auf ein „predictable quota“ fest
-  `Belegung + 10 GiB`, unabhängig vom Datenträger — eingeführt, damit sich Inkognito-Fenster
-  nicht mehr am kleineren Kontingent erkennen lassen. Gemessen: ein 256-GB-Handy meldet
-  9,67 GiB, ein 2-TB-PC 10,00 GiB, dieser Entwicklungsrechner 9,08 GiB bei 1863 GiB Platte.
-  Gleiche Eingabe bei achtfach verschiedener Plattengröße. Die 60-%-Angabe bei MDN ist
-  überholt.
+  Deshalb wird die Geräteklasse erkannt (`userAgentData.mobile`, ersatzweise der
+  User-Agent) und der hinterlegte Bezugswert eingesetzt: 1,81 TB für Rechner, 256 GB für
+  Mobilgeräte. Das ist eine **Zuordnung, keine Messung** — die Profile stehen oben in
+  `webrtc/index.js` und lassen sich für weitere Geräte ergänzen. Die Zeile
+  „Geräteklasse“ macht sichtbar, welches Profil gegriffen hat.
 
 * **Neu: Prozessor-Karte.** Einen CPU-Modellnamen gibt keine Browser-Schnittstelle heraus.
   Verfügbar sind über die User-Agent Client Hints aber Architektur (`x86` / `arm`),
@@ -43,6 +46,13 @@ Menü. Alles andere wurde auf ein gemeinsames System umgestellt.
   dort der verbaute SoC. Dazu `hardwareConcurrency` (logische Kerne) und `deviceMemory`
   (Arbeitsspeicher, vom Browser gerundet). Firefox und Safari kennen die Client Hints
   nicht; dann sagt die Karte das auch.
+
+  Aus Architektur, Plattform und Kernzahl leitet die Karte zusätzlich eine **Liste
+  möglicher Modelle** ab. Die Threadzahl grenzt den Kreis gut ein, weil Hersteller nur
+  wenige Kombinationen bauen — 24 Threads etwa treffen Ryzen 9 3900X/5900X, Core i9-12900K
+  und i7-13700K. Eindeutig wird es nie. Intels Hybrid-Chips zählen dabei P-Kerne doppelt
+  und E-Kerne einfach. Die Tabellen stehen in `webrtc/index.html` und decken x86-Desktop,
+  Apple-Silicon und Mobil-SoCs ab.
 
   Die Client-Hint-Plattformversion korrigiert nebenbei einen Dauerfehler: die alte
   Zeile „Betriebssystem“ meldet auf jedem Windows 11 ein „Windows 10“, weil der

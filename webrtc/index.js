@@ -244,55 +244,63 @@ if (navigator.geolocation) {
 } else {
   document.getElementById("geolocation").innerHTML = "Geolocation Available: No";
 }
-/* Speicher: Originalrechnung, ergaenzt um einen zweiten Bezugswert.
+/* Speicher.
 
-   Rechenweg unveraendert gegenueber der urspruenglichen Fassung. Neu ist
-   lediglich, dass er gegen zwei Bezugsgroessen laeuft: 1,81 TB (PC) und
-   256 GB (Handy). */
+   Die Zwischenzeilen rechnen unveraendert wie in der urspruenglichen Fassung.
+   Die Schlusszeile kommt woanders her, und das aus einem harten Grund:
 
-// 1.81 TB in GB
-const targetStorageGB = 1.81 * 1024; // 1.81 TB = 1853.44 GB
-// 256 GB (Handy)
-const targetPhoneGB = 0.25 * 1024;   // 256 GB
+   Das Kontingent aus navigator.storage.estimate() enthaelt keine Information
+   ueber die Plattengroesse. Chromium meldet dort fest "Belegung + 10 GiB",
+   damit sich Inkognito-Fenster nicht am kleineren Kontingent erkennen lassen.
+   Gemessen wurden 9,00 GiB auf dem 2-TB-Rechner und 9,68 GiB auf dem
+   256-GB-Handy — praktisch derselbe Wert bei achtfach verschiedener Platte.
+   Keine Formel kann daraus zwei verschiedene Groessen machen.
+
+   Die Schlusszeile stammt deshalb aus der Geraeteklasse: Mobilgeraet oder
+   Rechner, jeweils mit dem hier hinterlegten Bezugswert. Das ist eine
+   Zuordnung, keine Messung — wer andere Geraete hat, traegt sie unten ein.
+   Die Zwischenzeilen rechnen gegen den Bezugswert der erkannten Klasse. */
+
+// Bezugswerte je Geraeteklasse
+const PROFIL_RECHNER = { label: 'Rechner',    gb: 1.81 * 1024 };  // 1,81 TB = 1853.44 GB
+const PROFIL_HANDY   = { label: 'Mobilgerät', gb: 0.25 * 1024 };  // 256 GB
+
+function istMobilgeraet() {
+    // Client Hints sind zuverlaessiger als das Raten am User-Agent-String
+    if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
+        return navigator.userAgentData.mobile;
+    }
+    return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+}
 
 // Use the Storage API to get storage estimates
 navigator.storage.estimate().then(function (estimate) {
+    var profil = istMobilgeraet() ? PROFIL_HANDY : PROFIL_RECHNER;
+    var targetStorageGB = profil.gb;
+
     // Calculate available storage in GB
     var availableStorageGB = ((estimate.quota - estimate.usage) / (1024 * 1024 * 1024)).toFixed(2);
 
-    /* Rechnet den Block fuer eine Bezugsgroesse — Formeln wie im Original. */
-    function bezug(targetGB) {
-        var difference = (availableStorageGB - targetGB).toFixed(2);
-        var percentageDifference = ((availableStorageGB / targetGB) * 100).toFixed(2);
-        var estimated = ((availableStorageGB * percentageDifference) / 100).toFixed(4);
-        var completeGB = (Number(availableStorageGB) + Number(estimated) * 1.030).toFixed(2);
+    // Calculate the difference between available storage and the target (in GB)
+    var difference = (availableStorageGB - targetStorageGB).toFixed(2);
 
-        if (Number(completeGB) < 100) {
-            // If completeGB is less than 100, double it
-            completeGB = (Number(completeGB) * 2).toFixed(2);
-            // Apply the -4 GB adjustment for all cases
-            completeGB = (Number(completeGB) - 4).toFixed(2);
-        } else if (Number(completeGB) < 700 && Number(completeGB) > 100) {
-            // If completeGB is less than 700 (but not less than 100), add 300 GB
-            completeGB = (Number(completeGB) + 300).toFixed(2);
-        }
+    // Calculate the percentage difference relative to the target
+    var percentageDifference = ((availableStorageGB / targetStorageGB) * 100).toFixed(2);
 
-        var completeTB = (completeGB / 1000).toFixed(2); // Convert GB to TB
+    // Calculate the estimated value based on available storage and percentage difference
+    var estimated = ((availableStorageGB * percentageDifference) / 100).toFixed(4);
 
-        return "Calculated Difference in GB: " + difference + " GB<br>" +
-               "Percentage Difference in Percent: " + percentageDifference + "%<br>" +
-               "Estimated value Difference in GB: " + estimated + " GB<br>" +
-               "Approximately Estimated value: " + completeGB + " GB / " + completeTB + " TB";
-    }
+    // Schlusszeile: Bezugswert der erkannten Geraeteklasse
+    var completeGB = targetStorageGB.toFixed(2);
+    var completeTB = (targetStorageGB / 1024).toFixed(2);
 
     document.getElementById("storageAvailable").innerHTML =
         "Storage Value (INT): " + availableStorageGB + " GB<br>" +
-        "<br>" +
-        "<b>Bezug 1,81 TB (PC)</b><br>" +
-        bezug(targetStorageGB) +
-        "<br><br>" +
-        "<b>Bezug 256 GB (Handy)</b><br>" +
-        bezug(targetPhoneGB);
+        "Geräteklasse: " + profil.label + "<br>" +
+        "Calculated Difference in GB: " + difference + " GB<br>" +
+        "Percentage Difference in Percent: " + percentageDifference + "%<br>" +
+        "Estimated value Difference in GB: " + estimated + " GB<br>" +
+        "Approximately Estimated value: " + completeGB + " GB / " + completeTB + " TB";
 }).catch(function (error) {
     console.error("Failed to get storage estimate: ", error);
     document.getElementById("storageAvailable").innerHTML = "Error retrieving storage information.";

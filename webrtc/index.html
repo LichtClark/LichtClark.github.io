@@ -111,6 +111,10 @@
             <div class="data-row"><span class="data-key">Benchmark 1</span><span class="data-val" id="cpuspeed1" data-strip="Time"></span></div>
             <div class="data-row"><span class="data-key">Benchmark 2</span><span class="data-val" id="cpuspeed1.2" data-strip="accnewd"></span></div>
             <div class="data-row"><span class="data-key">Schleifendurchlauf</span><span class="data-val" id="cpuspeed2"></span></div>
+
+            <div class="mt"><span class="data-key">Kommt in Frage</span></div>
+            <div class="readout" id="cpuCandidates"></div>
+
             <div class="hint" id="cpuNote"></div>
         </div>
     </div>
@@ -236,6 +240,69 @@
 
     var ARCH = { 'x86': 'x86 (Intel / AMD)', 'arm': 'ARM', 'arm64': 'ARM64' };
 
+    /* Verbreitete Modelle nach Zahl der logischen Kerne. Die Threadzahl grenzt
+       den Kreis erstaunlich gut ein, weil Hersteller nur wenige Kombinationen
+       bauen — eindeutig wird sie nie. Intels Hybrid-Chips zaehlen P-Kerne
+       doppelt (SMT) und E-Kerne einfach: 8P + 8E ergibt 24. */
+    var KANDIDATEN_X86 = {
+        4:  ['Intel Core i5-6500 / i5-7500 (4C/4T)', 'Intel Core i3-7100 (2C/4T)',
+             'AMD Ryzen 3 3200G (4C/4T)'],
+        6:  ['Intel Core i5-8400 / i5-9400F (6C/6T)', 'AMD Ryzen 5 1600AF (6C/6T-Modelle)'],
+        8:  ['Intel Core i7-7700K (4C/8T)', 'Intel Core i3-12100 (4C/8T)',
+             'AMD Ryzen 3 3300X (4C/8T)'],
+        12: ['AMD Ryzen 5 3600 / 5600 / 5600X (6C/12T)', 'Intel Core i7-8700K (6C/12T)',
+             'Intel Core i5-10400 / i5-12400 (6C/12T)'],
+        16: ['AMD Ryzen 7 3700X / 5700X / 5800X3D (8C/16T)', 'Intel Core i9-9900K (8C/16T)',
+             'Intel Core i7-10700K / i7-11700K (8C/16T)', 'Intel Core i5-12600K (6P+4E)'],
+        20: ['Intel Core i5-13600K / i5-14600K (6P+8E)'],
+        24: ['AMD Ryzen 9 3900X / 5900X (12C/24T)', 'Intel Core i9-12900K (8P+8E)',
+             'Intel Core i7-13700K / i7-14700 (8P+8E)'],
+        28: ['Intel Core i7-14700K (8P+12E)'],
+        32: ['AMD Ryzen 9 5950X / 7950X (16C/32T)', 'Intel Core i9-13900K / i9-14900K (8P+16E)'],
+        48: ['AMD Ryzen Threadripper 3960X (24C/48T)'],
+        64: ['AMD Ryzen Threadripper 3970X (32C/64T)', 'AMD EPYC (32C/64T)']
+    };
+
+    var KANDIDATEN_APPLE = {
+        8:  ['Apple M1 / M2 / M3 (4 Leistungs- + 4 Effizienzkerne)'],
+        10: ['Apple M1 Pro / M1 Max (8+2)', 'Apple M3 Pro (6+6)'],
+        12: ['Apple M2 Pro / M2 Max (8+4)', 'Apple M4 Pro (10+4)'],
+        14: ['Apple M3 Max (10+4)'],
+        16: ['Apple M3 Max (12+4)', 'Apple M4 Max (12+4)'],
+        20: ['Apple M1 Ultra / M2 Ultra (Ultra-Klasse)']
+    };
+
+    var KANDIDATEN_MOBIL = {
+        6:  ['Apple A12 bis A18 (2 Leistungs- + 4 Effizienzkerne)'],
+        8:  ['Qualcomm Snapdragon 8 Gen 1 / 2 / 3', 'Samsung Exynos 2200 / 2400',
+             'MediaTek Dimensity 9000 / 9200 / 9300', 'Google Tensor G2 / G3'],
+        9:  ['Google Tensor G1 (2+2+4 plus Zusatzkern)'],
+        12: ['Qualcomm Snapdragon X Elite (Windows on ARM)']
+    };
+
+    function kandidaten(arch, threads, plattform, mobil) {
+        var tabelle;
+        if (mobil) tabelle = KANDIDATEN_MOBIL;
+        else if (plattform === 'macOS' && arch !== 'x86') tabelle = KANDIDATEN_APPLE;
+        else if (arch === 'x86') tabelle = KANDIDATEN_X86;
+        else tabelle = KANDIDATEN_APPLE;
+        return tabelle[threads] || null;
+    }
+
+    function zeigeKandidaten(arch, plattform, mobil) {
+        var threads = navigator.hardwareConcurrency;
+        var liste = kandidaten(arch, threads, plattform, mobil);
+        var ziel = el('cpuCandidates');
+        if (!liste) {
+            ziel.textContent = 'Für ' + threads + ' logische Kerne ist keine Zuordnung '
+                + 'hinterlegt. Der Kreis lässt sich damit nicht eingrenzen.';
+            return;
+        }
+        ziel.innerHTML = liste.map(function (m) {
+            return '<span style="color:var(--up)">&gt;</span> ' + m;
+        }).join('<br>');
+    }
+
     /* Windows meldet über Client Hints eine eigene Zählung: 1–12 steht für
        Windows 10, ab 13 für Windows 11. */
     function windowsName(v) {
@@ -252,12 +319,20 @@
 
     var uad = navigator.userAgentData;
     if (!uad || !uad.getHighEntropyValues) {
-        el('cpuArch').textContent = 'nicht verfügbar';
+        /* Ohne Client Hints bleibt nur der User-Agent-String als Anhaltspunkt. */
+        var ua = navigator.userAgent;
+        var mobilRaten = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+        var archRaten = /aarch64|arm/i.test(ua) ? 'arm' : 'x86';
+        var macRaten = /Mac OS X|Macintosh/i.test(ua) ? 'macOS' : null;
+
+        el('cpuArch').textContent = 'nicht verfügbar (geraten: ' + archRaten + ')';
         el('cpuBits').textContent = 'nicht verfügbar';
         el('cpuTag').textContent = navigator.hardwareConcurrency + ' Threads';
+        zeigeKandidaten(archRaten, macRaten, mobilRaten);
         el('cpuNote').textContent = 'Architektur und Wortbreite liefern nur die '
             + 'User-Agent Client Hints, die dieser Browser nicht unterstützt — das '
-            + 'betrifft Firefox und Safari. Den Modellnamen der CPU gibt ohnehin '
+            + 'betrifft Firefox und Safari. Die Liste stützt sich hier allein auf die '
+            + 'Kernzahl und ist entsprechend grob. Den Modellnamen der CPU gibt ohnehin '
             + 'keine Browser-Schnittstelle heraus.';
         return;
     }
@@ -289,12 +364,16 @@
             el('cpuPlatform').textContent = uad.platform + ' ' + h.platformVersion;
         }
 
-        el('cpuNote').textContent = h.model
-            ? 'Aus der Gerätebezeichnung lässt sich der verbaute SoC nachschlagen. '
-              + 'Den CPU-Modellnamen selbst gibt kein Browser heraus.'
-            : 'Mehr gibt der Browser nicht preis: den Modellnamen der CPU liefert '
-              + 'keine Schnittstelle, weil er ein zu starkes Wiedererkennungsmerkmal '
-              + 'wäre. Auf Mobilgeräten steht hier zusätzlich die Gerätebezeichnung.';
+        zeigeKandidaten(h.architecture, uad.platform, uad.mobile);
+
+        el('cpuNote').textContent = 'Die Liste ist über Architektur, Plattform und '
+            + navigator.hardwareConcurrency + ' logische Kerne eingegrenzt — das trifft '
+            + 'eine Handvoll Modelle, nie eines. Den Modellnamen selbst gibt keine '
+            + 'Browser-Schnittstelle heraus, er wäre ein zu starkes '
+            + 'Wiedererkennungsmerkmal. '
+            + (h.model ? 'Aus der Gerätebezeichnung oben lässt sich der verbaute SoC '
+                       + 'dagegen direkt nachschlagen.'
+                       : 'Auf Mobilgeräten steht zusätzlich die Gerätebezeichnung dabei.');
       })
       .catch(function () {
         el('cpuArch').textContent = 'Abfrage abgelehnt';
