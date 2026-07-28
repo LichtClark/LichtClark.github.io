@@ -290,8 +290,33 @@
 
         var factor = null, capped = false, capNote = '';
 
+        /* Chromium meldet seit der Umstellung auf ein "predictable quota" fest
+           Belegung + 10 GiB — unabhängig von der Platte, damit sich Inkognito-
+           Fenster nicht mehr an einem kleineren Kontingent erkennen lassen.
+           Der Wert enthält dann keinerlei Information über den Datenträger.
+           Erkennbar daran, dass das freie Kontingent bei rund 10 GiB liegt;
+           die alte 60-%-Regel hätte daraus eine 17-GB-Platte gemacht, die es
+           in keinem Gerät gibt. */
+        var freiesKontingent = (quota - usage) / GiB;
+        var festwert = Math.abs(freiesKontingent - 10) / 10 <= 0.15;
+
+        if (eng === 'chromium' && festwert) {
+            el.rule.textContent = 'fest: Belegung + 10 GiB';
+            el.total.textContent = 'nicht ermittelbar';
+            el.guess.textContent = 'vom Browser verweigert';
+            el.verdict.textContent = 'verweigert';
+            el.verdict.classList.add('warn');
+            el.note.textContent = 'Chrome meldet hier einen festen Wert statt eines '
+                + 'Anteils der Plattengröße — eingeführt, damit sich Inkognito-Fenster '
+                + 'nicht mehr am kleineren Kontingent erkennen lassen. Damit steckt in '
+                + 'dieser Zahl nichts mehr über deinen Datenträger: ein 256-GB-Handy und '
+                + 'ein 2-TB-Rechner melden beide rund 10 GiB. Kein Umrechnungsfaktor kann '
+                + 'das trennen.';
+            return;
+        }
+
         if (eng === 'chromium') {
-            el.rule.textContent = '60 % der Gesamtgröße';
+            el.rule.textContent = '60 % der Gesamtgröße (ältere Chrome-Version)';
             factor = 0.60;
         } else if (eng === 'firefox' && persisted) {
             el.rule.textContent = 'min(8 TiB, 50 % der Gesamtgröße)';

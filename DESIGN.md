@@ -42,9 +42,20 @@ Menü. Alles andere wurde auf ein gemeinsames System umgestellt.
   Speicherung anzufordern. Damit steigt das Kontingent auf 50 % und die Größe wird
   ablesbar. Der Rohwert steht immer daneben, damit die Schätzung prüfbar bleibt.
 
-  Verlass ist darauf nicht: auf dem Entwicklungsrechner meldet Chromium 9 GiB bei einer
-  2-TB-Platte, also 0,5 % statt der dokumentierten 60 %. Genau deshalb benennt die Karte
-  ihre Unsicherheit, statt sie zu kaschieren.
+  **Der wichtigste Fall ist aber, dass es gar nicht geht.** Chromium meldet seit der
+  Umstellung auf ein „predictable quota“ fest `Belegung + 10 GiB`, unabhängig vom
+  Datenträger — eingeführt, damit sich Inkognito-Fenster nicht mehr am kleineren
+  Kontingent erkennen lassen. Die 60-%-Angabe bei MDN ist damit überholt.
+
+  Belegt durch drei Messungen: ein 256-GB-Handy meldet 10,00 GiB, ein 2-TB-PC 10,28 GiB,
+  dieser Entwicklungsrechner 9,08 GiB bei 1863 GiB Platte. Gleiche Eingabe bei
+  achtfach verschiedener Plattengröße — es existiert kein Umrechnungsfaktor, der das
+  trennen könnte. Liegt das freie Kontingent innerhalb von 15 % um 10 GiB, erkennt die
+  Karte den Festwert und schreibt „vom Browser verweigert“, statt zu rechnen.
+
+  Echte Information liefert nur noch Firefox mit persistenter Speicherung (50 % der
+  Gesamtgröße) und ältere Chrome-Versionen mit der 60-%-Regel. In beiden Fällen trifft
+  die Rückrechnung die Plattengröße auf 0,0 % genau.
 * **Stadt korrigiert.** `ipapi.co` ordnete deutsche Kabelanschlüsse dem Providersitz zu
   (Berlin statt Heidelberg), `ipinfo.io` lag mit Leipzig ebenfalls daneben. Jetzt
   `get.geojs.io` — das trifft die Stadt korrekt und liefert zusätzlich die Region.
