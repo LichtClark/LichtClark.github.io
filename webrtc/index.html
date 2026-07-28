@@ -9,7 +9,7 @@
 <link rel="icon" href="../favicon.gif">
 <link rel="stylesheet" href="../assets/style.css">
 </head>
-<body data-section="system" data-root="../">
+<body data-section="system" data-root="../" data-consent-required>
 <div class="wrap">
 
     <div class="masthead">
@@ -96,13 +96,21 @@
         </div>
     </div>
 
-    <!-- ===== Speicher =====
-         Bewusst unverändert: das Skript schreibt hier eine mehrzeilige
-         Aufstellung, die genau so erhalten bleiben soll. -->
+    <!-- ===== Speicher ===== -->
     <div class="card">
-        <div class="card-h"><span>💾 Speicher</span></div>
+        <div class="card-h"><span>💾 Speicher</span><span class="link-tag" id="stoVerdict">…</span></div>
         <div class="card-body">
-            <div class="readout" id="storageAvailable"></div>
+
+            <div class="data-row"><span class="data-key">Kontingent (quota)</span><span class="data-val" id="stoQuota"></span></div>
+            <div class="data-row"><span class="data-key">Davon belegt</span><span class="data-val" id="stoUsage"></span></div>
+            <div class="data-row"><span class="data-key">Modus</span><span class="data-val" id="stoMode"></span></div>
+            <div class="data-row"><span class="data-key">Browser-Regel</span><span class="data-val" id="stoRule"></span></div>
+            <div class="data-row"><span class="data-key">Rückgerechnet</span><span class="data-val" id="stoTotal"></span></div>
+            <div class="data-row"><span class="data-key">Vermutliche Platte</span><span class="data-val" id="stoGuess"></span></div>
+
+            <button class="btn btn-full mt hidden" id="stoPersist">🔓 Deckel lösen: persistente Speicherung anfordern</button>
+
+            <div class="hint" id="stoNote"></div>
         </div>
     </div>
 
@@ -150,13 +158,6 @@
     </div>
 </div>
 
-<!-- Vom Analyse-Skript erwartete Elemente. Die Zustimmung wird auf der
-     Startseite eingeholt; hier dienen sie nur als Andockpunkte. -->
-<div class="hidden">
-    <input type="checkbox" id="privacyConsent">
-    <button id="confirmButton"></button>
-</div>
-
 <script src="../assets/site.js"></script>
 <script>
 /* Das Analyse-Skript schreibt englische Labels mit in die Werte
@@ -202,6 +203,212 @@
             .then(function (t) { el.textContent = t.trim() || 'keine Antwort'; })
             .catch(function () { el.textContent = 'nicht erreichbar'; });
     });
+})();
+
+/* ==========================================================================
+   Speicher: aus dem Kontingent auf die Plattengröße zurückrechnen.
+
+   Browser geben die Plattengröße nicht direkt preis, das Kontingent aus
+   navigator.storage.estimate() hängt aber nach dokumentierten Regeln daran:
+
+     Chromium (Chrome, Edge, Opera)  60 % der Gesamtgröße
+     Firefox, best-effort            min(10 GiB, 10 % der Gesamtgröße)
+     Firefox, persistent             min(8 TiB, 50 % der Gesamtgröße)
+
+   Beide Firefox-Werte sind gedeckelt. Greift der Deckel, steckt im Kontingent
+   nur noch eine Untergrenze — dann wird hier auch genau das gesagt, statt eine
+   Zahl zu erfinden. Der Deckel für persistente Speicherung liegt so hoch, dass
+   er praktisch nie greift: deshalb der Knopf, der sie anfordert.
+   ========================================================================== */
+(function () {
+    var GiB = 1024 * 1024 * 1024;
+    var TiB = GiB * 1024;
+
+    var el = {
+        quota:   document.getElementById('stoQuota'),
+        usage:   document.getElementById('stoUsage'),
+        mode:    document.getElementById('stoMode'),
+        rule:    document.getElementById('stoRule'),
+        total:   document.getElementById('stoTotal'),
+        guess:   document.getElementById('stoGuess'),
+        verdict: document.getElementById('stoVerdict'),
+        note:    document.getElementById('stoNote'),
+        persist: document.getElementById('stoPersist')
+    };
+
+    /* Handelsübliche Plattengrößen. Hersteller rechnen dezimal (1 TB = 1e12
+       Byte), Betriebssysteme binär — daher die krummen GiB-Werte. */
+    var SIZES = [
+        { label: '64 GB',  gib: 59.6 },  { label: '128 GB', gib: 119.2 },
+        { label: '256 GB', gib: 238.4 }, { label: '500 GB', gib: 465.7 },
+        { label: '512 GB', gib: 476.8 }, { label: '1 TB',   gib: 931.3 },
+        { label: '2 TB',   gib: 1862.6 },{ label: '4 TB',   gib: 3725.3 },
+        { label: '8 TB',   gib: 7450.6 }
+    ];
+
+    function fmt(gib) {
+        if (gib >= 1024) return (gib / 1024).toFixed(2) + ' TiB';
+        return gib.toFixed(2) + ' GiB';
+    }
+
+    function engine() {
+        var ua = navigator.userAgent;
+        if (ua.indexOf('Firefox/') > -1) return 'firefox';
+        if (/Edg\/|OPR\/|Chrome\/|Chromium\//.test(ua)) return 'chromium';
+        if (ua.indexOf('Safari/') > -1) return 'webkit';
+        return 'unbekannt';
+    }
+
+    /* Nächstgelegene Standardgröße. Nur bei enger Übereinstimmung wird ein
+       Modell benannt; dazwischen bleibt es ausdrücklich eine Vermutung. */
+    function snap(gib) {
+        var best = null, bestErr = Infinity;
+        for (var i = 0; i < SIZES.length; i++) {
+            var err = Math.abs(gib - SIZES[i].gib) / SIZES[i].gib;
+            if (err < bestErr) { bestErr = err; best = SIZES[i]; }
+        }
+        if (bestErr > 0.20) return null;
+        return { size: best, err: bestErr, sicher: bestErr <= 0.06 };
+    }
+
+    function istMobil() {
+        if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
+            return navigator.userAgentData.mobile;
+        }
+        return /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
+    }
+
+    function render(quota, usage, persisted) {
+        var q = quota / GiB;
+        var eng = engine();
+
+        el.quota.textContent = fmt(q) + ' (' + (quota / 1e9).toFixed(2) + ' GB dezimal)';
+        el.usage.textContent = usage < 1024 * 1024
+            ? (usage / 1024).toFixed(0) + ' KiB'
+            : fmt(usage / GiB);
+        el.mode.textContent = persisted ? 'persistent' : 'best-effort';
+
+        var factor = null, capped = false, capNote = '';
+
+        if (eng === 'chromium') {
+            el.rule.textContent = '60 % der Gesamtgröße';
+            factor = 0.60;
+        } else if (eng === 'firefox' && persisted) {
+            el.rule.textContent = 'min(8 TiB, 50 % der Gesamtgröße)';
+            factor = 0.50;
+            capped = quota >= 8 * TiB * 0.995;
+            capNote = 'Platte ist mindestens 16 TB groß.';
+        } else if (eng === 'firefox') {
+            el.rule.textContent = 'min(10 GiB, 10 % der Gesamtgröße)';
+            factor = 0.10;
+            capped = Math.abs(q - 10) < 0.05;
+            capNote = 'Glatte 10 GiB — das ist der Deckel, nicht dein Datenträger.';
+        } else {
+            el.rule.textContent = 'nicht dokumentiert';
+        }
+
+        if (factor === null) {
+            el.total.textContent = 'nicht bestimmbar';
+            el.guess.textContent = '—';
+            el.verdict.textContent = 'unbekannt';
+            el.note.textContent = 'Für diese Browser-Engine ist keine verlässliche '
+                + 'Umrechnung dokumentiert.';
+            return;
+        }
+
+        if (capped) {
+            var floor = q / factor;
+            el.total.textContent = '≥ ' + fmt(floor);
+            el.guess.textContent = 'nicht eingrenzbar';
+            el.verdict.textContent = 'gedeckelt';
+            el.verdict.classList.add('warn');
+            el.note.textContent = capNote + ' Mehr gibt das Kontingent nicht her.';
+            if (!persisted && eng === 'firefox') {
+                el.persist.classList.remove('hidden');
+                el.note.textContent += ' Mit persistenter Speicherung steigt das '
+                    + 'Kontingent auf 50 % — damit wird die Größe ablesbar.';
+            }
+            return;
+        }
+
+        var est = q / factor;
+        el.total.textContent = '≈ ' + fmt(est);
+
+        var hit = snap(est);
+        var rechenweg = 'Kontingent ' + fmt(q) + ' ÷ ' + (factor * 100) + ' % = ' + fmt(est) + '. ';
+
+        if (hit && hit.sicher) {
+            el.guess.textContent = hit.size.label;
+            el.verdict.textContent = hit.size.label;
+            el.verdict.classList.add('pos');
+            el.note.textContent = rechenweg + 'Das liegt ' + (hit.err * 100).toFixed(1)
+                + ' % neben einer ' + hit.size.label + '-Platte. Gemeint ist der '
+                + 'Datenträger, auf dem das Browserprofil liegt, nicht die Summe '
+                + 'aller Laufwerke.';
+        } else if (hit) {
+            el.guess.textContent = 'am ehesten ' + hit.size.label + ' (unsicher)';
+            el.verdict.textContent = 'unsicher';
+            el.verdict.classList.add('warn');
+            el.note.textContent = rechenweg + 'Nächste gängige Größe wäre '
+                + hit.size.label + ', aber ' + (hit.err * 100).toFixed(0)
+                + ' % Abweichung sind zu viel für eine belastbare Aussage.';
+        } else {
+            el.guess.textContent = 'keine gängige Größe';
+            el.verdict.textContent = 'unsicher';
+            el.verdict.classList.add('warn');
+            el.note.textContent = rechenweg + 'Das passt zu keiner handelsüblichen '
+                + 'Größe.';
+        }
+
+        /* Die dokumentierten Regeln gelten längst nicht überall. Auf diesem
+           Rechner meldet Chromium 9 GiB bei einer 2-TB-Platte — 0,5 % statt der
+           angekündigten 60 %. Wer das nachprüfen will, braucht den Rohwert. */
+        el.note.textContent += ' Maßgeblich ist der Rohwert oben: '
+            + (quota / 1e9).toFixed(2) + ' GB. Die Umrechnung unterstellt die '
+            + 'dokumentierte Regel — Container, private Fenster und '
+            + (istMobil() ? 'gerade mobile Browser ' : 'mobile Browser ')
+            + 'weichen davon regelmäßig ab, dann ist die Zahl wertlos.';
+
+        if (istMobil() && est > 1200) {
+            el.guess.textContent = 'unglaubwürdig für ein Mobilgerät';
+            el.verdict.textContent = 'unglaubwürdig';
+            el.verdict.classList.remove('pos');
+            el.verdict.classList.add('warn');
+        }
+    }
+
+    function measure() {
+        if (!navigator.storage || !navigator.storage.estimate) {
+            el.quota.textContent = 'Storage-API nicht verfügbar';
+            el.verdict.textContent = 'n/a';
+            return;
+        }
+        var persistedP = navigator.storage.persisted
+            ? navigator.storage.persisted() : Promise.resolve(false);
+        Promise.all([navigator.storage.estimate(), persistedP])
+            .then(function (r) { render(r[0].quota || 0, r[0].usage || 0, r[1]); })
+            .catch(function () { el.quota.textContent = 'Abfrage fehlgeschlagen'; });
+    }
+
+    el.persist.addEventListener('click', function () {
+        el.persist.disabled = true;
+        el.persist.textContent = 'frage an …';
+        navigator.storage.persist().then(function (granted) {
+            el.persist.disabled = false;
+            if (granted) {
+                el.persist.classList.add('hidden');
+                el.verdict.classList.remove('warn');
+                measure();
+            } else {
+                el.persist.textContent = '🔓 Abgelehnt — erneut versuchen';
+                el.note.textContent = 'Der Browser hat persistente Speicherung '
+                    + 'verweigert. Firefox gewährt sie meist erst bei Seiten, die '
+                    + 'du regelmäßig besuchst oder als Lesezeichen hast.';
+            }
+        });
+    });
+
+    measure();
 })();
 
 /* Genauer Standort: Browser-Freigabe -> Koordinaten -> Adresse.

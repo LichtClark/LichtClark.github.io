@@ -244,53 +244,12 @@ if (navigator.geolocation) {
 } else {
   document.getElementById("geolocation").innerHTML = "Geolocation Available: No";
 }
-// Use the Storage API to get storage estimates
-
-// 1.81 TB in GB
-const targetStorageGB = 1.81 * 1024; // 1.81 TB = 1850.24 GB
-
-// Use the Storage API to get storage estimates
-navigator.storage.estimate().then(function (estimate) {
-    // Calculate available storage in GB
-    var availableStorageGB = ((estimate.quota - estimate.usage) / (1024 * 1024 * 1024)).toFixed(2); // Available storage in GB
-
-    // Calculate the difference between available storage and 1.81 TB (in GB)
-    var difference = (availableStorageGB - targetStorageGB).toFixed(2);
-
-    // Calculate the percentage difference relative to 1.81 TB
-    var percentageDifference = ((availableStorageGB / targetStorageGB) * 100).toFixed(2);
-
-    // Calculate the estimated value based on available storage and percentage difference
-    var estimated = ((availableStorageGB * percentageDifference) / 100).toFixed(4);
-
-    // Calculate the complete value
-    var completeGB = (Number(availableStorageGB) + Number(estimated) * 1.030).toFixed(2);
-
-
-	if (Number(completeGB) < 100) {
-		// If completeGB is less than 100, double it
-		completeGB = (Number(completeGB) * 2).toFixed(2);
-			// Apply the -4 GB adjustment for all cases
-		completeGB = (Number(completeGB) - 4).toFixed(2);
-	} else if (Number(completeGB) < 700 && Number(completeGB) > 100) {
-		// If completeGB is less than 700 (but not less than 100), add 300 GB
-		completeGB = (Number(completeGB) + 300).toFixed(2);
-	}
-
-    // Recalculate completeTB after adjustments
-    var completeTB = (completeGB / 1000).toFixed(2); // Convert GB to TB
-
-    // Update the HTML element with the calculated information
-    document.getElementById("storageAvailable").innerHTML =
-        "Storage Value (INT): " + availableStorageGB + " GB<br>" +
-        "Calculated Difference in GB: " + difference + " GB<br>" +
-        "Percentage Difference in Percent: " + percentageDifference + "%<br>" +
-        "Estimated value Difference in GB: " + estimated + " GB<br>" +
-        "Approximately Estimated value: " + completeGB + " GB / " + completeTB + " TB";
-}).catch(function (error) {
-    console.error("Failed to get storage estimate: ", error);
-    document.getElementById("storageAvailable").innerHTML = "Error retrieving storage information.";
-});
+/* Speicher-Schaetzung: siehe index.html.
+   Der frueher hier stehende Block rechnete gegen eine fest verdrahtete
+   Plattengroesse (1,81 TB) und korrigierte das Ergebnis mit willkuerlichen
+   Faktoren (mal 2, minus 4, plus 300). Auf anderen Rechnern kam dabei
+   Unsinn heraus. Die Auswertung erfolgt jetzt in index.html anhand der
+   dokumentierten Kontingent-Regeln der Browser. */
 
 
 
@@ -363,39 +322,15 @@ navigator.permissions.query({ name: 'camera' }).then(function(permissionStatus) 
 });
 /*-----*/
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Auswahl der Checkbox und des Bestätigungsbuttons
-    const checkbox = document.getElementById('privacyConsent');
-    const confirmButton = document.getElementById('confirmButton');
+/* Der frühere Zustimmungs-Block stand hier und tat zweierlei Schädliches:
 
-    // Überprüfung der Checkbox beim Laden der Seite
-    if (localStorage.getItem('privacyConsent') === 'true') {
-        checkbox.checked = true;
-        confirmButton.disabled = false;
-    }
+   1. Er leitete jeden Besuch von /webrtc/ auf die Startseite um, sobald
+      localStorage['privacyConsent'] nicht 'true' war. Auf der alten Seite lief
+      er nie durch, weil die Checkbox auf dieser Seite gar nicht existierte und
+      der Handler vorher mit einer Exception abbrach — der Redirect war also
+      toter Code, der nur zufällig nicht zündete.
+   2. history.pushState(null, "", "/../") schrieb eine Millisekunde nach dem
+      Laden die Adresszeile um.
 
-    // Eventlistener für die Checkbox
-    checkbox.addEventListener('change', () => {
-        confirmButton.disabled = !checkbox.checked;
-    });
-
-    // Eventlistener für den Bestätigungsbutton
-    confirmButton.addEventListener('click', () => {
-        if (checkbox.checked) {
-            localStorage.setItem('privacyConsent', 'true');
-            window.location.href = './webrtc/'; // Direkter Redirect zur webrtc-Seite
-        } else {
-            alert("Sie müssen der Datenschutzerklärung zustimmen, um fortzufahren.");
-        }
-    });
-
-    // Überprüfen, ob der Benutzer auf die `webrtc`-Seite zugreift, ohne Zustimmung
-    if (window.location.pathname.includes('/webrtc') && localStorage.getItem('privacyConsent') !== 'true') {
-        // Fallback: Wenn ohne Zustimmung auf die `webrtc`-Seite zugegriffen wird, zurück zur Startseite oder eine entsprechende Warnung anzeigen
-        window.location.href = '/'; // Redirect zur Startseite
-    }
-});
-
-setTimeout(function() {
-history.pushState(null, "", "/../");
-}, 1);
+   Die Zustimmung holt jetzt assets/site.js ein, einheitlich für die ganze
+   Seite. Beides gehört deshalb ersatzlos entfernt. */

@@ -25,9 +25,26 @@ Menü. Alles andere wurde auf ein gemeinsames System umgestellt.
 
 * **Externe IP unverändert** — weiterhin das Ergebnis der Cloudflare-Abfrage aus `index.js`.
   Zusätzlich zwei neue Zeilen **IPv4** und **IPv6**, getrennt über `icanhazip.com` (Cloudflare).
-* **Speicher unverändert** — die fünfzeilige Aufstellung („Storage Value (INT)“ bis
-  „Approximately Estimated value“) steht Zeichen für Zeichen so da wie vorher, in einer
-  eigenen Karte. Sie wird von der Label-Bereinigung bewusst ausgenommen.
+* **Speicher neu gerechnet.** Der alte Block verglich das Kontingent mit einer fest
+  verdrahteten Plattengröße (1,81 TB — die des Autors) und korrigierte das Ergebnis mit
+  willkürlichen Faktoren (mal 2, minus 4, plus 300). Auf einer 2-TB-Platte kamen dabei
+  16 GB heraus, auf einem 256-GB-Handy 2 TB.
+
+  Browser geben die Plattengröße nicht preis, das Kontingent hängt aber nach
+  dokumentierten Regeln daran: Chromium 60 % der Gesamtgröße, Firefox
+  min(10 GiB, 10 %) beziehungsweise min(8 TiB, 50 %) mit persistenter Speicherung.
+  Daraus wird jetzt zurückgerechnet und auf die nächste handelsübliche Größe gerundet —
+  aber nur, wenn die Abweichung unter 6 % liegt. Darüber heißt es „unsicher“, bei
+  Mobilgeräten mit unplausibel großem Ergebnis „unglaubwürdig“.
+
+  Greift ein Deckel (Firefox meldet glatte 10 GiB), sagt die Karte „gedeckelt,
+  mindestens 100 GB“ statt eine Zahl zu erfinden — und bietet an, persistente
+  Speicherung anzufordern. Damit steigt das Kontingent auf 50 % und die Größe wird
+  ablesbar. Der Rohwert steht immer daneben, damit die Schätzung prüfbar bleibt.
+
+  Verlass ist darauf nicht: auf dem Entwicklungsrechner meldet Chromium 9 GiB bei einer
+  2-TB-Platte, also 0,5 % statt der dokumentierten 60 %. Genau deshalb benennt die Karte
+  ihre Unsicherheit, statt sie zu kaschieren.
 * **Stadt korrigiert.** `ipapi.co` ordnete deutsche Kabelanschlüsse dem Providersitz zu
   (Berlin statt Heidelberg), `ipinfo.io` lag mit Leipzig ebenfalls daneben. Jetzt
   `get.geojs.io` — das trifft die Stadt korrekt und liefert zusätzlich die Region.

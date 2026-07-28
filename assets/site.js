@@ -24,8 +24,27 @@
     }
     function close() {
         if (!modal) return;
+        var wasEntry = modal.getAttribute('data-entry') === '1';
         modal.classList.remove('open');
+        modal.removeAttribute('data-entry');
         body.style.overflow = '';
+        /* Beim Direktaufruf ohne Zustimmung: zurück zur Startseite. */
+        if (wasEntry && !accepted()) window.location.href = root;
+    }
+
+    /* Wird die Seite direkt aufgerufen (Lesezeichen, getippte URL), war der Weg
+       über den Link mit data-consent nicht dabei. Dann fragt die Seite selbst.
+       Bewusst kein Redirect: die Seite bleibt erreichbar, wer ablehnt geht
+       zurück zur Startseite. */
+    function askOnLoad() {
+        if (accepted()) return;
+        if (!modal) build();
+        target = null;
+        check.checked = false;
+        go.disabled = true;
+        modal.setAttribute('data-entry', '1');
+        modal.classList.add('open');
+        body.style.overflow = 'hidden';
     }
 
     function build() {
@@ -65,7 +84,8 @@
             if (!check.checked) return;
             remember();
             close();
-            window.location.href = target || (root + 'webrtc/');
+            /* Ohne target sind wir schon am Ziel — dann nur schließen. */
+            if (target) window.location.href = target;
         });
         modal.addEventListener('click', function (ev) { if (ev.target === modal) close(); });
         modal.querySelector('[data-close]').addEventListener('click', close);
@@ -86,6 +106,8 @@
             });
         });
     }
+
+    if (body.hasAttribute('data-consent-required')) askOnLoad();
 
     /* ---- 2) Aktiver Navigationspunkt ------------------------------------- */
     var section = body.getAttribute('data-section');
