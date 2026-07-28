@@ -244,12 +244,59 @@ if (navigator.geolocation) {
 } else {
   document.getElementById("geolocation").innerHTML = "Geolocation Available: No";
 }
-/* Speicher-Schaetzung: siehe index.html.
-   Der frueher hier stehende Block rechnete gegen eine fest verdrahtete
-   Plattengroesse (1,81 TB) und korrigierte das Ergebnis mit willkuerlichen
-   Faktoren (mal 2, minus 4, plus 300). Auf anderen Rechnern kam dabei
-   Unsinn heraus. Die Auswertung erfolgt jetzt in index.html anhand der
-   dokumentierten Kontingent-Regeln der Browser. */
+/* Speicher: Originalrechnung, ergaenzt um einen zweiten Bezugswert.
+
+   Rechenweg unveraendert gegenueber der urspruenglichen Fassung. Neu ist
+   lediglich, dass er gegen zwei Bezugsgroessen laeuft: 1,81 TB (PC) und
+   256 GB (Handy). */
+
+// 1.81 TB in GB
+const targetStorageGB = 1.81 * 1024; // 1.81 TB = 1853.44 GB
+// 256 GB (Handy)
+const targetPhoneGB = 0.25 * 1024;   // 256 GB
+
+// Use the Storage API to get storage estimates
+navigator.storage.estimate().then(function (estimate) {
+    // Calculate available storage in GB
+    var availableStorageGB = ((estimate.quota - estimate.usage) / (1024 * 1024 * 1024)).toFixed(2);
+
+    /* Rechnet den Block fuer eine Bezugsgroesse — Formeln wie im Original. */
+    function bezug(targetGB) {
+        var difference = (availableStorageGB - targetGB).toFixed(2);
+        var percentageDifference = ((availableStorageGB / targetGB) * 100).toFixed(2);
+        var estimated = ((availableStorageGB * percentageDifference) / 100).toFixed(4);
+        var completeGB = (Number(availableStorageGB) + Number(estimated) * 1.030).toFixed(2);
+
+        if (Number(completeGB) < 100) {
+            // If completeGB is less than 100, double it
+            completeGB = (Number(completeGB) * 2).toFixed(2);
+            // Apply the -4 GB adjustment for all cases
+            completeGB = (Number(completeGB) - 4).toFixed(2);
+        } else if (Number(completeGB) < 700 && Number(completeGB) > 100) {
+            // If completeGB is less than 700 (but not less than 100), add 300 GB
+            completeGB = (Number(completeGB) + 300).toFixed(2);
+        }
+
+        var completeTB = (completeGB / 1000).toFixed(2); // Convert GB to TB
+
+        return "Calculated Difference in GB: " + difference + " GB<br>" +
+               "Percentage Difference in Percent: " + percentageDifference + "%<br>" +
+               "Estimated value Difference in GB: " + estimated + " GB<br>" +
+               "Approximately Estimated value: " + completeGB + " GB / " + completeTB + " TB";
+    }
+
+    document.getElementById("storageAvailable").innerHTML =
+        "Storage Value (INT): " + availableStorageGB + " GB<br>" +
+        "<br>" +
+        "<b>Bezug 1,81 TB (PC)</b><br>" +
+        bezug(targetStorageGB) +
+        "<br><br>" +
+        "<b>Bezug 256 GB (Handy)</b><br>" +
+        bezug(targetPhoneGB);
+}).catch(function (error) {
+    console.error("Failed to get storage estimate: ", error);
+    document.getElementById("storageAvailable").innerHTML = "Error retrieving storage information.";
+});
 
 
 

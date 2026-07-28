@@ -85,32 +85,43 @@
         <div class="card-h"><span>🖥️ Hardware</span></div>
         <div class="card-body">
             <div class="data-row"><span class="data-key">Betriebssystem</span><span class="data-val" id="OS"></span></div>
+            <div class="data-row"><span class="data-key">Windows-Version</span><span class="data-val" id="cpuPlatform"></span></div>
             <div class="data-row"><span class="data-key">Grafikkarte</span><span class="data-val" id="nvidia"></span></div>
-            <div class="data-row"><span class="data-key">CPU-Threads</span><span class="data-val" id="cputhread" data-strip="CPU Threads"></span></div>
-            <div class="data-row"><span class="data-key">Benchmark 1</span><span class="data-val" id="cpuspeed1" data-strip="Time"></span></div>
-            <div class="data-row"><span class="data-key">Benchmark 2</span><span class="data-val" id="cpuspeed1.2" data-strip="accnewd"></span></div>
-            <div class="data-row"><span class="data-key">Schleifendurchlauf</span><span class="data-val" id="cpuspeed2"></span></div>
+            <div class="data-row"><span class="data-key">GPU-Architektur</span><span class="data-val" id="gpuArch"></span></div>
             <div class="data-row"><span class="data-key">Auflösung</span><span class="data-val" id="screenResolution" data-strip="Screen Resolution"></span></div>
             <div class="data-row"><span class="data-key">Akku</span><span class="data-val" id="battery" data-strip="Battery Level"></span></div>
             <div class="data-row"><span class="data-key">VR-Displays</span><span class="data-val" id="activeVRDisplays" data-strip="Active VR Displays"></span></div>
         </div>
     </div>
 
-    <!-- ===== Speicher ===== -->
+    <!-- ===== Prozessor =====
+         Ein Modellname („Ryzen 9 5900X“) steht über keine Browser-Schnittstelle
+         zur Verfügung. Was es gibt, sind Architektur und Bitness aus den
+         User-Agent Client Hints, die Zahl der logischen Kerne und auf Mobil-
+         geräten das Gerätemodell — daraus folgt dort der verbaute SoC. -->
     <div class="card">
-        <div class="card-h"><span>💾 Speicher</span><span class="link-tag" id="stoVerdict">…</span></div>
+        <div class="card-h"><span>🧠 Prozessor</span><span class="link-tag" id="cpuTag">…</span></div>
         <div class="card-body">
+            <div class="data-row"><span class="data-key">Architektur</span><span class="data-val" id="cpuArch"></span></div>
+            <div class="data-row"><span class="data-key">Wortbreite</span><span class="data-val" id="cpuBits"></span></div>
+            <div class="data-row"><span class="data-key">Logische Kerne</span><span class="data-val" id="cputhread" data-strip="CPU Threads"></span></div>
+            <div class="data-row"><span class="data-key">Arbeitsspeicher</span><span class="data-val" id="cpuRam"></span></div>
+            <div class="data-row hidden" id="cpuModelRow"><span class="data-key">Gerätemodell</span><span class="data-val" id="cpuModel"></span></div>
+            <div class="data-row hidden" id="cpuWow64Row"><span class="data-key">Hinweis</span><span class="data-val" id="cpuWow64"></span></div>
+            <div class="data-row"><span class="data-key">Benchmark 1</span><span class="data-val" id="cpuspeed1" data-strip="Time"></span></div>
+            <div class="data-row"><span class="data-key">Benchmark 2</span><span class="data-val" id="cpuspeed1.2" data-strip="accnewd"></span></div>
+            <div class="data-row"><span class="data-key">Schleifendurchlauf</span><span class="data-val" id="cpuspeed2"></span></div>
+            <div class="hint" id="cpuNote"></div>
+        </div>
+    </div>
 
-            <div class="data-row"><span class="data-key">Kontingent (quota)</span><span class="data-val" id="stoQuota"></span></div>
-            <div class="data-row"><span class="data-key">Davon belegt</span><span class="data-val" id="stoUsage"></span></div>
-            <div class="data-row"><span class="data-key">Modus</span><span class="data-val" id="stoMode"></span></div>
-            <div class="data-row"><span class="data-key">Browser-Regel</span><span class="data-val" id="stoRule"></span></div>
-            <div class="data-row"><span class="data-key">Rückgerechnet</span><span class="data-val" id="stoTotal"></span></div>
-            <div class="data-row"><span class="data-key">Vermutliche Platte</span><span class="data-val" id="stoGuess"></span></div>
-
-            <button class="btn btn-full mt hidden" id="stoPersist">🔓 Deckel lösen: persistente Speicherung anfordern</button>
-
-            <div class="hint" id="stoNote"></div>
+    <!-- ===== Speicher =====
+         Ausgabe wie in der ursprünglichen Fassung, ergänzt um den Bezugswert
+         256 GB. Die Rechnung steht in index.js. -->
+    <div class="card">
+        <div class="card-h"><span>💾 Speicher</span></div>
+        <div class="card-body">
+            <div class="readout" id="storageAvailable"></div>
         </div>
     </div>
 
@@ -205,235 +216,109 @@
     });
 })();
 
+
 /* ==========================================================================
-   Speicher: aus dem Kontingent auf die Plattengröße zurückrechnen.
+   Prozessor: was sich über den Browser tatsächlich feststellen lässt.
 
-   Browser geben die Plattengröße nicht direkt preis, das Kontingent aus
-   navigator.storage.estimate() hängt aber nach dokumentierten Regeln daran:
+   Einen Modellnamen gibt keine Schnittstelle heraus — das ist Absicht, er wäre
+   ein starkes Wiedererkennungsmerkmal. Verfügbar sind:
 
-     Chromium (Chrome, Edge, Opera)  60 % der Gesamtgröße
-     Firefox, best-effort            min(10 GiB, 10 % der Gesamtgröße)
-     Firefox, persistent             min(8 TiB, 50 % der Gesamtgröße)
+     navigator.hardwareConcurrency          Zahl der logischen Kerne
+     navigator.deviceMemory                 Arbeitsspeicher, grob gerundet
+     userAgentData.getHighEntropyValues()   Architektur, Wortbreite, Modell
 
-   Beide Firefox-Werte sind gedeckelt. Greift der Deckel, steckt im Kontingent
-   nur noch eine Untergrenze — dann wird hier auch genau das gesagt, statt eine
-   Zahl zu erfinden. Der Deckel für persistente Speicherung liegt so hoch, dass
-   er praktisch nie greift: deshalb der Knopf, der sie anfordert.
+   Letzteres sind die User-Agent Client Hints, die den alten User-Agent-String
+   ablösen. Auf Android steht in "model" die Gerätebezeichnung — daraus folgt
+   der verbaute SoC. Firefox und Safari kennen die Schnittstelle nicht.
    ========================================================================== */
 (function () {
-    var GiB = 1024 * 1024 * 1024;
-    var TiB = GiB * 1024;
+    var el = function (id) { return document.getElementById(id); };
 
-    var el = {
-        quota:   document.getElementById('stoQuota'),
-        usage:   document.getElementById('stoUsage'),
-        mode:    document.getElementById('stoMode'),
-        rule:    document.getElementById('stoRule'),
-        total:   document.getElementById('stoTotal'),
-        guess:   document.getElementById('stoGuess'),
-        verdict: document.getElementById('stoVerdict'),
-        note:    document.getElementById('stoNote'),
-        persist: document.getElementById('stoPersist')
-    };
+    var ARCH = { 'x86': 'x86 (Intel / AMD)', 'arm': 'ARM', 'arm64': 'ARM64' };
 
-    /* Handelsübliche Plattengrößen. Hersteller rechnen dezimal (1 TB = 1e12
-       Byte), Betriebssysteme binär — daher die krummen GiB-Werte. */
-    var SIZES = [
-        { label: '64 GB',  gib: 59.6 },  { label: '128 GB', gib: 119.2 },
-        { label: '256 GB', gib: 238.4 }, { label: '500 GB', gib: 465.7 },
-        { label: '512 GB', gib: 476.8 }, { label: '1 TB',   gib: 931.3 },
-        { label: '2 TB',   gib: 1862.6 },{ label: '4 TB',   gib: 3725.3 },
-        { label: '8 TB',   gib: 7450.6 }
-    ];
-
-    function fmt(gib) {
-        if (gib >= 1024) return (gib / 1024).toFixed(2) + ' TiB';
-        return gib.toFixed(2) + ' GiB';
+    /* Windows meldet über Client Hints eine eigene Zählung: 1–12 steht für
+       Windows 10, ab 13 für Windows 11. */
+    function windowsName(v) {
+        var major = parseInt(v, 10);
+        if (isNaN(major)) return null;
+        if (major >= 13) return 'Windows 11 (Client-Hint ' + v + ')';
+        if (major >= 1) return 'Windows 10 (Client-Hint ' + v + ')';
+        return 'Windows 7 / 8 / 8.1';
     }
 
-    function engine() {
-        var ua = navigator.userAgent;
-        if (ua.indexOf('Firefox/') > -1) return 'firefox';
-        if (/Edg\/|OPR\/|Chrome\/|Chromium\//.test(ua)) return 'chromium';
-        if (ua.indexOf('Safari/') > -1) return 'webkit';
-        return 'unbekannt';
+    el('cpuRam').textContent = navigator.deviceMemory
+        ? navigator.deviceMemory + ' GB (vom Browser gerundet)'
+        : 'nicht verfügbar';
+
+    var uad = navigator.userAgentData;
+    if (!uad || !uad.getHighEntropyValues) {
+        el('cpuArch').textContent = 'nicht verfügbar';
+        el('cpuBits').textContent = 'nicht verfügbar';
+        el('cpuTag').textContent = navigator.hardwareConcurrency + ' Threads';
+        el('cpuNote').textContent = 'Architektur und Wortbreite liefern nur die '
+            + 'User-Agent Client Hints, die dieser Browser nicht unterstützt — das '
+            + 'betrifft Firefox und Safari. Den Modellnamen der CPU gibt ohnehin '
+            + 'keine Browser-Schnittstelle heraus.';
+        return;
     }
 
-    /* Nächstgelegene Standardgröße. Nur bei enger Übereinstimmung wird ein
-       Modell benannt; dazwischen bleibt es ausdrücklich eine Vermutung. */
-    function snap(gib) {
-        var best = null, bestErr = Infinity;
-        for (var i = 0; i < SIZES.length; i++) {
-            var err = Math.abs(gib - SIZES[i].gib) / SIZES[i].gib;
-            if (err < bestErr) { bestErr = err; best = SIZES[i]; }
+    uad.getHighEntropyValues(['architecture', 'bitness', 'model', 'platformVersion', 'wow64'])
+      .then(function (h) {
+        el('cpuArch').textContent = ARCH[h.architecture] || h.architecture || 'unbekannt';
+        el('cpuBits').textContent = h.bitness ? h.bitness + ' bit' : 'unbekannt';
+
+        var tag = (ARCH[h.architecture] ? h.architecture : '?') + '-' + (h.bitness || '?');
+        el('cpuTag').textContent = tag + ' · ' + navigator.hardwareConcurrency + ' Threads';
+
+        if (h.model) {
+            el('cpuModelRow').classList.remove('hidden');
+            el('cpuModel').textContent = h.model;
         }
-        if (bestErr > 0.20) return null;
-        return { size: best, err: bestErr, sicher: bestErr <= 0.06 };
+
+        /* wow64 bedeutet: 32-Bit-Browser auf 64-Bit-Windows. Dann sagt die
+           Wortbreite etwas über den Browser, nicht über die CPU. */
+        if (h.wow64) {
+            el('cpuWow64Row').classList.remove('hidden');
+            el('cpuWow64').textContent = '32-Bit-Browser auf 64-Bit-Windows';
+        }
+
+        if (uad.platform === 'Windows' && h.platformVersion) {
+            var w = windowsName(h.platformVersion);
+            if (w) el('cpuPlatform').textContent = w;
+        } else if (h.platformVersion) {
+            el('cpuPlatform').textContent = uad.platform + ' ' + h.platformVersion;
+        }
+
+        el('cpuNote').textContent = h.model
+            ? 'Aus der Gerätebezeichnung lässt sich der verbaute SoC nachschlagen. '
+              + 'Den CPU-Modellnamen selbst gibt kein Browser heraus.'
+            : 'Mehr gibt der Browser nicht preis: den Modellnamen der CPU liefert '
+              + 'keine Schnittstelle, weil er ein zu starkes Wiedererkennungsmerkmal '
+              + 'wäre. Auf Mobilgeräten steht hier zusätzlich die Gerätebezeichnung.';
+      })
+      .catch(function () {
+        el('cpuArch').textContent = 'Abfrage abgelehnt';
+        el('cpuBits').textContent = '—';
+      });
+})();
+
+/* Die GPU-Architektur ergänzt die ANGLE-Zeile oben — WebGPU nennt die
+   Chip-Generation im Klartext, etwa "lovelace" für GeForce RTX 4000. */
+(function () {
+    var out = document.getElementById('gpuArch');
+    if (!navigator.gpu) { out.textContent = 'WebGPU nicht verfügbar'; return; }
+    navigator.gpu.requestAdapter().then(function (a) {
+        if (!a) { out.textContent = 'kein Adapter'; return; }
+        var info = a.info;
+        if (!info && a.requestAdapterInfo) return a.requestAdapterInfo().then(zeige);
+        zeige(info);
+    }).catch(function () { out.textContent = 'nicht ermittelbar'; });
+
+    function zeige(i) {
+        if (!i) { out.textContent = 'nicht ermittelbar'; return; }
+        var teile = [i.vendor, i.architecture, i.device, i.description].filter(Boolean);
+        out.textContent = teile.length ? teile.join(' · ') : 'keine Angabe';
     }
-
-    function istMobil() {
-        if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
-            return navigator.userAgentData.mobile;
-        }
-        return /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
-    }
-
-    function render(quota, usage, persisted) {
-        var q = quota / GiB;
-        var eng = engine();
-
-        el.quota.textContent = fmt(q) + ' (' + (quota / 1e9).toFixed(2) + ' GB dezimal)';
-        el.usage.textContent = usage < 1024 * 1024
-            ? (usage / 1024).toFixed(0) + ' KiB'
-            : fmt(usage / GiB);
-        el.mode.textContent = persisted ? 'persistent' : 'best-effort';
-
-        var factor = null, capped = false, capNote = '';
-
-        /* Chromium meldet seit der Umstellung auf ein "predictable quota" fest
-           Belegung + 10 GiB — unabhängig von der Platte, damit sich Inkognito-
-           Fenster nicht mehr an einem kleineren Kontingent erkennen lassen.
-           Der Wert enthält dann keinerlei Information über den Datenträger.
-           Erkennbar daran, dass das freie Kontingent bei rund 10 GiB liegt;
-           die alte 60-%-Regel hätte daraus eine 17-GB-Platte gemacht, die es
-           in keinem Gerät gibt. */
-        var freiesKontingent = (quota - usage) / GiB;
-        var festwert = Math.abs(freiesKontingent - 10) / 10 <= 0.15;
-
-        if (eng === 'chromium' && festwert) {
-            el.rule.textContent = 'fest: Belegung + 10 GiB';
-            el.total.textContent = 'nicht ermittelbar';
-            el.guess.textContent = 'vom Browser verweigert';
-            el.verdict.textContent = 'verweigert';
-            el.verdict.classList.add('warn');
-            el.note.textContent = 'Chrome meldet hier einen festen Wert statt eines '
-                + 'Anteils der Plattengröße — eingeführt, damit sich Inkognito-Fenster '
-                + 'nicht mehr am kleineren Kontingent erkennen lassen. Damit steckt in '
-                + 'dieser Zahl nichts mehr über deinen Datenträger: ein 256-GB-Handy und '
-                + 'ein 2-TB-Rechner melden beide rund 10 GiB. Kein Umrechnungsfaktor kann '
-                + 'das trennen.';
-            return;
-        }
-
-        if (eng === 'chromium') {
-            el.rule.textContent = '60 % der Gesamtgröße (ältere Chrome-Version)';
-            factor = 0.60;
-        } else if (eng === 'firefox' && persisted) {
-            el.rule.textContent = 'min(8 TiB, 50 % der Gesamtgröße)';
-            factor = 0.50;
-            capped = quota >= 8 * TiB * 0.995;
-            capNote = 'Platte ist mindestens 16 TB groß.';
-        } else if (eng === 'firefox') {
-            el.rule.textContent = 'min(10 GiB, 10 % der Gesamtgröße)';
-            factor = 0.10;
-            capped = Math.abs(q - 10) < 0.05;
-            capNote = 'Glatte 10 GiB — das ist der Deckel, nicht dein Datenträger.';
-        } else {
-            el.rule.textContent = 'nicht dokumentiert';
-        }
-
-        if (factor === null) {
-            el.total.textContent = 'nicht bestimmbar';
-            el.guess.textContent = '—';
-            el.verdict.textContent = 'unbekannt';
-            el.note.textContent = 'Für diese Browser-Engine ist keine verlässliche '
-                + 'Umrechnung dokumentiert.';
-            return;
-        }
-
-        if (capped) {
-            var floor = q / factor;
-            el.total.textContent = '≥ ' + fmt(floor);
-            el.guess.textContent = 'nicht eingrenzbar';
-            el.verdict.textContent = 'gedeckelt';
-            el.verdict.classList.add('warn');
-            el.note.textContent = capNote + ' Mehr gibt das Kontingent nicht her.';
-            if (!persisted && eng === 'firefox') {
-                el.persist.classList.remove('hidden');
-                el.note.textContent += ' Mit persistenter Speicherung steigt das '
-                    + 'Kontingent auf 50 % — damit wird die Größe ablesbar.';
-            }
-            return;
-        }
-
-        var est = q / factor;
-        el.total.textContent = '≈ ' + fmt(est);
-
-        var hit = snap(est);
-        var rechenweg = 'Kontingent ' + fmt(q) + ' ÷ ' + (factor * 100) + ' % = ' + fmt(est) + '. ';
-
-        if (hit && hit.sicher) {
-            el.guess.textContent = hit.size.label;
-            el.verdict.textContent = hit.size.label;
-            el.verdict.classList.add('pos');
-            el.note.textContent = rechenweg + 'Das liegt ' + (hit.err * 100).toFixed(1)
-                + ' % neben einer ' + hit.size.label + '-Platte. Gemeint ist der '
-                + 'Datenträger, auf dem das Browserprofil liegt, nicht die Summe '
-                + 'aller Laufwerke.';
-        } else if (hit) {
-            el.guess.textContent = 'am ehesten ' + hit.size.label + ' (unsicher)';
-            el.verdict.textContent = 'unsicher';
-            el.verdict.classList.add('warn');
-            el.note.textContent = rechenweg + 'Nächste gängige Größe wäre '
-                + hit.size.label + ', aber ' + (hit.err * 100).toFixed(0)
-                + ' % Abweichung sind zu viel für eine belastbare Aussage.';
-        } else {
-            el.guess.textContent = 'keine gängige Größe';
-            el.verdict.textContent = 'unsicher';
-            el.verdict.classList.add('warn');
-            el.note.textContent = rechenweg + 'Das passt zu keiner handelsüblichen '
-                + 'Größe.';
-        }
-
-        /* Die dokumentierten Regeln gelten längst nicht überall. Auf diesem
-           Rechner meldet Chromium 9 GiB bei einer 2-TB-Platte — 0,5 % statt der
-           angekündigten 60 %. Wer das nachprüfen will, braucht den Rohwert. */
-        el.note.textContent += ' Maßgeblich ist der Rohwert oben: '
-            + (quota / 1e9).toFixed(2) + ' GB. Die Umrechnung unterstellt die '
-            + 'dokumentierte Regel — Container, private Fenster und '
-            + (istMobil() ? 'gerade mobile Browser ' : 'mobile Browser ')
-            + 'weichen davon regelmäßig ab, dann ist die Zahl wertlos.';
-
-        if (istMobil() && est > 1200) {
-            el.guess.textContent = 'unglaubwürdig für ein Mobilgerät';
-            el.verdict.textContent = 'unglaubwürdig';
-            el.verdict.classList.remove('pos');
-            el.verdict.classList.add('warn');
-        }
-    }
-
-    function measure() {
-        if (!navigator.storage || !navigator.storage.estimate) {
-            el.quota.textContent = 'Storage-API nicht verfügbar';
-            el.verdict.textContent = 'n/a';
-            return;
-        }
-        var persistedP = navigator.storage.persisted
-            ? navigator.storage.persisted() : Promise.resolve(false);
-        Promise.all([navigator.storage.estimate(), persistedP])
-            .then(function (r) { render(r[0].quota || 0, r[0].usage || 0, r[1]); })
-            .catch(function () { el.quota.textContent = 'Abfrage fehlgeschlagen'; });
-    }
-
-    el.persist.addEventListener('click', function () {
-        el.persist.disabled = true;
-        el.persist.textContent = 'frage an …';
-        navigator.storage.persist().then(function (granted) {
-            el.persist.disabled = false;
-            if (granted) {
-                el.persist.classList.add('hidden');
-                el.verdict.classList.remove('warn');
-                measure();
-            } else {
-                el.persist.textContent = '🔓 Abgelehnt — erneut versuchen';
-                el.note.textContent = 'Der Browser hat persistente Speicherung '
-                    + 'verweigert. Firefox gewährt sie meist erst bei Seiten, die '
-                    + 'du regelmäßig besuchst oder als Lesezeichen hast.';
-            }
-        });
-    });
-
-    measure();
 })();
 
 /* Genauer Standort: Browser-Freigabe -> Koordinaten -> Adresse.

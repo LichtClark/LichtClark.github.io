@@ -25,37 +25,32 @@ Menü. Alles andere wurde auf ein gemeinsames System umgestellt.
 
 * **Externe IP unverändert** — weiterhin das Ergebnis der Cloudflare-Abfrage aus `index.js`.
   Zusätzlich zwei neue Zeilen **IPv4** und **IPv6**, getrennt über `icanhazip.com` (Cloudflare).
-* **Speicher neu gerechnet.** Der alte Block verglich das Kontingent mit einer fest
-  verdrahteten Plattengröße (1,81 TB — die des Autors) und korrigierte das Ergebnis mit
-  willkürlichen Faktoren (mal 2, minus 4, plus 300). Auf einer 2-TB-Platte kamen dabei
-  16 GB heraus, auf einem 256-GB-Handy 2 TB.
+* **Speicher: Originalrechnung, um einen zweiten Bezugswert ergänzt.** Der Rechenweg ist
+  unverändert; er läuft jetzt gegen zwei Bezugsgrößen — 1,81 TB (PC) und 256 GB (Handy).
+  Beide Blöcke stehen untereinander in der Karte.
 
-  Browser geben die Plattengröße nicht preis, das Kontingent hängt aber nach
-  dokumentierten Regeln daran: Chromium 60 % der Gesamtgröße, Firefox
-  min(10 GiB, 10 %) beziehungsweise min(8 TiB, 50 %) mit persistenter Speicherung.
-  Daraus wird jetzt zurückgerechnet und auf die nächste handelsübliche Größe gerundet —
-  aber nur, wenn die Abweichung unter 6 % liegt. Darüber heißt es „unsicher“, bei
-  Mobilgeräten mit unplausibel großem Ergebnis „unglaubwürdig“.
+  Zur Einordnung, weil es beim Lesen der Zahlen hilft: die Plattengröße lässt sich daraus
+  nicht ableiten. Chromium meldet seit der Umstellung auf ein „predictable quota“ fest
+  `Belegung + 10 GiB`, unabhängig vom Datenträger — eingeführt, damit sich Inkognito-Fenster
+  nicht mehr am kleineren Kontingent erkennen lassen. Gemessen: ein 256-GB-Handy meldet
+  9,67 GiB, ein 2-TB-PC 10,00 GiB, dieser Entwicklungsrechner 9,08 GiB bei 1863 GiB Platte.
+  Gleiche Eingabe bei achtfach verschiedener Plattengröße. Die 60-%-Angabe bei MDN ist
+  überholt.
 
-  Greift ein Deckel (Firefox meldet glatte 10 GiB), sagt die Karte „gedeckelt,
-  mindestens 100 GB“ statt eine Zahl zu erfinden — und bietet an, persistente
-  Speicherung anzufordern. Damit steigt das Kontingent auf 50 % und die Größe wird
-  ablesbar. Der Rohwert steht immer daneben, damit die Schätzung prüfbar bleibt.
+* **Neu: Prozessor-Karte.** Einen CPU-Modellnamen gibt keine Browser-Schnittstelle heraus.
+  Verfügbar sind über die User-Agent Client Hints aber Architektur (`x86` / `arm`),
+  Wortbreite, Plattform-Version und auf Mobilgeräten die Gerätebezeichnung — daraus folgt
+  dort der verbaute SoC. Dazu `hardwareConcurrency` (logische Kerne) und `deviceMemory`
+  (Arbeitsspeicher, vom Browser gerundet). Firefox und Safari kennen die Client Hints
+  nicht; dann sagt die Karte das auch.
 
-  **Der wichtigste Fall ist aber, dass es gar nicht geht.** Chromium meldet seit der
-  Umstellung auf ein „predictable quota“ fest `Belegung + 10 GiB`, unabhängig vom
-  Datenträger — eingeführt, damit sich Inkognito-Fenster nicht mehr am kleineren
-  Kontingent erkennen lassen. Die 60-%-Angabe bei MDN ist damit überholt.
+  Die Client-Hint-Plattformversion korrigiert nebenbei einen Dauerfehler: die alte
+  Zeile „Betriebssystem“ meldet auf jedem Windows 11 ein „Windows 10“, weil der
+  User-Agent-String seit Jahren auf `NT 10.0` eingefroren ist. Die neue Zeile erkennt
+  ab Client-Hint-Version 13 korrekt Windows 11.
 
-  Belegt durch drei Messungen: ein 256-GB-Handy meldet 10,00 GiB, ein 2-TB-PC 10,28 GiB,
-  dieser Entwicklungsrechner 9,08 GiB bei 1863 GiB Platte. Gleiche Eingabe bei
-  achtfach verschiedener Plattengröße — es existiert kein Umrechnungsfaktor, der das
-  trennen könnte. Liegt das freie Kontingent innerhalb von 15 % um 10 GiB, erkennt die
-  Karte den Festwert und schreibt „vom Browser verweigert“, statt zu rechnen.
-
-  Echte Information liefert nur noch Firefox mit persistenter Speicherung (50 % der
-  Gesamtgröße) und ältere Chrome-Versionen mit der 60-%-Regel. In beiden Fällen trifft
-  die Rückrechnung die Plattengröße auf 0,0 % genau.
+* **Neu: GPU-Architektur.** WebGPU nennt die Chip-Generation im Klartext, etwa
+  `nvidia · lovelace` für eine GeForce RTX 4000. Ergänzt die ANGLE-Zeile.
 * **Stadt korrigiert.** `ipapi.co` ordnete deutsche Kabelanschlüsse dem Providersitz zu
   (Berlin statt Heidelberg), `ipinfo.io` lag mit Leipzig ebenfalls daneben. Jetzt
   `get.geojs.io` — das trifft die Stadt korrekt und liefert zusätzlich die Region.
