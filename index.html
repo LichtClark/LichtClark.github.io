@@ -1,460 +1,185 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de" class="home">
 <head>
-<meta charset="UTF-8">
-<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="robots" content="noindex, nofollow">
 <title>Clarkie.de</title>
-<style>
-    body, html {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        overflow-x: hidden; /* To prevent horizontal scrolling */
-    }
-
-    canvas {
-        display: block;
-        background-color: #222;
-    }
-
-    .menu-container {
-        position: fixed;
-        top: 8%;
-        left: -250px; /* Start offscreen */
-        width: 250px;
-        height: 100%;
-        background-color: #333;
-        overflow-y: auto; /* Enable vertical scrolling */
-        transition: left 0.3s ease; /* Add smooth transition */
-        z-index: 1;
-    }
-
-    .menu-button {
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        width: 40px;
-        height: 40px;
-        background-color: transparent;
-        border: none;
-        cursor: pointer;
-        z-index: 2;
-        transition: left 0.3s ease; /* Add smooth transition */
-    }
-
-    .menu-button::before,
-    .menu-button::after {
-        content: '';
-        position: absolute;
-        width: 30px;
-        height: 4px;
-        background-color: #fff;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-    }
-
-    .menu-button::before {
-        transform: translate(-50%, 50%) rotate(-45deg);
-    }
-
-    .menu-button::after {
-        transform: translate(-50%, -50%) rotate(45deg);
-    }
-
-    .menu-link {
-        display: block;
-        background-color: #444;
-        color: #fff;
-        text-decoration: none;
-        padding: 15px; /* Increase button padding */
-        margin-bottom: 5px;
-        border: none;
-        cursor: pointer;
-		top:10%;
-    }
-
-    .menu-link:hover {
-        background-color: #555;
-    }
-
-    h1 {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: #fff;
-        font-size: 36px;
-        z-index: 2;
-        cursor: pointer;
-    }
-
-    .container {
-        position: relative;
-    }
-
-    .menu-hidden .menu-container {
-        left: -250px;
-    }
-
-    .menu-hidden .menu-button {
-        left: 20px;
-    }
-	
-    /* Styling für das Overlay */
-    .overlay {
-      display: none; /* Overlay ist zu Beginn unsichtbar */
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.6); /* Dunkler Hintergrund */
-      color: white;
-      z-index: 1000; /* Stellt sicher, dass es oben bleibt */
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    /* Das eigentliche Fenster (Box) */
-    .window-box {
-      background-color: #333;
-      color: white;
-      width: 400px;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
-      text-align: center;
-    }
-
-    /* Der Container für den Hinweis */
-    .overlay-content {
-      font-size: 18px;
-      margin-bottom: 20px;
-    }
-
-    /* Styling für den Button */
-    .overlay button {
-      background-color: #4CAF50;
-      color: white;
-      padding: 15px 30px;
-      border: 2px solid #4CAF50; /* Boxartiger Rand */
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: bold;
-      border-radius: 5px;
-      text-transform: uppercase;
-      transition: all 0.3s ease; /* Für sanfte Übergänge */
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Leichter Schatten */
-    }
-
-    /* Hover-Effekt für den Button */
-    .overlay button:hover {
-      background-color: #45a049;
-      border-color: #45a049; /* Randfarbe ändert sich */
-      transform: scale(1.05); /* Button wächst leicht */
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Stärkerer Schatten */
-    }
-
-    /* Focus-Effekt für den Button */
-    .overlay button:focus {
-      outline: none; /* Entfernt den Standardfokusrahmen */
-      box-shadow: 0 0 0 3px rgba(72, 177, 72, 0.5); /* Grüner Fokusrahmen */
-    }
-</style>
+<link rel="icon" href="favicon.gif">
+<link rel="stylesheet" href="assets/style.css">
 </head>
-<body class="menu-hidden">
-<div class="menu-container" id="menuContainer">
-    <button class="menu-button" onclick="toggleMenu()"></button>
-    <div class="dropdown-menu" id="dropdownMenu">
-        <a href="https://github.com/LichtClark/test-seite-fuer-domain/" class="menu-link">Link to this Github Project</a>
-        <a href="javascript:void(0)" class="menu-link" id="webrtcLink">Web RTC Info</a>
-		<a href="./CS:GO/" class="menu-link">CS:GO</a>
-        <a href="./Filme/" class="menu-link">Filme</a>
-        <a href="./Setting/" class="menu-link">Setting</a>
-    </div>
-</div>
-<div class="container">
-    <canvas id="canvas"></canvas>
-    <h1 onclick="toggleMenu()">Clarkie.de</h1>
-</div>
+<body class="home" data-section="start" data-root="./">
 
- <!-- Overlay Hinweis -->
-<div class="overlay" id="overlay">
-    <div class="window-box">
-        <div class="overlay-content">
-            <p>Bevor Sie fortfahren, möchten wir Sie darauf hinweisen, dass Sie auf eine Seite zugreifen, die Daten zu Ihrem Gerät sammeln könnte. Um fortzufahren, müssen Sie bestätigen, dass Sie unsere <a href="./webrtc/Datenschutzerklärung.html" target="_blank">Datenschutzerklärung</a> gelesen und verstanden haben.</p>
-            <label>
-                <input type="checkbox" id="privacyConsent" required> Ich habe die Datenschutzerklärung gelesen und akzeptiere diese.
-            </label>
+<canvas id="bgCanvas"></canvas>
+
+<!-- ===== Seitenleiste ===== -->
+<button class="drawer-btn" id="drawerBtn" aria-expanded="false" aria-controls="drawer" aria-label="Menü öffnen">
+    <span></span><span></span><span></span>
+</button>
+<div class="scrim" id="scrim"></div>
+
+<aside class="drawer" id="drawer" aria-label="Seitenleiste">
+    <div class="drawer-h">Navigation</div>
+
+    <a class="link-row" href="csgo/">
+        <span class="link-ico">🎯</span>
+        <span class="link-mid">
+            <span class="link-title">CS:GO</span>
+            <span class="link-meta">Configs &amp; Setup</span>
+        </span>
+    </a>
+    <a class="link-row" href="Filme/">
+        <span class="link-ico">🎬</span>
+        <span class="link-mid">
+            <span class="link-title">Filme</span>
+            <span class="link-meta">Empfehlungen</span>
+        </span>
+    </a>
+    <a class="link-row" href="Setting/">
+        <span class="link-ico">⚙️</span>
+        <span class="link-mid">
+            <span class="link-title">Setting</span>
+            <span class="link-meta">OPSec &amp; Motivation</span>
+        </span>
+    </a>
+    <a class="link-row" href="webrtc/" data-consent>
+        <span class="link-ico">🖥️</span>
+        <span class="link-mid">
+            <span class="link-title">System-Info</span>
+            <span class="link-meta">Browser-Analyse</span>
+        </span>
+    </a>
+    <a class="link-row" href="https://split.clarkie.de/" rel="noopener">
+        <span class="link-ico">💸</span>
+        <span class="link-mid">
+            <span class="link-title">Expense Splitter</span>
+            <span class="link-meta">split.clarkie.de</span>
+        </span>
+    </a>
+    <a class="link-row" href="https://github.com/LichtClark/LichtClark.github.io" rel="noopener">
+        <span class="link-ico">📦</span>
+        <span class="link-mid">
+            <span class="link-title">Quellcode</span>
+            <span class="link-meta">GitHub</span>
+        </span>
+    </a>
+
+    <div class="drawer-foot">
+        <a href="webrtc/datenschutz.html">Datenschutz</a>
+        <a href="mailto:dasho@mail.clarkie.de">Kontakt</a>
+        <span>&copy; <span data-year></span> Clarkie</span>
+    </div>
+</aside>
+
+<!-- ===== Mitte ===== -->
+<div class="home-shell">
+    <div class="home-inner">
+
+        <div class="home-mast" id="mast" role="button" tabindex="0" aria-controls="homeMenu" aria-expanded="false">
+            <h1>CLARKIE.DE<span class="caret">_</span></h1>
+            <div class="sub">Persönliche Seite · Statisch · Ohne Tracking</div>
         </div>
-        <button id="confirmButton" disabled>Bestätigen und fortfahren</button>
+
+        <nav class="home-menu collapsed" id="homeMenu" aria-label="Hauptmenü">
+            <a class="link-row" href="csgo/">
+                <span class="link-ico">🎯</span>
+                <span class="link-mid">
+                    <span class="link-title">CS:GO</span>
+                    <span class="link-meta">Configs, Startparameter, Maus-Setup</span>
+                </span>
+                <span class="link-tag">Setup</span>
+            </a>
+            <a class="link-row" href="Filme/">
+                <span class="link-ico">🎬</span>
+                <span class="link-mid">
+                    <span class="link-title">Filme</span>
+                    <span class="link-meta">Bewertete Thriller-Empfehlungen</span>
+                </span>
+                <span class="link-tag">Liste</span>
+            </a>
+            <a class="link-row" href="Setting/">
+                <span class="link-ico">⚙️</span>
+                <span class="link-mid">
+                    <span class="link-title">Setting</span>
+                    <span class="link-meta">OPSec-Regeln und Motivation</span>
+                </span>
+                <span class="link-tag">Notizen</span>
+            </a>
+            <a class="link-row" href="webrtc/" data-consent>
+                <span class="link-ico">🖥️</span>
+                <span class="link-mid">
+                    <span class="link-title">System-Info</span>
+                    <span class="link-meta">Was dein Browser über dich verrät</span>
+                </span>
+                <span class="link-tag">Live</span>
+            </a>
+            <a class="link-row" href="https://split.clarkie.de/" rel="noopener">
+                <span class="link-ico">💸</span>
+                <span class="link-mid">
+                    <span class="link-title">Expense Splitter</span>
+                    <span class="link-meta">Gruppenausgaben cent-genau aufteilen · split.clarkie.de</span>
+                </span>
+                <span class="link-tag">Projekt</span>
+            </a>
+            <a class="link-row" href="https://github.com/LichtClark/LichtClark.github.io" rel="noopener">
+                <span class="link-ico">📦</span>
+                <span class="link-mid">
+                    <span class="link-title">Quellcode</span>
+                    <span class="link-meta">github.com/LichtClark</span>
+                </span>
+                <span class="link-tag">Extern</span>
+            </a>
+        </nav>
+
+        <div class="home-hint" id="hint">Titel anklicken für das Menü</div>
+
+        <div class="home-foot">
+            &copy; <span data-year></span> Clarkie ·
+            <a href="webrtc/datenschutz.html">Datenschutz</a>
+        </div>
+
     </div>
 </div>
 
-
+<script src="assets/bg.js"></script>
+<script src="assets/site.js"></script>
 <script>
-// Initially, the overlay is hidden
-    document.getElementById('overlay').style.display = 'none';
+(function () {
+    /* --- Mittiges Menü: startet eingeklappt, Titel klappt es auf --- */
+    var mast = document.getElementById('mast');
+    var menu = document.getElementById('homeMenu');
+    var hint = document.getElementById('hint');
 
-    // Variable to track if the overlay has been shown before
-    let overlayShown = false;
-
-    // Function to show the overlay when the link is clicked
-    document.getElementById('webrtcLink').addEventListener('click', function() {
-      if (!overlayShown) {
-        // Show the overlay only when clicked for the first time
-        document.getElementById('overlay').style.display = 'flex';
-        overlayShown = true;
-      }
+    function toggleMenu() {
+        var open = menu.classList.toggle('collapsed') === false;
+        mast.setAttribute('aria-expanded', String(open));
+        hint.textContent = open ? 'Titel anklicken zum Schließen' : 'Titel anklicken für das Menü';
+    }
+    mast.addEventListener('click', toggleMenu);
+    mast.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleMenu(); }
     });
 
-    // Function to hide the overlay and redirect after confirmation
-    document.getElementById('confirmButton').addEventListener('click', function() {
-      // Hide the overlay
-      document.getElementById('overlay').style.display = 'none';
-      // Redirect to the WebRTC page
-      window.location.href = './webrtc/'; // Relative URL for redirection
+    /* --- Seitenleiste --- */
+    var btn = document.getElementById('drawerBtn');
+    var drawer = document.getElementById('drawer');
+    var scrim = document.getElementById('scrim');
+
+    function setDrawer(open) {
+        drawer.classList.toggle('open', open);
+        scrim.classList.toggle('open', open);
+        btn.setAttribute('aria-expanded', String(open));
+        btn.setAttribute('aria-label', open ? 'Menü schließen' : 'Menü öffnen');
+    }
+    btn.addEventListener('click', function () {
+        setDrawer(!drawer.classList.contains('open'));
     });
-	
-      window.addEventListener('load', () => {
-                      // noinspection JSUnresolvedVariable
-                      let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                      let xhr = new XMLHttpRequest();
-                      xhr.open('GET', './../music/b.mp3');
-                      xhr.responseType = 'arraybuffer';
-                      xhr.addEventListener('load', () => {
-                          let playsound = (audioBuffer) => {
-                              let source = audioCtx.createBufferSource();
-                              source.buffer = audioBuffer;
-                              source.connect(audioCtx.destination);
-                              source.loop = true;
-                              source.start();
-      
-                              setTimeout(function () {
-                                   // das //enfernen und die tickrate erhöhen um das lied zu wiederholen
-                                  document.querySelector('.output').appendChild(t);
-                                  playsound(audioBuffer);
-                                  //normalwerte sind 1000 und 2500 [ACHTUNG: AKTUELL EARRAPE]
-                              }, 0.1 + Math.random()*0.1);
-                          };
-      
-                          audioCtx.decodeAudioData(xhr.response).then(playsound);
-                      });
-                      xhr.send();
-                  });
-      
-        </script>
-
-<script>
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-let dots = [];
-let lines = [];
-let triangles = []; // Array to store triangles
-let mouseX = 0;
-let mouseY = 0;
-const mouseRadius = cmToPixels(5); // Convert 2 cm to pixels
-const blurRadius = cmToPixels(1); // Blur radius in pixels
-let isHovered = false; // Flag to check if mouse is within radius
-
-// Set canvas dimensions
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-// Generate dots based on window size
-function generateDots() {
-    const numDots = Math.round((canvas.width * canvas.height) / 25000); // Adjust this factor as needed
-    dots = []; // Reset dots array
-    for (let i = 0; i < numDots; i++) {
-        dots.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            vx: Math.random() - 0.05,
-            vy: Math.random() - 0.05,
-            radius: Math.random() * 3 + 1 // Random radius between 1 and 4
-        });
-    }
-}
-
-// Generate random lines between dots
-function generateLines() {
-    for (let i = 0; i < dots.length; i++) {
-        for (let j = i + 1; j < dots.length; j++) {
-            lines.push({ start: dots[i], end: dots[j], opacity: 0 });
-        }
-    }
-}
-
-// Draw dots
-function drawDots() {
-    for (let dot of dots) {
-        const distance = Math.hypot(dot.x - mouseX, dot.y - mouseY);
-        const alpha = distance <= mouseRadius ? 1 : Math.max(0, 1 - (distance - mouseRadius) / blurRadius);
-        ctx.globalAlpha = alpha;
-        ctx.beginPath();
-        ctx.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
-        ctx.fillStyle = '#fff';
-        ctx.fill();
-    }
-}
-
-// Draw lines
-function drawLines() {
-    ctx.strokeStyle = '#fff';
-    for (let line of lines) {
-        ctx.globalAlpha = line.opacity;
-        ctx.beginPath();
-        ctx.moveTo(line.start.x, line.start.y);
-        ctx.lineTo(line.end.x, line.end.y);
-        ctx.stroke();
-    }
-    ctx.globalAlpha = 1;
-}
-
-// Draw triangles
-function drawTriangles() {
-    if (isHovered) {
-        for (let triangle of triangles) {
-            let maxDistance = 0;
-            for (let point of triangle) {
-                const distance = Math.hypot(point.x - mouseX, point.y - mouseY);
-                if (distance > maxDistance) {
-                    maxDistance = distance;
-                }
-            }
-            for (let point of triangle) {
-                const distance = Math.hypot(point.x - mouseX, point.y - mouseY);
-                const alpha = Math.max(0, 1 - (distance - mouseRadius) / blurRadius);
-                const interpolatedAlpha = alpha * (1 - (distance / maxDistance)); // Interpolate alpha based on distance from mouse
-                ctx.fillStyle = `rgba(255, 255, 255, ${interpolatedAlpha * 0.01})`; // Adjust the multiplier for transparency
-                ctx.beginPath();
-                ctx.moveTo(triangle[0].x, triangle[0].y);
-                ctx.lineTo(triangle[1].x, triangle[1].y);
-                ctx.lineTo(triangle[2].x, triangle[2].y);
-                ctx.closePath();
-                ctx.fill();
-            }
-        }
-    }
-}
-
-
-
-// Update dots positions
-function updateDots() {
-    for (let dot of dots) {
-        dot.x += dot.vx;
-        dot.y += dot.vy;
-        if (dot.x < 0 || dot.x > canvas.width) dot.vx *= -1;
-        if (dot.y < 0 || dot.y > canvas.height) dot.vy *= -1;
-    }
-}
-
-// Detect triangles within mouse radius
-function detectTriangles() {
-    triangles = [];
-    for (let i = 0; i < dots.length; i++) {
-        for (let j = i + 1; j < dots.length; j++) {
-            for (let k = j + 1; k < dots.length; k++) {
-                const a = dots[i];
-                const b = dots[j];
-                const c = dots[k];
-                if (isInRadius(a, mouseX, mouseY) && isInRadius(b, mouseX, mouseY) && isInRadius(c, mouseX, mouseY)) {
-                    triangles.push([a, b, c]);
-                }
-            }
-        }
-    }
-}
-
-// Function to check if a point is within the mouse radius
-function isInRadius(point, x, y) {
-    const distance = Math.hypot(point.x - x, point.y - y);
-    return distance <= mouseRadius;
-}
-
-// Function to convert centimeters to pixels
-function cmToPixels(cm) {
-    // Assuming 1cm = 37.8 pixels (standard DPI for most screens)
-    return cm * 37.8;
-}
-
-// Update lines opacity on mouse move
-canvas.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-    isHovered = true;
-    detectTriangles();
-});
-
-canvas.addEventListener('mouseleave', () => {
-    isHovered = false;
-    triangles = [];
-});
-
-// Clear canvas
-function clearCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-// Animation loop
-function animate() {
-    clearCanvas();
-    updateDots();
-    drawLines();
-    drawTriangles(); // Draw triangles each frame
-    drawDots();
-    requestAnimationFrame(animate);
-}
-
-// Continuously update triangles
-setInterval(() => {
-    if (isHovered) {
-        detectTriangles();
-    }
-}, 100); // Update every 100 milliseconds
-
-
-// Initialize
-generateDots(); // Change the number of dots here
-generateLines();
-animate();
-
-// Update canvas dimensions and regenerate dots on window resize
-window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    generateDots(); // Regenerate dots based on new window size
-});
-
-
-
-
-function toggleMenu() {
-    const body = document.body;
-    const menuContainer = document.getElementById("menuContainer");
-
-    body.classList.toggle('menu-hidden');
-    if (body.classList.contains('menu-hidden')) {
-        menuContainer.style.left = "-250px"; // Slide the menu off-screen
-    } else {
-        menuContainer.style.left = "0"; // Slide the menu in
-    }
-}
-
-  // Auswahl der Checkbox und des Bestätigungsbuttons
-    const checkbox = document.getElementById('privacyConsent');
-    const confirmButton = document.getElementById('confirmButton');
-
-    // Eventlistener für die Checkbox
-    checkbox.addEventListener('change', () => {
-        confirmButton.disabled = !checkbox.checked;
+    scrim.addEventListener('click', function () { setDrawer(false); });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') setDrawer(false);
     });
-
+})();
 </script>
 </body>
 </html>

@@ -105,12 +105,19 @@ $.get('https://www.cloudflare.com/cdn-cgi/trace', function(data) {
   //console.log(resultString);
 })
 
-fetch('https://ipapi.co/json/')
+/* Standort über geojs.io statt ipapi.co: ipapi.co ordnete deutsche
+   Kabelanschlüsse dem Sitz des Providers zu (Berlin) statt dem tatsächlichen
+   Ort. geojs.io liefert hier die richtige Stadt. */
+fetch('https://get.geojs.io/v1/ip/geo.json')
   .then(function(response) {
     return response.json();
   })
   .then(function(data) {
-	  document.getElementById("city").innerHTML = data.city + ", " + data.country_name;
+	  var parts = [data.city, data.region, data.country].filter(Boolean);
+	  document.getElementById("city").innerHTML = parts.join(", ");
+  })
+  .catch(function() {
+	  document.getElementById("city").innerHTML = "nicht ermittelbar";
   });
 
 

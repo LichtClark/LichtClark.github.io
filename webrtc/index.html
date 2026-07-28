@@ -1,116 +1,279 @@
-<html>
-   <head>
-      <title>System Information</title>
-      <meta http-equiv="refresh" content="100">
-      <link rel="shortcut icon" type="image/x-icon" href="./../favicon.ico" />
-   </head>
-   <style>
-      .terminal-line-cursor-effect::after {
-         header: 100px;
-		 content: '> _';
-         border: 1px solid grey;
-         border-radius: 5px;
-         padding: 10px 10px;
-         animation: animate 1.5s linear infinite;
-      }
-      @keyframes animate {
-         0% { opacity: 0; }
-         50% { opacity: 0.7; }
-         100% { opacity: 0; }
-      }
-   </style>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/0.7.28/ua-parser.min.js"></script>
-   <body style="background-color: black; color: darkgreen;">
-      <center>
-         <p>---------------------------------------------------------------</p>
-		 <a class="terminal-line-cursor-effect"></a>
-         <p>---------------------------------------------------------------</p>
-         <br>OS: </br>
-         <a id="OS"></a>
-         <p>---------------------------------------------------------------</p>
-         <br>External IP:</br>
-         <a id="ip"></a>
-		 <br>City, Country:</br>
-		 <a id="city"></a>
-         <p>---------------------------------------------------------------</p>
-         <br>Graphics Card:</br>   
-         <a id="nvidia"></a> 
-         <p>---------------------------------------------------------------</p>
-	 <br>Fingerprint / Supercookie:</br>
-         <a id="fingerprint"></a>
-         <p>---------------------------------------------------------------</p>
-         <br>CPU Speed:</br>   
-         <a id="cpuspeed1"></a> 
-         <p></p>
-         <a id="cpuspeed1.2"></a>
-         <p></p>
-         <a id="cpuspeed2"></a>
-         <p></p>
-         <a id="cputhread"></a>
-         <p>---------------------------------------------------------------</p>
-         <br>Time: </br>
-         <a id="time"></a>
-         <p>---------------------------------------------------------------</p>
-         <br>Date: </br>
-         <a id="date"></a>
-         <p>---------------------------------------------------------------</p>
-         <br>Browser Info:</br>
-         <a id="browserlang"></a>
-         <br></br>
-         <a id="iscookie"></a>
-         <br></br>
-         <a id="isappname"></a>
-         <br></br>
-         <a id="isappcodename"></a>
-         <br></br>
-         <a id="isprod"></a>
-         <br></br>
-         <a id="isappver"></a>
-         <br></br>
-         <a id="isuseragent"></a>
-         <br></br>
-         <a id="isplatfrom"></a>
-         <br></br>
-         <a id="islanguage"></a>
-         <br></br>
-         <a id="isonline"></a>
-         <br></br>
-         <a id="isjava"></a>
-         <br></br>
-         <a id="browserlang"></a>
-         <p>---------------------------------------------------------------</p>
-         <br>Screen Resolution:</br>
-         <a id="screenResolution"></a>
-         <p>---------------------------------------------------------------</p>
-         <br>Timezone:</br>
-         <a id="timezone"></a>
-         <p>---------------------------------------------------------------</p>
-         <br>Battery Status:</br>
-         <a id="battery"></a>
-         <p>---------------------------------------------------------------</p>
-         <br>Connection Type:</br>
-         <a id="connectionType"></a>
-         <p>---------------------------------------------------------------</p>
-         <br>Geolocation:</br>
-         <a id="geolocation"></a>
-         <p>---------------------------------------------------------------</p>
-         <br>Available Storage:</br>
-         <a id="storageAvailable"></a>
-         <p>---------------------------------------------------------------</p>
-         <br>Browser Plugins:</br>
-         <a id="browserPlugins"></a>
-         <p>---------------------------------------------------------------</p>
-		 <br>Do Not Track:</br>
-		 <div id="doNotTrack"></div>
-		 <p>---------------------------------------------------------------</p>
-		 <br>VR displays</br>
-		 <div id="activeVRDisplays"></div>
-		 <p>---------------------------------------------------------------</p>
-		 <br>Camera Permission:</br>
-		 <div id="cameraPermission"></div>
-		 <p>---------------------------------------------------------------</p>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="robots" content="noindex, nofollow">
+<title>System-Info · Clarkie.de</title>
+<link rel="icon" href="../favicon.gif">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-section="system" data-root="../">
+<div class="wrap">
 
-      </center>
-   </body>
-   <script src="index.js"></script>
+    <div class="masthead">
+        <h1><a href="../">CLARKIE.DE</a></h1>
+        <div class="sub">
+            <span class="badge alert">SYSTEM-INFO</span>
+            <span>Live aus deinem Browser</span>
+        </div>
+    </div>
+
+    <nav class="nav">
+        <a href="../"         data-nav="start"><span class="nav-ico">🏠</span><span class="nav-lbl">Start</span></a>
+        <a href="../csgo/"    data-nav="csgo"><span class="nav-ico">🎯</span><span class="nav-lbl">CS:GO</span></a>
+        <a href="../Filme/"   data-nav="filme"><span class="nav-ico">🎬</span><span class="nav-lbl">Filme</span></a>
+        <a href="../Setting/" data-nav="setting"><span class="nav-ico">⚙️</span><span class="nav-lbl">Setting</span></a>
+        <a href="../webrtc/"  data-nav="system"><span class="nav-ico">🖥️</span><span class="nav-lbl">System</span></a>
+    </nav>
+
+    <div class="card alert">
+        <div class="card-h">⚠ Was du hier siehst</div>
+        <div class="card-body">
+            <p>Alle Werte unten liest deine eigene Browser-Sitzung aus. Nichts davon wird gespeichert
+               oder an einen Server dieser Seite gesendet.</p>
+            <p class="hint">Ausnahme: Für IP und Standort werden
+               <span class="tag-inline">cloudflare.com</span>,
+               <span class="tag-inline">icanhazip.com</span> und
+               <span class="tag-inline">geojs.io</span>
+               abgefragt. Details in der <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+        </div>
+    </div>
+
+    <!-- ===== Netzwerk ===== -->
+    <div class="card">
+        <div class="card-h"><span>🌐 Netzwerk &amp; Standort</span></div>
+        <div class="card-body">
+            <div class="data-row"><span class="data-key">Externe IP</span><span class="data-val" id="ip"></span></div>
+            <div class="data-row"><span class="data-key">IPv4</span><span class="data-val" id="ipv4"></span></div>
+            <div class="data-row"><span class="data-key">IPv6</span><span class="data-val" id="ipv6"></span></div>
+            <div class="data-row"><span class="data-key">Stadt / Land</span><span class="data-val" id="city"></span></div>
+            <div class="data-row"><span class="data-key">Lokale IPs (WebRTC)</span><span class="data-val"><span id="list"></span><span></span></span></div>
+            <div class="data-row"><span class="data-key">Verbindung</span><span class="data-val" id="connectionType" data-strip="Connection Type"></span></div>
+            <div class="data-row"><span class="data-key">Standortfreigabe</span><span class="data-val" id="geolocation" data-strip="Geolocation Available|Geolocation"></span></div>
+            <div class="data-row"><span class="data-key">Online</span><span class="data-val" id="isonline" data-strip="Online"></span></div>
+        </div>
+    </div>
+
+    <!-- ===== Genauer Standort =====
+         IP-Geolocation kommt nie über Stadtebene hinaus. Straße und Hausnummer
+         gibt es nur über die Standortfreigabe des Browsers (GPS / WLAN-Ortung)
+         plus Reverse-Geocoding — und nur, wenn der Besucher zustimmt. -->
+    <div class="card">
+        <div class="card-h"><span>📍 Genauer Standort</span><span class="link-tag">Freigabe nötig</span></div>
+        <div class="card-body">
+            <p>Die Werte oben stammen aus der IP-Adresse und treffen bestenfalls die Stadt.
+               Straße und Hausnummer kann kein IP-Dienst liefern. Der Browser kann es —
+               über GPS beziehungsweise umliegende WLAN-Netze, aber nur mit deiner Erlaubnis.</p>
+
+            <button class="btn btn-primary btn-full" id="geoBtn">📍 Standort freigeben und auflösen</button>
+
+            <div id="geoResult" class="hidden mt">
+                <div class="data-row"><span class="data-key">Adresse</span><span class="data-val" id="geoAddr"></span></div>
+                <div class="data-row"><span class="data-key">Koordinaten</span><span class="data-val" id="geoCoords"></span></div>
+                <div class="data-row"><span class="data-key">Genauigkeit</span><span class="data-val" id="geoAcc"></span></div>
+            </div>
+
+            <div class="hint">Die Koordinaten gehen an <span class="tag-inline">photon.komoot.io</span>
+               (OpenStreetMap), um daraus eine Adresse zu machen. Sie werden nirgends gespeichert.</div>
+        </div>
+    </div>
+
+    <!-- ===== Hardware ===== -->
+    <div class="card">
+        <div class="card-h"><span>🖥️ Hardware</span></div>
+        <div class="card-body">
+            <div class="data-row"><span class="data-key">Betriebssystem</span><span class="data-val" id="OS"></span></div>
+            <div class="data-row"><span class="data-key">Grafikkarte</span><span class="data-val" id="nvidia"></span></div>
+            <div class="data-row"><span class="data-key">CPU-Threads</span><span class="data-val" id="cputhread" data-strip="CPU Threads"></span></div>
+            <div class="data-row"><span class="data-key">Benchmark 1</span><span class="data-val" id="cpuspeed1" data-strip="Time"></span></div>
+            <div class="data-row"><span class="data-key">Benchmark 2</span><span class="data-val" id="cpuspeed1.2" data-strip="accnewd"></span></div>
+            <div class="data-row"><span class="data-key">Schleifendurchlauf</span><span class="data-val" id="cpuspeed2"></span></div>
+            <div class="data-row"><span class="data-key">Auflösung</span><span class="data-val" id="screenResolution" data-strip="Screen Resolution"></span></div>
+            <div class="data-row"><span class="data-key">Akku</span><span class="data-val" id="battery" data-strip="Battery Level"></span></div>
+            <div class="data-row"><span class="data-key">VR-Displays</span><span class="data-val" id="activeVRDisplays" data-strip="Active VR Displays"></span></div>
+        </div>
+    </div>
+
+    <!-- ===== Speicher =====
+         Bewusst unverändert: das Skript schreibt hier eine mehrzeilige
+         Aufstellung, die genau so erhalten bleiben soll. -->
+    <div class="card">
+        <div class="card-h"><span>💾 Speicher</span></div>
+        <div class="card-body">
+            <div class="readout" id="storageAvailable"></div>
+        </div>
+    </div>
+
+    <!-- ===== Browser ===== -->
+    <div class="card">
+        <div class="card-h"><span>🧭 Browser</span></div>
+        <div class="card-body">
+            <div class="data-row"><span class="data-key">User-Agent</span><span class="data-val" id="isuseragent" data-strip="UserAGent"></span></div>
+            <div class="data-row"><span class="data-key">Plattform</span><span class="data-val" id="isplatfrom" data-strip="Platform"></span></div>
+            <div class="data-row"><span class="data-key">Sprache</span><span class="data-val" id="islanguage" data-strip="Language"></span></div>
+            <div class="data-row"><span class="data-key">AppName</span><span class="data-val" id="isappname" data-strip="AppName"></span></div>
+            <div class="data-row"><span class="data-key">AppCodeName</span><span class="data-val" id="isappcodename" data-strip="AppCodeName"></span></div>
+            <div class="data-row"><span class="data-key">AppVersion</span><span class="data-val" id="isappver" data-strip="AppVersion"></span></div>
+            <div class="data-row"><span class="data-key">Produkt</span><span class="data-val" id="isprod" data-strip="Product"></span></div>
+            <div class="data-row"><span class="data-key">Cookies</span><span class="data-val" id="iscookie" data-strip="Cookies"></span></div>
+            <div class="data-row"><span class="data-key">Java</span><span class="data-val" id="isjava" data-strip="Java"></span></div>
+            <div class="data-row"><span class="data-key">Plugins (Anzahl)</span><span class="data-val" id="browserPlugins" data-strip="Browser Plugins"></span></div>
+            <div class="data-row"><span class="data-key">Do Not Track</span><span class="data-val" id="doNotTrack" data-strip="Do Not Track"></span></div>
+            <div class="data-row"><span class="data-key">Kamera-Freigabe</span><span class="data-val" id="cameraPermission" data-strip="Camera Permission"></span></div>
+        </div>
+    </div>
+
+    <!-- ===== Zeit & Fingerabdruck ===== -->
+    <div class="card">
+        <div class="card-h"><span>🕒 Zeit</span></div>
+        <div class="card-body">
+            <div class="data-row"><span class="data-key">Uhrzeit</span><span class="data-val" id="time"></span></div>
+            <div class="data-row"><span class="data-key">Datum</span><span class="data-val" id="date"></span></div>
+            <div class="data-row"><span class="data-key">Zeitzone</span><span class="data-val" id="timezone" data-strip="Timezone"></span></div>
+        </div>
+    </div>
+
+    <div class="card accent">
+        <div class="card-h"><span>🔑 Fingerprint / Supercookie</span></div>
+        <div class="card-body">
+            <div class="readout" id="fingerprint" data-strip="Fingerprint/Supercookie"></div>
+            <div class="hint">Aus den Werten oben lässt sich ein weitgehend eindeutiger Wiedererkennungs-Hash bilden — auch ohne Cookies.</div>
+        </div>
+    </div>
+
+    <div class="foot">
+        <a href="https://split.clarkie.de/" rel="noopener">split.clarkie.de</a> ·
+        <a href="../">Startseite</a> · &copy; <span data-year></span> Clarkie ·
+        <a href="datenschutz.html">Datenschutz</a>
+    </div>
+</div>
+
+<!-- Vom Analyse-Skript erwartete Elemente. Die Zustimmung wird auf der
+     Startseite eingeholt; hier dienen sie nur als Andockpunkte. -->
+<div class="hidden">
+    <input type="checkbox" id="privacyConsent">
+    <button id="confirmButton"></button>
+</div>
+
+<script src="../assets/site.js"></script>
+<script>
+/* Das Analyse-Skript schreibt englische Labels mit in die Werte
+   ("Timezone: Europe/Berlin"). Entfernt wird nur genau das in data-strip
+   genannte Präfix — alles andere bleibt Zeichen für Zeichen erhalten.
+   Felder ohne data-strip (Speicher, externe IP, Uhrzeit, Datum, Grafikkarte)
+   werden bewusst nicht angefasst. */
+(function () {
+    var fields = document.querySelectorAll('[data-strip]');
+
+    function clean() {
+        Array.prototype.forEach.call(fields, function (el) {
+            var spec = el.getAttribute('data-strip');
+            if (!spec) return;
+            var prefixes = spec.split('|');
+            var t = el.textContent;
+            for (var i = 0; i < prefixes.length; i++) {
+                var p = prefixes[i];
+                if (t.slice(0, p.length).toLowerCase() === p.toLowerCase()) {
+                    var rest = t.slice(p.length).replace(/^\s*:\s*/, '');
+                    if (rest && rest !== t) el.textContent = rest;
+                    return;
+                }
+            }
+        });
+    }
+
+    new MutationObserver(clean).observe(document.body, {
+        subtree: true, childList: true, characterData: true
+    });
+    clean();
+})();
+
+/* IPv4 und IPv6 getrennt abfragen. Die Zeile "Externe IP" darüber bleibt
+   unverändert das Ergebnis der Cloudflare-Abfrage aus index.js. */
+(function () {
+    [['ipv4', 'https://ipv4.icanhazip.com'],
+     ['ipv6', 'https://ipv6.icanhazip.com']].forEach(function (pair) {
+        var el = document.getElementById(pair[0]);
+        el.textContent = '…';
+        fetch(pair[1])
+            .then(function (r) { return r.text(); })
+            .then(function (t) { el.textContent = t.trim() || 'keine Antwort'; })
+            .catch(function () { el.textContent = 'nicht erreichbar'; });
+    });
+})();
+
+/* Genauer Standort: Browser-Freigabe -> Koordinaten -> Adresse.
+   Primär Photon (Komoot, OpenStreetMap), ersatzweise Nominatim. */
+(function () {
+    var btn = document.getElementById('geoBtn');
+    var box = document.getElementById('geoResult');
+    var addr = document.getElementById('geoAddr');
+    var coords = document.getElementById('geoCoords');
+    var acc = document.getElementById('geoAcc');
+
+    function show() { box.classList.remove('hidden'); }
+
+    function fail(msg) {
+        show();
+        addr.textContent = msg;
+        btn.disabled = false;
+        btn.textContent = '📍 Erneut versuchen';
+    }
+
+    /* Photon liefert Straße und Hausnummer getrennt — daraus eine
+       deutsche Adresszeile bauen. */
+    function fromPhoton(p) {
+        var line1 = [p.street, p.housenumber].filter(Boolean).join(' ');
+        var line2 = [p.postcode, p.city].filter(Boolean).join(' ');
+        var parts = [line1 || p.name, p.district, line2, p.country].filter(Boolean);
+        return parts.join(', ');
+    }
+
+    function resolve(lat, lon) {
+        return fetch('https://photon.komoot.io/reverse?lat=' + lat + '&lon=' + lon + '&lang=de')
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                var f = d.features && d.features[0];
+                if (!f) throw new Error('leer');
+                return fromPhoton(f.properties);
+            })
+            .catch(function () {
+                return fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2' +
+                             '&accept-language=de&lat=' + lat + '&lon=' + lon)
+                    .then(function (r) { return r.json(); })
+                    .then(function (d) { return d.display_name || 'keine Adresse gefunden'; });
+            });
+    }
+
+    btn.addEventListener('click', function () {
+        if (!navigator.geolocation) { fail('Dein Browser kennt keine Standortfreigabe.'); return; }
+        btn.disabled = true;
+        btn.textContent = 'Warte auf Freigabe …';
+
+        navigator.geolocation.getCurrentPosition(function (pos) {
+            var c = pos.coords;
+            show();
+            addr.textContent = 'wird aufgelöst …';
+            coords.textContent = c.latitude.toFixed(6) + ', ' + c.longitude.toFixed(6);
+            acc.textContent = '± ' + Math.round(c.accuracy) + ' m';
+            btn.textContent = '📍 Erneut messen';
+            btn.disabled = false;
+
+            resolve(c.latitude, c.longitude)
+                .then(function (text) { addr.textContent = text; })
+                .catch(function () { addr.textContent = 'Adresse nicht auflösbar'; });
+
+        }, function (err) {
+            var msg = err.code === 1 ? 'Freigabe abgelehnt — ohne Erlaubnis geht es nicht.'
+                    : err.code === 2 ? 'Position nicht ermittelbar.'
+                    : 'Zeitüberschreitung bei der Ortung.';
+            fail(msg);
+        }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+    });
+})();
+</script>
+<script src="index.js"></script>
+</body>
 </html>
