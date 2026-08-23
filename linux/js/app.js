@@ -349,6 +349,12 @@
       for (let i = 0; i < schritte.length; i++) {
         const s = schritte[i];
         const nr = `${i + 1}/${schritte.length}`;
+        // Feste Wartezeit fuer Gaeste, deren Bootschirm im Grafikmodus laeuft —
+        // dort gibt es keinen lesbaren Textpuffer, auf den "vorher" passen koennte.
+        if (s.warteMs) {
+          setAutoStatus(`${nr} ${s.text}: warte …`);
+          await new Promise((r) => setTimeout(r, s.warteMs));
+        }
         if (s.vorher) {
           setAutoStatus(`${nr} ${s.text}: warte …`);
           if (!await warteAufText(s.vorher, s.ms || 180000, `${nr} ${s.text}`)) {
@@ -356,7 +362,9 @@
           }
         }
         if (state.autoAbbruch) return;
-        if (s.tippen) {
+        // != null statt truthy: tippen "" ist erlaubt und schickt genau ein
+        // Enter — noetig, um z. B. ein isolinux-Bootmenue zu bestaetigen.
+        if (s.tippen != null) {
           setAutoStatus(`${nr} ${s.text} …`);
           sendToGuest(s.tippen);
         }
@@ -736,8 +744,8 @@
         }
         throw new Error(
           `Das Abbild „${path.split("/").pop()}“ liess sich nicht laden. ` +
-          "Vermutlich ein Verbindungsproblem — bitte die Seite neu laden. " +
-          "In der Online-Version stehen Alpine, Buildroot und „Eigenes Abbild“ zur Verfügung."
+          "Vermutlich ein Verbindungsproblem — bitte die Seite neu laden und " +
+          "es noch einmal versuchen."
         );
       }
     }
@@ -1203,4 +1211,8 @@
   if (preflight()) {
     log("Bereit. v86 geladen, alles läuft lokal in diesem Tab.");
   }
+
+  // Debug-Haken fuer die Browser-Konsole: Zugriff auf Emulator und Tastatur,
+  // z. B. um Boot-Menues zu steuern oder Tests zu skripten. Kein UI-Pfad.
+  window.__bl = { state, sendToGuest, guestScreen };
 })();

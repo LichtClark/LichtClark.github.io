@@ -17,6 +17,7 @@
   </div>
   <div class="badges">
     <span class="badge ok" title="Kernel, BIOS und Emulator sind statische Dateien; gerechnet wird ausschließlich in deinem Browser-Tab.">100&nbsp;% clientseitig</span>
+    <a class="badge" href="about.html" title="Wie alles funktioniert — Architektur, Gastsysteme, Autostart, Netzwerk">Dokumentation</a>
     <a class="badge" href="https://clarkie.de/" title="Zurück zu clarkie.de">⌂ clarkie.de</a>
   </div>
 </header>
@@ -75,6 +76,74 @@
       </ul>
       <span class="card_go">starten →</span>
     </a>
+
+    <a class="card" href="x86.html?sys=tinycore">
+      <div class="card_head">
+        <span class="card_kicker">Grafischer Desktop</span>
+        <h2>Tiny Core 10.1</h2>
+      </div>
+      <p class="card_lead">
+        Vollwertiges Linux mit FLTK-Desktop in 18&nbsp;MB. Der Autostart
+        bestätigt das Boot-Menü, danach erscheint die Oberfläche von selbst.
+      </p>
+      <ul class="card_facts">
+        <li>grafischer Desktop (Xvesa/flwm/wbar)</li>
+        <li>bootet in unter einer Minute</li>
+        <li>Netz per <code>sudo udhcpc</code></li>
+      </ul>
+      <span class="card_go">starten →</span>
+    </a>
+
+    <a class="card" href="x86.html?sys=dsl">
+      <div class="card_head">
+        <span class="card_kicker">X11-Klassiker</span>
+        <h2>Damn Small Linux</h2>
+      </div>
+      <p class="card_lead">
+        Der 50-MB-Klassiker mit vollständigem X11-Desktop: Fenstermanager,
+        Dateimanager, Dillo-Browser – alles mit der Maus bedienbar.
+      </p>
+      <ul class="card_facts">
+        <li>kompletter Desktop mit Maus</li>
+        <li>DHCP verbindet sich beim Boot von selbst</li>
+        <li>Knoppix-Basis, Kernel 2.4</li>
+      </ul>
+      <span class="card_go">starten →</span>
+    </a>
+
+    <a class="card" href="x86.html?sys=kolibri">
+      <div class="card_head">
+        <span class="card_kicker">Kuriosum</span>
+        <h2>KolibriOS</h2>
+      </div>
+      <p class="card_lead">
+        Ein grafisches Betriebssystem, komplett in Assembler geschrieben – passt
+        auf eine 1,4-MB-Diskette und bootet praktisch sofort zum Desktop.
+      </p>
+      <ul class="card_facts">
+        <li>ganzes OS auf einer Diskette</li>
+        <li>Editor, Dateimanager, Spiele, Demos</li>
+        <li>bedienbar mit der Maus</li>
+      </ul>
+      <span class="card_go">starten →</span>
+    </a>
+
+    <a class="card" href="x86.html?sys=freedos">
+      <div class="card_head">
+        <span class="card_kicker">Retro</span>
+        <h2>FreeDOS</h2>
+      </div>
+      <p class="card_lead">
+        Die klassische DOS-Eingabeaufforderung von einer 722-KB-Diskette. Der
+        Autostart zeigt den Disketteninhalt – Spiele inklusive.
+      </p>
+      <ul class="card_facts">
+        <li><code>invaders</code>, <code>snake</code>, <code>tetris</code></li>
+        <li><code>dir</code>, <code>mem</code>, <code>edit</code> wie früher</li>
+        <li>startet in Sekunden zu <code>A:\&gt;</code></li>
+      </ul>
+      <span class="card_go">starten →</span>
+    </a>
   </div>
 
   <section class="home_note">
@@ -96,11 +165,14 @@
     </p>
     <h3>Es gibt noch mehr</h3>
     <p>
-      Echtes <b>x86_64</b> über QEMU-Wasm, eine grafische <b>Damn-Small-Linux</b>-
-      Oberfläche und das Booten <b>eigener ISO-Abbilder</b> brauchen mehr Daten und
-      besondere Server-Kopfzeilen, als sich hier sinnvoll ausliefern lässt. Diese
-      Modi stecken in der lokal lauffähigen Vollversion auf
+      Auch <b>eigene ISO-Abbilder</b> lassen sich booten („Eigenes Abbild“ in der
+      Systemauswahl — mit 32-Bit-Prüfung vor dem Start). Nur echtes <b>x86_64</b>
+      über QEMU-Wasm braucht mehr Daten und besondere Server-Kopfzeilen, als sich
+      hier sinnvoll ausliefern lässt; es steckt in der lokal lauffähigen
+      Vollversion auf
       <a href="https://github.com/LichtClark" target="_blank" rel="noopener">GitHub</a>.
+      Wie alles im Detail funktioniert — Emulation, Autostart, Netzwerk,
+      Festplatte — steht in der <a href="about.html">Dokumentation</a>.
     </p>
   </section>
 
@@ -111,6 +183,7 @@
 </main>
 
 <footer class="footer">
+  <a href="about.html">Dokumentation</a> ·
   Emulation: <a href="https://github.com/copy/v86" target="_blank" rel="noopener">v86</a> (BSD-2-Clause) ·
   Terminal: <a href="https://xtermjs.org/" target="_blank" rel="noopener">xterm.js</a> (MIT) ·
   Alpine Linux (GPL/MIT) · Buildroot ·

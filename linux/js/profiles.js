@@ -27,7 +27,9 @@ const V86_KERNEL_OPTS = "random.trust_cpu=on tsc=reliable mitigations=off";
  * Autostart: Schritte, die nach dem Booten selbsttätig abgearbeitet werden.
  *
  *   vorher   Muster, auf das gewartet wird, BEVOR getippt wird
- *   tippen   die Befehlszeile
+ *   warteMs  feste Wartezeit statt Muster — für Bootschirme im Grafikmodus,
+ *            deren Text sich nicht aus dem VGA-Puffer lesen lässt
+ *   tippen   die Befehlszeile ("" schickt nur Enter)
  *   nachher  Muster, das die Ausgabe liefern muss, damit es weitergeht
  *   ms       Geduld für diesen Schritt
  *
@@ -172,7 +174,9 @@ const PROFILES = [
     autorunText: "holt eine Adresse per DHCP",
     recipes: [
       { label: "Netz verbinden", cmd: "udhcpc" },
-      { label: "Verbindung testen", cmd: "curl -s http://example.com | head -5" },
+      // api.ipify.org statt example.com: erlaubt CORS und antwortet ueber
+      // reines HTTP — funktioniert damit auch im Fetch-Modus ohne Relay.
+      { label: "Verbindung testen", cmd: "curl -s http://api.ipify.org && echo" },
     ],
     build: () => ({
       bzimage: { url: "images/buildroot-bzimage68.bin" },
@@ -182,22 +186,110 @@ const PROFILES = [
   },
   {
     id: "dsl",
-    name: "Damn Small Linux 4.11  ·  53 MB  ·  Grafik",
+    name: "Damn Small Linux 4.11  ·  53 MB  ·  X11-Desktop",
     memory: 256,
     vga_memory: 8,
     console: "vga",
     disk: "optional",
     assets: ["images/dsl-4.11.rc2.iso"],
-    optional: true,
-    web: false,   // 53-MB-Extra-ISO wird online nicht ausgeliefert (tools/build-web.ps1)
-    netUp: "udhcpc -i eth0",
+    netUp: "sudo pump -i eth0",
     hint:
       "Vollständige X11-Oberfläche mit Fenstermanager, Dateimanager und Terminal — " +
-      "mit Maus bedienbar. Einmalig holen: tools\\fetch-assets.ps1 -Extras",
-    recipes: [{ label: "Netz verbinden", cmd: "udhcpc -i eth0" }],
+      "mit Maus bedienbar. Der Bootvorgang dauert einen Moment; danach mit der Maus " +
+      "arbeiten. Die Rezepte tippen in ein geöffnetes Terminal (Rechtsklick → XShells).",
+    // Der isolinux-Splash der ISO ist ein Grafikbild mit "boot:"-Prompt, der ohne
+    // Enter unbegrenzt wartet — deshalb feste Wartezeit statt "vorher"-Muster.
+    // Zwei Anlaeufe: geht der erste im BIOS unter, faengt der zweite ihn ab;
+    // ein ueberzaehliges "dsl" verpufft im Kernel-Bootlog folgenlos.
+    autorun: [
+      { warteMs: 8000, tippen: "dsl", text: "Boot-Prompt bestätigen" },
+      { warteMs: 8000, tippen: "dsl", text: "Boot-Prompt bestätigen (2. Versuch)" },
+    ],
+    autorunText: "bestätigt den Boot-Prompt, danach startet der X11-Desktop von selbst",
+    recipes: [{ label: "Netz verbinden", cmd: "sudo pump -i eth0" }],
     build: () => ({
       cdrom: { url: "images/dsl-4.11.rc2.iso" },
       filesystem: {},
+    }),
+  },
+  {
+    id: "tinycore",
+    name: "Tiny Core Linux 10.1  ·  18 MB  ·  FLTK-Desktop",
+    memory: 256,
+    vga_memory: 32,
+    console: "vga",
+    disk: "optional",
+    assets: ["images/tinycore.iso"],
+    netUp: "sudo udhcpc",
+    hint:
+      "Winziges, aber vollwertiges Linux mit grafischem Desktop (FLTK/flwm). " +
+      "Nach dem Boot-Menü (übernimmt der Autostart) startet die Oberfläche von " +
+      "selbst. Die Rezepte tippen in ein geöffnetes Terminal — dazu unten in der " +
+      "Leiste „Term“ anklicken.",
+    // Das isolinux-Menue der ISO wartet sonst 60 Sekunden — der Autostart
+    // bestaetigt den Standardeintrag (GUI-Boot mit "cde") sofort per Enter.
+    autorun: [
+      { vorher: /TinyCore/, tippen: "", ms: 60000, text: "Boot-Menü bestätigen" },
+    ],
+    autorunText: "bestätigt das Boot-Menü, danach erscheint der Desktop von selbst",
+    recipes: [
+      { label: "Netz verbinden", cmd: "sudo udhcpc" },
+      { label: "Verbindung testen", cmd: "wget -qO- http://api.ipify.org && echo" },
+    ],
+    build: () => ({
+      cdrom: { url: "images/tinycore.iso" },
+      boot_order: 0x123,
+      filesystem: {},
+    }),
+  },
+  {
+    id: "kolibri",
+    name: "KolibriOS  ·  1,4 MB  ·  grafisch, in Assembler",
+    memory: 128,
+    vga_memory: 32,
+    console: "vga",
+    disk: "none",
+    assets: ["images/kolibri.img"],
+    hint:
+      "Ein komplettes grafisches Betriebssystem in Assembler — passt auf eine " +
+      "Diskette und startet praktisch sofort. Mit der Maus bedienbar; kein Login, " +
+      "keine Konsole. Enthält Editor, Dateimanager, Spiele und Demos.",
+    autorunText: "startet direkt in den Desktop",
+    recipes: [],
+    build: () => ({
+      fda: { url: "images/kolibri.img" },
+      boot_order: 0x321,
+    }),
+  },
+  {
+    id: "freedos",
+    name: "FreeDOS  ·  0,7 MB  ·  DOS-Eingabeaufforderung",
+    memory: 64,
+    vga_memory: 8,
+    console: "vga",
+    disk: "none",
+    assets: ["images/freedos722.img"],
+    hint:
+      "Ein freies MS-DOS, bootet von der Diskette zur klassischen A:\\>-Eingabe" +
+      "aufforderung. Startet sofort. Alte DOS-Befehle (dir, mem, edit, …) — und " +
+      "drei Spiele sind auch dabei.",
+    // Boot-getestet: das Abbild meldet sich mit A:\> und bringt die Spiele
+    // invaders, snake und tetris mit ("Try 'invaders' or 'snake' ...").
+    autorun: [
+      { vorher: /A:\\>/, tippen: "dir /w", nachher: /bytes free/i, ms: 60000, text: "Disketteninhalt zeigen" },
+    ],
+    autorunText: "wartet auf A:\\> und zeigt den Disketteninhalt",
+    recipes: [
+      { label: "Verzeichnis anzeigen", cmd: "dir /w" },
+      { label: "Speicher anzeigen", cmd: "mem" },
+      { label: "DOS-Version", cmd: "ver" },
+      { label: "Spiel: Invaders", cmd: "invaders" },
+      { label: "Spiel: Snake", cmd: "snake" },
+      { label: "Spiel: Tetris", cmd: "tetris" },
+    ],
+    build: () => ({
+      fda: { url: "images/freedos722.img" },
+      boot_order: 0x321,
     }),
   },
   {
