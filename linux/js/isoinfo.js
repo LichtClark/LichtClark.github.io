@@ -27,7 +27,9 @@ const IsoInfo = (function () {
   }
 
   function le32(b, o) {
-    return b[o] | (b[o + 1] << 8) | (b[o + 2] << 16) | (b[o + 3] << 24);
+    // >>> 0: sonst liefert ein gesetztes High-Bit (Wert >= 2^31) einen negativen
+    // Offset, der als "von hinten" fehlinterpretiert wuerde.
+    return (b[o] | (b[o + 1] << 8) | (b[o + 2] << 16) | (b[o + 3] << 24)) >>> 0;
   }
 
   function ascii(b, o, n) {
@@ -38,10 +40,16 @@ const IsoInfo = (function () {
 
   /* Ein ISO9660-Verzeichnis einlesen -> [{ name, lba, size, isDir }] */
   async function readDir(file, lba, size) {
-    const data = await readAt(file, lba * SECTOR, size);
+    // Schutz vor manipulierten Abbildern: ein gutartiges Verzeichnis ist winzig.
+    // Eine ISO, deren Verzeichnisgroesse absurd hoch behauptet wird (oder deren
+    // Sektor voller 0x01-Bytes steht), wuerde die Schleife sonst millionenfach
+    // laufen lassen und den Tab einfrieren, bevor ueberhaupt gebootet wird.
+    const MAX_DIR_BYTES = 2 * 1024 * 1024;
+    const MAX_ENTRIES = 8192;
+    const data = await readAt(file, lba * SECTOR, Math.min(size >>> 0, MAX_DIR_BYTES));
     const entries = [];
     let p = 0;
-    while (p < data.length) {
+    while (p < data.length && entries.length < MAX_ENTRIES) {
       const len = data[p];
       if (len === 0) {
         // Rest des Sektors ist Füllmaterial
@@ -49,10 +57,12 @@ const IsoInfo = (function () {
         if (p >= data.length) break;
         continue;
       }
+      if (p + 33 > data.length) break;          // Kopf passt nicht mehr in die Daten
       const extent = le32(data, p + 2);
       const dataLen = le32(data, p + 10);
       const flags = data[p + 25];
       const nameLen = data[p + 32];
+      if (p + 33 + nameLen > data.length) break; // Name ragt ueber die Daten hinaus
       let name = ascii(data, p + 33, nameLen);
       if (nameLen === 1 && (data[p + 33] === 0 || data[p + 33] === 1)) {
         name = data[p + 33] === 0 ? "." : "..";
@@ -73,24 +83,13 @@ const IsoInfo = (function () {
     return null;
   }
 
-  async function walk(file, root, pathParts) {
-    let dir = root;
-    let entry = null;
-    for (const part of pathParts) {
-      entry = await findChild(file, dir, part);
-      if (!entry) return null;
-      if (entry.isDir) dir = await readDir(file, entry.lba, entry.size);
-    }
-    return entry;
-  }
-
   /* bzImage-Kopf auswerten -> 'i386' | 'amd64' | null */
   async function kernelArch(file, entry) {
     const head = await readAt(file, entry.lba * SECTOR, 0x300);
     if (head.length < 0x240) return null;
     if (ascii(head, 0x202, 4) !== "HdrS") return null;      // kein bzImage
     const version = head[0x206] | (head[0x207] << 8);
-    if (version < 0x0207) return "i386";                     // xloadflags gibt es erst ab 2.07
+    if (version < 0x020c) return "i386";                     // xloadflags (0x236) erst ab Protokoll 2.12
     const xloadflags = head[0x236] | (head[0x237] << 8);
     return xloadflags & 0x01 ? "amd64" : "i386";             // Bit 0 = XLF_KERNEL_64
   }
@@ -163,8 +162,11 @@ const IsoInfo = (function () {
         if (kArch) break;
       }
 
-      // ── Gesamturteil
-      if (kArch === "amd64" && !ia32) out.arch = "amd64";
+      // ── Gesamturteil. Der Kernel selbst hat Vorrang: ein 64-Bit-Kernel bleibt
+      // 64-Bit, auch wenn ein IA32-EFI-Loader (BOOTIA32.EFI) dabeiliegt — der
+      // kann einen 64-Bit-Kernel nachladen. Sonst wuerde v86 ein amd64-Abbild als
+      // "32-Bit, laeuft" melden und dann stumm schwarz bleiben.
+      if (kArch === "amd64") out.arch = "amd64";
       else if (kArch === "i386") out.arch = ia32 || !x64 ? "i386" : "both";
       else if (ia32 && x64) out.arch = "both";
       else if (ia32) out.arch = "i386";

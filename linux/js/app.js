@@ -568,6 +568,12 @@
         });
         el.progressWrap.hidden = true;
         log(`Festplatte „${id}“ geladen (${fmtBytes(buffer.byteLength)}).`);
+        if (info.dirty) {
+          notify("warn",
+            `Die letzte Sicherung der Festplatte „${id}“ wurde unterbrochen — der ` +
+            "Inhalt könnte inkonsistent sein. Die nächste vollständige Sicherung " +
+            "gleicht ihn wieder ab; im Zweifel das Dateisystem im Gast prüfen (fsck).");
+        }
       }
     }
 

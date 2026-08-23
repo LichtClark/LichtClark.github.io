@@ -95,7 +95,9 @@ const PROFILES = [
           "sed -i 's|^default_kernel_opts=.*|default_kernel_opts=\"" + V86_KERNEL_OPTS +
           " console=tty0\"|' /mnt/etc/update-extlinux.conf; " +
           "grep -q random.trust_cpu /mnt/boot/extlinux.conf || " +
-          "sed -i 's|^\\(  APPEND .*\\)$|\\1 " + V86_KERNEL_OPTS + " console=tty0|' /mnt/boot/extlinux.conf; " +
+          // Einrueckung nicht fest annehmen: greift die APPEND-Zeile unabhaengig
+          // von der Anzahl fuehrender Leerzeichen (sonst no-op -> Boot haengt).
+          "sed -i 's|^\\([[:space:]]*APPEND .*\\)$|\\1 " + V86_KERNEL_OPTS + " console=tty0|' /mnt/boot/extlinux.conf; " +
           "rm -f /mnt/etc/runlevels/sysinit/hwdrivers; " +
           // Ohne hwdrivers laedt niemand mehr das Netzwerkmodul: fest eintragen.
           "printf 'ne2k-pci\\nvirtio_net\\n' >> /mnt/etc/modules; " +
