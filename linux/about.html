@@ -11,10 +11,10 @@
   html { scroll-behavior: smooth; }
 
   .doc { max-width: 920px; margin: 0 auto; padding: 28px 16px 48px; }
-  .doc section[id], .doc h3[id] { scroll-margin-top: 70px; }
+  .doc section[id], .doc h3[id], .doc li[id] { scroll-margin-top: 70px; }
 
   .doc h1 { font-size: 22px; letter-spacing: .3px; margin: 0 0 6px; color: var(--fg); }
-  .doc .untertitel { color: var(--fg-dim); font-size: 13px; margin: 0 0 24px; }
+  .doc .untertitel { color: var(--fg-dim); font-size: 13px; margin: 0 0 20px; }
 
   .doc h2 {
     font-size: 14px;
@@ -27,6 +27,7 @@
   }
   .doc h2 .nr { color: var(--fg-dim); margin-right: 8px; }
   .doc h3 { font-size: 15px; color: var(--fg); margin: 30px 0 8px; }
+  .doc h3 .nr { color: var(--fg-dim); margin-right: 8px; font-weight: 400; }
   .doc h3 .dim { color: var(--fg-dim); font-weight: 400; font-size: 13px; }
   .doc h4 { font-size: 13px; color: var(--fg); margin: 18px 0 6px; }
 
@@ -58,8 +59,19 @@
   }
   .doc pre code { background: none; border: 0; padding: 0; }
 
+  /* Abstract-Kasten */
+  .abstract {
+    border: 1px solid var(--accent-dim);
+    background: var(--bg-panel);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 18px 0 8px;
+  }
+  .abstract h2 { margin: 0 0 6px; padding: 0; border: 0; font-size: 12px; }
+  .abstract p { margin: 6px 0; font-size: 13px; }
+
   /* Tabellen scrollen bei Bedarf in ihrem eigenen Rahmen, nie die ganze Seite. */
-  .tabelle { overflow-x: auto; margin: 12px 0; }
+  .tabelle { overflow-x: auto; margin: 4px 0 12px; }
   .doc table { border-collapse: collapse; width: 100%; font-size: 13px; }
   .doc th, .doc td {
     border: 1px solid var(--line);
@@ -79,6 +91,30 @@
     white-space: nowrap;
   }
   .doc td b { color: var(--fg); }
+
+  /* Beschriftungen für Tabellen und Abbildungen */
+  .beschriftung { font-size: 11.5px; color: var(--fg-dim); margin: 14px 0 4px; }
+  .beschriftung b { color: var(--accent); font-weight: 600; }
+
+  /* Fußnoten (unter Tabellen bzw. Abschnitten) */
+  .fussnoten {
+    font-size: 11.5px;
+    color: var(--fg-dim);
+    border-top: 1px dashed var(--line);
+    margin: 6px 0 14px;
+    padding-top: 6px;
+  }
+  .fussnoten p { font-size: 11.5px; margin: 3px 0; line-height: 1.6; }
+  .doc sup { line-height: 0; font-size: 10.5px; }
+
+  /* Quellenverweise [n] */
+  a.ref { text-decoration: none; }
+  a.ref:hover { text-decoration: underline; }
+  .quellen li { margin: 6px 0; }
+
+  /* Glossar */
+  .glossar dt { color: var(--fg); font-weight: 600; margin-top: 10px; }
+  .glossar dd { margin: 0 0 6px; }
 
   /* Steckbrief je Gastsystem */
   .steckbrief {
@@ -130,7 +166,7 @@
      dann nicht mehr festkleben, sonst verdeckt sie die Sprungziele. */
   @media (max-width: 720px) {
     .topbar { position: static; }
-    .doc section[id], .doc h3[id] { scroll-margin-top: 12px; }
+    .doc section[id], .doc h3[id], .doc li[id] { scroll-margin-top: 12px; }
   }
 </style>
 </head>
@@ -151,16 +187,42 @@
 
 <main class="doc" id="top">
 
-  <h1>Dokumentation</h1>
+  <h1>BrowserLinux — eine technische Ausarbeitung</h1>
   <p class="untertitel">
-    Wie BrowserLinux funktioniert — Architektur, die acht Gastsysteme, Autostart,
-    Netzwerk, Festplatte und die bekannten Stolperfallen.
+    Architektur, Emulationsverfahren, die acht Gastsysteme, Messwerte und die
+    bekannten Stolperfallen. Stand: 23.&nbsp;August&nbsp;2026.
   </p>
+
+  <div class="abstract">
+    <h2>Abstract</h2>
+    <p>
+      BrowserLinux führt vollständige x86-Rechner ausschließlich clientseitig im
+      Browser-Tab aus; ein Server liefert nur statische Dateien und ist danach
+      nicht mehr beteiligt. Zwei Emulatoren decken die Architekturen ab: v86
+      <a class="ref" href="#q1">[1]</a> übersetzt 32-Bit-x86-Code zur Laufzeit
+      nach WebAssembly und erreicht 100–500&nbsp;MIPS, QEMU-Wasm
+      <a class="ref" href="#q2">[2]</a> führt über den TCG-Übersetzer echtes
+      x86_64 aus — deutlich langsamer, dafür 64 Bit. Acht Gastprofile stehen
+      bereit, von Alpine Linux mit Paketverwaltung über zwei grafische Desktops
+      bis zu FreeDOS und einem Betriebssystem in Assembler; ein
+      Autostart-Mechanismus richtet sie nach dem Boot ohne Zutun ein.
+      Kernergebnisse der Messreihe (Abschnitt&nbsp;8): Alpine erreicht mit
+      Relay-Netz 43&nbsp;Sekunden nach dem Boot-Klick einen angemeldeten,
+      netzfähigen Zustand mit 5968 verfügbaren Paketen, Buildroot ist nach
+      5&nbsp;Sekunden einsatzbereit, eine dauerhafte Alpine-Installation bootet
+      in ~37&nbsp;Sekunden von einer IndexedDB-Platte. Die wichtigsten Grenzen
+      sind die 32-Bit-Beschränkung von v86, die CORS-Schranke ohne Relay und die
+      Zeitgeber-Drosselung in Hintergrund-Tabs. Alle Zahlen sind gemessen
+      (Methodik in Abschnitt&nbsp;2) oder dem Quelltext entnommen; erfunden ist
+      hier nichts — dafür gibt es Fußnoten.
+    </p>
+  </div>
 
   <nav class="toc" aria-label="Inhaltsverzeichnis">
     <h2>Inhalt</h2>
     <ol>
       <li><a href="#idee">Was ist BrowserLinux?</a></li>
+      <li><a href="#methodik">Methodik</a></li>
       <li><a href="#emulation">Wie die Emulation funktioniert</a></li>
       <li><a href="#gastsysteme">Die Gastsysteme im Detail</a>
         <div class="sub">
@@ -177,10 +239,12 @@
       <li><a href="#autostart">Der Autostart</a></li>
       <li><a href="#netzwerk">Netzwerk: drei Modi</a></li>
       <li><a href="#festplatte">Festplatte &amp; Persistenz</a></li>
+      <li><a href="#messwerte">Messwerte</a></li>
       <li><a href="#eigene-abbilder">Eigene Abbilder</a></li>
       <li><a href="#werkzeuge">Werkzeuge</a></li>
       <li><a href="#datenschutz">Datenschutz</a></li>
       <li><a href="#grenzen">Grenzen &amp; Fehlerbehebung</a></li>
+      <li><a href="#glossar">Glossar</a></li>
       <li><a href="#lizenzen">Quellen &amp; Lizenzen</a></li>
     </ol>
   </nav>
@@ -192,16 +256,19 @@
       BrowserLinux emuliert einen vollständigen x86-PC im Browser-Tab — mit CPU,
       BIOS, Festplatte, Grafikkarte, Netzwerkkarte und serieller Konsole. Das
       Gastsystem ist ein echtes, unverändertes Betriebssystem: Alpine Linux mit
-      Paketverwaltung, ein BusyBox-Buildroot, ein X11-Desktop, ein DOS oder ein
-      Betriebssystem in Assembler.
+      Paketverwaltung, ein BusyBox-Buildroot, zwei grafische Desktops, ein DOS
+      oder ein Betriebssystem in Assembler. Der Gast weiß von alledem nichts; er
+      hält den Tab für einen PC aus den späten Neunzigern mit ungewöhnlich viel
+      Arbeitsspeicher.
     </p>
     <p>
       Die Seite ist rein statisch. Es gibt <b>kein Backend</b>: HTML, JavaScript,
       das WebAssembly-Modul des Emulators, Kernel und Abbilder werden als Dateien
-      ausgeliefert — danach passiert alles im Tab. Deshalb läuft BrowserLinux
-      unverändert auf GitHub Pages und genauso von einem lokalen Mini-Webserver
-      (<code>start.bat</code>).
+      ausgeliefert — danach passiert alles im Tab (Abb.&nbsp;1). Deshalb läuft
+      BrowserLinux unverändert auf GitHub Pages und genauso von einem lokalen
+      Mini-Webserver (<code>start.bat</code>).
     </p>
+    <p class="beschriftung"><b>Abb. 1:</b> Aufbau — statische Auslieferung, Ausführung vollständig im Tab.</p>
 <pre>┌─ Browser-Tab ────────────────────────────────────────────────┐
 │  index.html + js/            Bedienoberfläche                │
 │  vendor/v86.wasm             x86-CPU, PIC, PIT, IDE, VGA, NIC│
@@ -211,45 +278,79 @@
 └──────────────────────────────────────────────────────────────┘
         ↑ statische Dateien; danach läuft die Emulation im Tab</pre>
     <p>
-      Zwei Modi stehen bereit: <b>32 Bit</b> über v86 (<a href="x86.html">x86.html</a>)
-      und <b>64 Bit</b> über QEMU-Wasm (<a href="x64.html">x64.html</a>). Für
+      Zwei Modi stehen bereit: <b>32 Bit</b> über v86 <a class="ref" href="#q1">[1]</a>
+      (<a href="x86.html">x86.html</a>) und <b>64 Bit</b> über QEMU-Wasm
+      <a class="ref" href="#q2">[2]</a> (<a href="x64.html">x64.html</a>). Für
       alltägliche Arbeit ist der 32-Bit-Modus die bessere Wahl; der 64-Bit-Modus
       ist da, wenn es zwingend x86_64 sein muss.
     </p>
   </section>
 
-  <!-- ─────────────────────── 2 · Emulation ─────────────────────── -->
-  <section id="emulation">
-    <h2><span class="nr">2</span>Wie die Emulation funktioniert<a class="nach-oben" href="#top">↑ nach oben</a></h2>
-
-    <h3>v86 — 32 Bit, schnell</h3>
+  <!-- ─────────────────────── 2 · Methodik ─────────────────────── -->
+  <section id="methodik">
+    <h2><span class="nr">2</span>Methodik<a class="nach-oben" href="#top">↑ nach oben</a></h2>
     <p>
-      <a href="https://github.com/copy/v86" target="_blank" rel="noopener">v86</a>
-      emuliert einen 32-Bit-x86-Prozessor samt PC-Hardware: PIC, PIT, IDE, VGA,
-      NE2000- und virtio-Netzwerkkarte, 9p-Dateisystem, PC-Lautsprecher und SB16.
-      Gebootet wird über SeaBIOS und ein VGA-BIOS. Der entscheidende Kniff:
-      v86 interpretiert den x86-Maschinencode nicht Befehl für Befehl, sondern
-      <b>übersetzt ihn zur Laufzeit in WebAssembly-Module</b> (JIT). Der Browser
-      führt den übersetzten Code dann nahezu nativ aus — je nach Last kommen
+      Alle Zahlen in dieser Ausarbeitung stammen aus einer von zwei Quellen: aus
+      <b>Messungen</b> in einem Chromium-basierten Browser auf einem Desktop-PC
+      unter Windows (lokale Auslieferung der Seite) — oder, wo Messung nichts
+      beitragen kann (Blockgrößen, Kernel-Parameter, Bootreihenfolgen), direkt
+      aus dem <b>Quelltext des Projekts</b>.
+    </p>
+    <ul>
+      <li><b>Zeitmessung:</b> Boot-Zeiten laufen ab dem Klick auf „Booten“, also
+        inklusive des Ladens der Abbilder. Die Dauer einzelner Autostart-Schritte
+        stammt aus dem Protokoll der Oberfläche, das jeden Schritt mit Zeitstempel
+        festhält.</li>
+      <li><b>Netztests:</b> im Fetch-Modus gegen ein CORS-offenes HTTP-Ziel
+        (<code>api.ipify.org</code>); im Relay-Betrieb zusätzlich reguläre
+        HTTPS-Ziele. Als „bestanden“ gilt eine inhaltlich korrekte Antwort, nicht
+        bloß ein aufgebauter Socket.</li>
+      <li><b>Grafische Gäste:</b> Meilensteine wie „Desktop steht“ wurden per
+        Augenschein festgestellt — ein X11-Desktop lässt sich schlecht nach
+        seinem Prompt fragen.</li>
+      <li><b>Stichprobengröße:</b> n&nbsp;=&nbsp;1, aber reproduzierbar. Der
+        Emulator kennt keine Tagesform; die größte Streuquelle der Zeitmessung
+        ist der Mensch an der Stoppuhr.</li>
+    </ul>
+    <p>
+      Absolute Zeiten hängen naturgemäß von Rechner und Browser ab und sind als
+      Größenordnung zu lesen; die <i>Verhältnisse</i> (Buildroot ≪ Alpine ≪ DSL)
+      sind stabil. Die Ergebnisse stehen gesammelt in Abschnitt&nbsp;8.
+    </p>
+  </section>
+
+  <!-- ─────────────────────── 3 · Emulation ─────────────────────── -->
+  <section id="emulation">
+    <h2><span class="nr">3</span>Wie die Emulation funktioniert<a class="nach-oben" href="#top">↑ nach oben</a></h2>
+
+    <h3><span class="nr">3.1</span>v86 — 32 Bit, schnell</h3>
+    <p>
+      v86 <a class="ref" href="#q1">[1]</a> emuliert einen 32-Bit-x86-Prozessor
+      samt PC-Hardware: PIC, PIT, IDE, VGA, NE2000- und virtio-Netzwerkkarte,
+      9p-Dateisystem, PC-Lautsprecher und SB16. Gebootet wird über SeaBIOS und
+      ein VGA-BIOS. Der entscheidende Kniff: v86 interpretiert den
+      x86-Maschinencode nicht Befehl für Befehl, sondern <b>übersetzt ihn zur
+      Laufzeit in WebAssembly-Module</b> (JIT, siehe Glossar). Der Browser führt
+      den übersetzten Code dann nahezu nativ aus — je nach Last kommen
       100–500&nbsp;MIPS zusammen, genug für flüssiges Arbeiten in der Konsole und
       sogar für einen X11-Desktop.
     </p>
     <p>
       Die Grenze: v86 kann ausschließlich 32-Bit-x86. Aktuelle amd64-Abbilder
       (Ubuntu, Fedora, Debian …) starten darauf grundsätzlich nicht
-      (<a href="#eigene-abbilder">Abschnitt 7</a>).
+      (Abschnitt&nbsp;9).
     </p>
 
-    <h3>QEMU-Wasm — echtes x86_64, langsamer</h3>
+    <h3><span class="nr">3.2</span>QEMU-Wasm — echtes x86_64, langsamer</h3>
     <p>
-      Der 64-Bit-Modus lädt <a href="https://github.com/ktock/qemu-wasm" target="_blank" rel="noopener">QEMU
-      selbst</a> — mit Emscripten nach WebAssembly übersetzt, inklusive seines
-      eigenen JIT (TCG). Damit läuft ein echter x86_64-Gast: das mitgelieferte
-      Alpine 3.21 meldet <code>uname -m</code> → <code>x86_64</code>, wahlweise
-      steht ein selbst gebautes Ubuntu 24.04 LTS bereit. Der doppelte
-      Übersetzungsweg (x86_64 → TCG → WebAssembly) kostet allerdings deutlich
-      Tempo — der Prompt erscheint nach etwa 33–75&nbsp;Sekunden, gearbeitet wird
-      spürbar zäher als im 32-Bit-Modus.
+      Der 64-Bit-Modus lädt QEMU selbst <a class="ref" href="#q2">[2]</a> — mit
+      Emscripten nach WebAssembly übersetzt, inklusive seines eigenen Übersetzers
+      TCG. Damit läuft ein echter x86_64-Gast: das mitgelieferte Alpine 3.21
+      meldet <code>uname -m</code> → <code>x86_64</code>, wahlweise steht ein
+      selbst gebautes Ubuntu 24.04 LTS bereit. Der doppelte Übersetzungsweg
+      (x86_64 → TCG → WebAssembly) kostet allerdings deutlich Tempo — der Prompt
+      erscheint nach etwa 33–75&nbsp;Sekunden, gearbeitet wird spürbar zäher als
+      im 32-Bit-Modus.
     </p>
     <p>Weitere Eigenheiten des 64-Bit-Modus:</p>
     <ul>
@@ -266,6 +367,7 @@
         WebSocket-Brücke (<code>c2w-net</code>) mit vollem TCP.</li>
     </ul>
 
+    <p class="beschriftung"><b>Tab. 1:</b> Die beiden Modi im Vergleich.</p>
     <div class="tabelle"><table>
       <tr><th></th><th>32 Bit (x86.html)</th><th>64 Bit (x64.html)</th></tr>
       <tr><td>Emulator</td><td>v86 (WebAssembly-JIT)</td><td>QEMU, nach Wasm übersetzt, mit TCG-JIT</td></tr>
@@ -279,20 +381,21 @@
     </table></div>
   </section>
 
-  <!-- ─────────────────────── 3 · Gastsysteme ─────────────────────── -->
+  <!-- ─────────────────────── 4 · Gastsysteme ─────────────────────── -->
   <section id="gastsysteme">
-    <h2><span class="nr">3</span>Die Gastsysteme im Detail<a class="nach-oben" href="#top">↑ nach oben</a></h2>
+    <h2><span class="nr">4</span>Die Gastsysteme im Detail<a class="nach-oben" href="#top">↑ nach oben</a></h2>
     <p>
       Der 32-Bit-Modus bringt acht Profile mit. Alle Abbilder liegen lokal unter
       <code>images/</code>; zur Laufzeit lädt die Seite nichts von fremden Servern
       nach. Fehlt ein Abbild, erscheint eine klare Meldung statt eines stillen
       Hängers — die online ausgelieferte Fassung enthält nicht zwingend alle
-      Abbilder.
+      Abbilder. Gemessene Boot- und Autostart-Zeiten je System stehen in
+      Abschnitt&nbsp;8.
     </p>
 
-    <h3 id="sys-alpine">Alpine Linux 3.24 <span class="dim">· volles Linux mit apk</span></h3>
+    <h3 id="sys-alpine"><span class="nr">4.1</span>Alpine Linux 3.24 <span class="dim">· volles Linux mit apk</span></h3>
     <dl class="steckbrief">
-      <dt>Abbild</dt><dd>alpine-virt-3.24.1-x86.iso, 49 MB</dd>
+      <dt>Abbild</dt><dd>alpine-virt-3.24.1-x86.iso, 49 MB <a class="ref" href="#q5">[5]</a></dd>
       <dt>Ansicht</dt><dd>VGA-Bildschirm (Textmodus)</dd>
       <dt>Speicher</dt><dd>512 MB voreingestellt</dd>
       <dt>Festplatte</dt><dd>empfohlen — dauerhaft installierbar</dd>
@@ -303,8 +406,9 @@
       Das Arbeitspferd: ein vollwertiges Linux mit Paketverwaltung —
       <code>apk add bash curl git python3 gcc …</code>. Es läuft zunächst im
       Arbeitsspeicher und lässt sich mit einer virtuellen Festplatte dauerhaft
-      installieren (<a href="#festplatte">Abschnitt 6</a>). Der Live-Boot bis zum
-      Login dauert etwa eine Minute.
+      installieren (Abschnitt&nbsp;7). Der Live-Boot bis zur Anmeldung dauert je
+      nach Rechner zwischen einer halben und einer ganzen Minute
+      (Abschnitt&nbsp;8).
     </p>
     <p>
       <b>Besonderheit beim Booten:</b> Alpine wird nicht über den ISO-Bootloader
@@ -313,8 +417,9 @@
       die Kernel-Cmdline: über isolinux lässt sie sich nicht setzen, und ohne
       <code>random.trust_cpu=on</code> bleibt der Start reproduzierbar nach
       „Starting busybox mdev“ stehen — der Kernel wartet auf <b>Entropie</b>, die
-      es in einem Emulator ohne echte Hardware nicht gibt (die CPU hält dann bei
-      0,7&nbsp;MIPS). Mit gesetzter Cmdline
+      es in einem Emulator ohne echte Hardware nicht gibt; die CPU hält dann bei
+      0,7&nbsp;MIPS. Echter Zufall ist so ziemlich das Einzige, was sich hier
+      nicht mitemulieren lässt. Mit gesetzter Cmdline
       (<code>random.trust_cpu=on tsc=reliable mitigations=off</code>) läuft der
       Start durch.
     </p>
@@ -328,7 +433,7 @@
       <a href="#sys-alpine-disk">„Alpine – von der Festplatte starten“</a> wählen.
     </p>
 
-    <h3 id="sys-alpine-disk">Alpine – von der Festplatte starten</h3>
+    <h3 id="sys-alpine-disk"><span class="nr">4.2</span>Alpine – von der Festplatte starten</h3>
     <dl class="steckbrief">
       <dt>Abbild</dt><dd>keins — bootet die eigene Installation</dd>
       <dt>Ansicht</dt><dd>VGA-Bildschirm</dd>
@@ -346,16 +451,18 @@
     <p>
       <b>Rezept „Für v86 herrichten“:</b> eine Reparatur für Platten, die noch mit
       aktivem <code>hwdrivers</code>-Dienst installiert wurden. Dessen
-      mdev-Hardwarescan reißt v86 beim Start reproduzierbar in einen Neustart;
-      das Rezept nimmt den Dienst aus dem <code>sysinit</code>-Runlevel und trägt
-      die Netzwerkmodule (<code>ne2k-pci</code>, <code>virtio_net</code>) fest in
+      mdev-Hardwarescan sucht Hardware, die es in v86 nicht gibt, und findet
+      stattdessen zuverlässig einen Absturz: die Emulation gerät reproduzierbar
+      in einen Neustart. Das Rezept nimmt den Dienst aus dem
+      <code>sysinit</code>-Runlevel und trägt die Netzwerkmodule
+      (<code>ne2k-pci</code>, <code>virtio_net</code>) fest in
       <code>/etc/modules</code> ein — denn ohne <code>hwdrivers</code> lädt sie
-      sonst niemand mehr. Details in <a href="#festplatte">Abschnitt 6</a>.
+      sonst niemand mehr. Details in Abschnitt&nbsp;7.
     </p>
 
-    <h3 id="sys-buildroot">Buildroot Linux 6.8 <span class="dim">· 10 MB · Konsole</span></h3>
+    <h3 id="sys-buildroot"><span class="nr">4.3</span>Buildroot Linux 6.8 <span class="dim">· 10 MB · Konsole</span></h3>
     <dl class="steckbrief">
-      <dt>Abbild</dt><dd>buildroot-bzimage68.bin, 10 MB (Kernel mit eingebautem System)</dd>
+      <dt>Abbild</dt><dd>buildroot-bzimage68.bin, 10 MB (Kernel mit eingebautem System) <a class="ref" href="#q10">[10]</a></dd>
       <dt>Ansicht</dt><dd>serielle Konsole (xterm.js) — der VGA-Schirm bleibt leer</dd>
       <dt>Speicher</dt><dd>128 MB voreingestellt</dd>
       <dt>Festplatte</dt><dd>optional</dd>
@@ -365,14 +472,15 @@
     <p>
       Ein minimales Linux mit BusyBox-Shell und Lua, als einzelnes bzImage direkt
       an v86 übergeben — kein ISO, kein Bootloader, deshalb bootet es in wenigen
-      Sekunden. Das 9p-Austauschdateisystem ist hier schon unter <code>/mnt</code>
-      eingehängt. Der Autostart wartet auf den Shell-Prompt und holt per
-      <code>udhcpc</code> eine Adresse.
+      Sekunden; die Messunsicherheit besteht dabei hauptsächlich aus der
+      Reaktionszeit des Messenden. Das 9p-Austauschdateisystem ist hier schon
+      unter <code>/mnt</code> eingehängt. Der Autostart wartet auf den
+      Shell-Prompt und holt per <code>udhcpc</code> eine Adresse.
     </p>
 
-    <h3 id="sys-dsl">Damn Small Linux 4.11 <span class="dim">· 50 MB · X11-Desktop</span></h3>
+    <h3 id="sys-dsl"><span class="nr">4.4</span>Damn Small Linux 4.11 <span class="dim">· 50 MB · X11-Desktop</span></h3>
     <dl class="steckbrief">
-      <dt>Abbild</dt><dd>dsl-4.11.rc2.iso, 50 MB</dd>
+      <dt>Abbild</dt><dd>dsl-4.11.rc2.iso, 50 MB <a class="ref" href="#q7">[7]</a></dd>
       <dt>Ansicht</dt><dd>VGA, Grafikmodus — mit Maus bedienbar</dd>
       <dt>Speicher</dt><dd>256 MB voreingestellt</dd>
       <dt>Festplatte</dt><dd>optional</dd>
@@ -394,9 +502,9 @@
       überzähliges „dsl“ verpufft im Kernel-Bootlog folgenlos.
     </p>
 
-    <h3 id="sys-tinycore">Tiny Core Linux 10.1 <span class="dim">· 18 MB · FLTK-Desktop</span></h3>
+    <h3 id="sys-tinycore"><span class="nr">4.5</span>Tiny Core Linux 10.1 <span class="dim">· 18 MB · FLTK-Desktop</span></h3>
     <dl class="steckbrief">
-      <dt>Abbild</dt><dd>tinycore.iso, 18 MB</dd>
+      <dt>Abbild</dt><dd>tinycore.iso, 18 MB <a class="ref" href="#q6">[6]</a></dd>
       <dt>Ansicht</dt><dd>VGA, Grafikmodus (32 MB Grafikspeicher voreingestellt)</dd>
       <dt>Speicher</dt><dd>256 MB voreingestellt</dd>
       <dt>Festplatte</dt><dd>optional</dd>
@@ -418,9 +526,9 @@
       geöffnetes Terminal — dazu unten in der Leiste „Term“ anklicken.
     </p>
 
-    <h3 id="sys-kolibri">KolibriOS <span class="dim">· 1,4 MB · grafisch, in Assembler</span></h3>
+    <h3 id="sys-kolibri"><span class="nr">4.6</span>KolibriOS <span class="dim">· 1,4 MB · grafisch, in Assembler</span></h3>
     <dl class="steckbrief">
-      <dt>Abbild</dt><dd>kolibri.img, 1,4-MB-Diskette</dd>
+      <dt>Abbild</dt><dd>kolibri.img, 1,4-MB-Diskette <a class="ref" href="#q8">[8]</a></dd>
       <dt>Ansicht</dt><dd>VGA, Grafikmodus (32 MB Grafikspeicher voreingestellt)</dd>
       <dt>Speicher</dt><dd>128 MB voreingestellt</dd>
       <dt>Festplatte</dt><dd>keine vorgesehen</dd>
@@ -432,12 +540,14 @@
       Desktop. Kein Login, keine Konsole im Linux-Sinn: bedient wird mit der Maus.
       Enthalten sind Editor, Dateimanager, Spiele und Demos. Einen Autostart
       braucht das Profil nicht — es startet direkt in den Desktop; entsprechend
-      gibt es auch keine Rezepte.
+      gibt es auch keine Rezepte. Nach dem Start meldet es „You are now connected
+      to the network“ — die selbstbewussteste Statusmeldung der gesamten
+      Testreihe (Abschnitt&nbsp;8).
     </p>
 
-    <h3 id="sys-freedos">FreeDOS <span class="dim">· 0,7 MB · DOS-Eingabeaufforderung</span></h3>
+    <h3 id="sys-freedos"><span class="nr">4.7</span>FreeDOS <span class="dim">· 0,7 MB · DOS-Eingabeaufforderung</span></h3>
     <dl class="steckbrief">
-      <dt>Abbild</dt><dd>freedos722.img, 722-KB-Diskette</dd>
+      <dt>Abbild</dt><dd>freedos722.img, 722-KB-Diskette <a class="ref" href="#q9">[9]</a></dd>
       <dt>Ansicht</dt><dd>VGA, Textmodus</dd>
       <dt>Speicher</dt><dd>64 MB voreingestellt</dd>
       <dt>Festplatte</dt><dd>keine vorgesehen</dd>
@@ -459,7 +569,7 @@
       und DOS-Version.
     </p>
 
-    <h3 id="sys-custom">Eigenes Abbild …</h3>
+    <h3 id="sys-custom"><span class="nr">4.8</span>Eigenes Abbild …</h3>
     <dl class="steckbrief">
       <dt>Abbild</dt><dd>ISO, Festplatten-Abbild, Diskette oder bzImage von der eigenen Platte</dd>
       <dt>Ansicht</dt><dd>VGA</dd>
@@ -474,19 +584,19 @@
       die v86-erprobten Parameter inklusive <code>random.trust_cpu=on</code>).
       Die Datei wird ausschließlich in den Arbeitsspeicher des Tabs gelesen und
       nie irgendwohin geschickt; ISOs werden vor dem Start auf ihre Architektur
-      geprüft (<a href="#eigene-abbilder">Abschnitt 7</a>), denn v86 kann
-      ausschließlich 32-Bit-x86.
+      geprüft (Abschnitt&nbsp;9), denn v86 kann ausschließlich 32-Bit-x86.
     </p>
   </section>
 
-  <!-- ─────────────────────── 4 · Autostart ─────────────────────── -->
+  <!-- ─────────────────────── 5 · Autostart ─────────────────────── -->
   <section id="autostart">
-    <h2><span class="nr">4</span>Der Autostart<a class="nach-oben" href="#top">↑ nach oben</a></h2>
+    <h2><span class="nr">5</span>Der Autostart<a class="nach-oben" href="#top">↑ nach oben</a></h2>
     <p>
       Der Haken „nach dem Booten selbst einrichten“ arbeitet je Profil eine Liste
       von Schritten ab — Anmeldung, Netz, Paketquellen, Boot-Menüs. Jeder Schritt
-      kennt bis zu vier Angaben:
+      kennt bis zu vier Angaben (Tab.&nbsp;2):
     </p>
+    <p class="beschriftung"><b>Tab. 2:</b> Die Felder eines Autostart-Schritts.</p>
     <div class="tabelle"><table>
       <tr><th>Feld</th><th>Bedeutung</th></tr>
       <tr><td><code>vorher</code></td><td>Muster, auf das gewartet wird, <b>bevor</b> getippt wird — z.&nbsp;B. <code>login:</code> oder <code>A:\&gt;</code></td></tr>
@@ -509,7 +619,8 @@
       lief. Deshalb wird der Marker im Befehl aufgetrennt geschrieben:
       <code>echo A""UTO_NET</code> erscheint als Eingabe <i>mit</i>
       Anführungszeichen, in der Ausgabe aber als <code>AUTO_NET</code> — erst die
-      echte Ausgabe erfüllt das Muster.
+      echte Ausgabe erfüllt das Muster. Ein Bildschirm ist als Rückkanal eben
+      keine API, aber mit etwas Disziplin verhält er sich wie eine.
     </p>
     <p>
       Der Autostart läuft genau <b>einmal pro Boot</b> — Pause und Weiter spielen
@@ -520,21 +631,21 @@
     </p>
   </section>
 
-  <!-- ─────────────────────── 5 · Netzwerk ─────────────────────── -->
+  <!-- ─────────────────────── 6 · Netzwerk ─────────────────────── -->
   <section id="netzwerk">
-    <h2><span class="nr">5</span>Netzwerk: drei Modi<a class="nach-oben" href="#top">↑ nach oben</a></h2>
+    <h2><span class="nr">6</span>Netzwerk: drei Modi<a class="nach-oben" href="#top">↑ nach oben</a></h2>
 
-    <h3>aus</h3>
+    <h3><span class="nr">6.1</span>aus</h3>
     <p>Der Gast hat keine Netzwerkverbindung. Alles bleibt im Tab.</p>
 
-    <h3>Browser-Fetch — ohne Fremdserver</h3>
+    <h3><span class="nr">6.2</span>Browser-Fetch — ohne Fremdserver</h3>
     <p>
       v86 bildet Router, DHCP-Server und DNS <b>selbst im Browser nach</b> und
       setzt jede Verbindung des Gastes als <code>fetch()</code>-Aufruf ab;
-      Namensauflösung läuft über DNS-over-HTTPS. Es ist <b>kein Relay-Server
-      beteiligt</b> — dafür gilt die Same-Origin-Policy des Browsers: nur Ziele
-      mit CORS-Freigabe antworten, alle anderen quittieren mit
-      <code>502 Fetch Error</code> (<code>example.com</code> etwa). Für
+      Namensauflösung läuft über DNS-over-HTTPS (DoH). Es ist <b>kein
+      Relay-Server beteiligt</b> — dafür gilt die Same-Origin-Policy des
+      Browsers: nur Ziele mit CORS-Freigabe antworten, alle anderen quittieren
+      mit <code>502 Fetch Error</code> (<code>example.com</code> etwa). Für
       Paketmanager wie <code>apk</code> oder <code>apt</code> reicht das nicht,
       für CORS-offene APIs schon. Zwei Eigenheiten: schlägt eine Verbindung an
       CORS fehl, erklärt die Oberfläche das verständlich statt den rohen
@@ -544,7 +655,7 @@
       Browser-Variante statt der Terminalausgabe.
     </p>
 
-    <h3>Relay — volles TCP/IP</h3>
+    <h3><span class="nr">6.3</span>Relay — volles TCP/IP</h3>
     <p>
       Echtes TCP in beide Richtungen über einen WebSocket-Relay
       (WISP-Protokoll, <code>wisps://…</code>, oder klassischer websockproxy,
@@ -571,9 +682,11 @@
     </p>
   </section>
 
-  <!-- ─────────────────────── 6 · Festplatte ─────────────────────── -->
+  <!-- ─────────────────────── 7 · Festplatte ─────────────────────── -->
   <section id="festplatte">
-    <h2><span class="nr">6</span>Festplatte &amp; Persistenz<a class="nach-oben" href="#top">↑ nach oben</a></h2>
+    <h2><span class="nr">7</span>Festplatte &amp; Persistenz<a class="nach-oben" href="#top">↑ nach oben</a></h2>
+
+    <h3><span class="nr">7.1</span>Sicherungsverfahren</h3>
     <p>
       v86 bekommt die Festplatte als einen einzigen ArrayBuffer übergeben und
       schreibt Gast-Zugriffe direkt dorthin zurück. Drei Betriebsarten:
@@ -602,7 +715,7 @@
       und weicht notfalls auf die nächstkleinere aus.
     </p>
 
-    <h3>Alpine dauerhaft installieren</h3>
+    <h3><span class="nr">7.2</span>Alpine dauerhaft installieren</h3>
     <p>
       Profil „Alpine Linux 3.24“, Festplatte auf <i>persistent</i>, Netzwerk auf
       <i>Relay</i>, dann die Rezepte 1–4 der Reihe nach. Das vierte Rezept
@@ -634,9 +747,77 @@
     </p>
   </section>
 
-  <!-- ─────────────────────── 7 · Eigene Abbilder ─────────────────────── -->
+  <!-- ─────────────────────── 8 · Messwerte ─────────────────────── -->
+  <section id="messwerte">
+    <h2><span class="nr">8</span>Messwerte<a class="nach-oben" href="#top">↑ nach oben</a></h2>
+    <p>
+      Tab.&nbsp;3 fasst die Messreihe vom 23.&nbsp;August&nbsp;2026 zusammen
+      (Umgebung und Kriterien: Abschnitt&nbsp;2). Alle Zeiten laufen ab dem Klick
+      auf „Booten“; die Autostart-Schrittzeiten stammen aus dem Protokoll der
+      Oberfläche.
+    </p>
+    <p class="beschriftung"><b>Tab. 3:</b> Messreihe — Boot, Autostart und Netz-Nachweis je Gastsystem.</p>
+    <div class="tabelle"><table>
+      <tr><th>System (Konfiguration)</th><th>Boot / Meilensteine</th><th>Autostart</th><th>Netz-Nachweis</th></tr>
+      <tr>
+        <td><b>Alpine 3.24</b><br>(ISO-Boot, Relay-Netz)</td>
+        <td>Login-Prompt im Zuge des ersten Autostart-Schritts</td>
+        <td>komplett in <b>43 s</b>: anmelden 27 s · Netz 3 s · Paketquellen 7 s<sup>a</sup> · curl installieren 5 s<sup>b</sup></td>
+        <td>HTTPS-Abruf nach Einrichtung: <b>HTTP/2 200</b></td>
+      </tr>
+      <tr>
+        <td><b>Buildroot 6.8</b><br>(seriell, Fetch-Netz)</td>
+        <td>Shell-Prompt, Boot + DHCP zusammen in <b>5 s</b></td>
+        <td>ein Schritt (DHCP), im Bootwert enthalten</td>
+        <td><code>curl http://api.ipify.org</code> liefert die öffentliche Adresse</td>
+      </tr>
+      <tr>
+        <td><b>Tiny Core 10.1</b><br>(VGA/Grafik)</td>
+        <td>FLTK-Desktop nach <b>~30 s</b></td>
+        <td>Menü-Bestätigung 2 s nach Start</td>
+        <td><code>sudo udhcpc</code> + <code>wget</code> OK<sup>c</sup></td>
+      </tr>
+      <tr>
+        <td><b>DSL 4.11</b><br>(VGA/Grafik)</td>
+        <td>X11-Desktop nach <b>~2,5 min</b></td>
+        <td>tippt „dsl“ nach 8 s und 16 s</td>
+        <td>DHCP verbindet beim Boot von selbst (<code>pump</code> im Hintergrund); <code>wget</code> OK</td>
+      </tr>
+      <tr>
+        <td><b>KolibriOS</b><br>(Diskette)</td>
+        <td>Desktop nach <b>~30 s</b></td>
+        <td>keiner nötig</td>
+        <td>meldet „You are now connected to the network“ (NE2000 erkannt)<sup>d</sup></td>
+      </tr>
+      <tr>
+        <td><b>FreeDOS</b><br>(Diskette)</td>
+        <td><code>A:\&gt;</code> nach <b>~5 s</b></td>
+        <td><code>dir /w</code> unmittelbar danach</td>
+        <td>keins — konstruktionsbedingt, das Abbild enthält keinen Packet-Treiber<sup>e</sup></td>
+      </tr>
+    </table></div>
+    <div class="fussnoten">
+      <p><sup>a</sup>&nbsp;<code>apk update</code> meldete: „OK: 5968 distinct packages available“.</p>
+      <p><sup>b</sup>&nbsp;Abschlussmeldung: „OK: 14.1 MiB in 37 packages“.</p>
+      <p><sup>c</sup>&nbsp;Geprüft im Core-Textmodus derselben ISO — gleicher Kernel, gleicher Netzstack wie die grafische Fassung; ein FLTK-Desktop lässt sich schlecht per Skript befragen.</p>
+      <p><sup>d</sup>&nbsp;Ein HTTP-Abruf wäre nur über die grafische Oberfläche möglich und wurde daher nicht automatisiert verifiziert. Die Meldung selbst erschien zuverlässig — KolibriOS ist von allen Kandidaten am wenigsten von sich selbst überrascht.</p>
+      <p><sup>e</sup>&nbsp;FreeDOS erfüllt das Kriterium „kein Netz“ damit als einziges System fehlerfrei. Das <code>snake</code> auf der Diskette gilt hier ausdrücklich nicht als Benchmark.</p>
+    </div>
+    <p>
+      Einordnung: die Reihenfolge Buildroot&nbsp;≈&nbsp;FreeDOS&nbsp;≪
+      Tiny&nbsp;Core&nbsp;≈&nbsp;KolibriOS&nbsp;&lt;&nbsp;Alpine&nbsp;≪&nbsp;DSL
+      deckt sich mit der Abbildgröße und dem Bootweg (direktes bzImage bzw.
+      Diskette vor ISO mit Bootloader, Textmodus vor X11). Ältere Messungen aus
+      dem Projektverlauf — Live-Boot bis Login ~58&nbsp;s, Boot von Platte
+      ~37&nbsp;s, <code>apk</code>-Installation von 39 Paketen (64,2&nbsp;MiB) in
+      gut anderthalb Minuten — stammen von demselben Aufbau mit anderem
+      Tagesstand und passen in dieses Bild.
+    </p>
+  </section>
+
+  <!-- ─────────────────────── 9 · Eigene Abbilder ─────────────────────── -->
   <section id="eigene-abbilder">
-    <h2><span class="nr">7</span>Eigene Abbilder<a class="nach-oben" href="#top">↑ nach oben</a></h2>
+    <h2><span class="nr">9</span>Eigene Abbilder<a class="nach-oben" href="#top">↑ nach oben</a></h2>
     <p>
       v86 emuliert einen 32-Bit-Prozessor — eine reine amd64-ISO (jedes aktuelle
       Ubuntu, Xubuntu, Fedora, Debian) startet darauf nicht, der Bildschirm
@@ -672,9 +853,9 @@
     </p>
   </section>
 
-  <!-- ─────────────────────── 8 · Werkzeuge ─────────────────────── -->
+  <!-- ─────────────────────── 10 · Werkzeuge ─────────────────────── -->
   <section id="werkzeuge">
-    <h2><span class="nr">8</span>Werkzeuge<a class="nach-oben" href="#top">↑ nach oben</a></h2>
+    <h2><span class="nr">10</span>Werkzeuge<a class="nach-oben" href="#top">↑ nach oben</a></h2>
     <ul>
       <li><b>Zustand sichern / laden</b> — ein kompletter Maschinen-Snapshot
         (CPU, RAM, Geräte) als Datei. Beim Laden muss die Konfiguration passen:
@@ -694,16 +875,18 @@
         die per Knopfdruck in die laufende VM getippt werden.</li>
       <li><b>Pause / Reset / Beenden</b> — beim Beenden wird die persistente
         Platte auf Wunsch automatisch gesichert und der Speicher freigegeben.</li>
-      <li><b>Serielle Konsole</b> mit xterm.js — versteht ANSI-Farben und
-        Cursorbewegungen, direkt tippbar; dazu VGA-Text- und Grafikmodus.</li>
+      <li><b>Serielle Konsole</b> mit xterm.js <a class="ref" href="#q3">[3]</a>
+        — versteht ANSI-Farben und Cursorbewegungen, direkt tippbar; dazu
+        VGA-Text- und Grafikmodus.</li>
       <li><b>Statusanzeige</b> — Laufzeit, gemessene MIPS und die aktuelle
-        Bildschirmauflösung; ein Protokoll hält alle Schritte fest.</li>
+        Bildschirmauflösung; ein Protokoll hält alle Schritte fest (und lieferte
+        die Rohdaten für Abschnitt&nbsp;8).</li>
     </ul>
   </section>
 
-  <!-- ─────────────────────── 9 · Datenschutz ─────────────────────── -->
+  <!-- ─────────────────────── 11 · Datenschutz ─────────────────────── -->
   <section id="datenschutz">
-    <h2><span class="nr">9</span>Datenschutz<a class="nach-oben" href="#top">↑ nach oben</a></h2>
+    <h2><span class="nr">11</span>Datenschutz<a class="nach-oben" href="#top">↑ nach oben</a></h2>
     <p>
       Alles bleibt im Tab. Kernel, BIOS, Abbilder und der Emulator sind statische
       Dateien; nach dem Laden der Seite wird zur Laufzeit nichts von fremden
@@ -723,9 +906,9 @@
     </p>
   </section>
 
-  <!-- ─────────────────────── 10 · Grenzen ─────────────────────── -->
+  <!-- ─────────────────────── 12 · Grenzen ─────────────────────── -->
   <section id="grenzen">
-    <h2><span class="nr">10</span>Grenzen &amp; Fehlerbehebung<a class="nach-oben" href="#top">↑ nach oben</a></h2>
+    <h2><span class="nr">12</span>Grenzen &amp; Fehlerbehebung<a class="nach-oben" href="#top">↑ nach oben</a></h2>
     <ul>
       <li><b>Hintergrund-Tab:</b> das Bild friert ein, weil Browser
         <code>requestAnimationFrame</code> drosseln — die VM rechnet weiter,
@@ -736,7 +919,7 @@
       <li><b>Tempo:</b> 32-Bit-x86 ohne Hardware-Virtualisierung — je nach Last
         50–500 MIPS. Kein USB, kein 3D, Audio nur PC-Lautsprecher und SB16.</li>
       <li><b>Ohne Relay kein Paketmanager</b> — Browser-Fetch scheitert an der
-        CORS-Grenze (<a href="#netzwerk">Abschnitt 5</a>).</li>
+        CORS-Grenze (Abschnitt&nbsp;6).</li>
       <li><b>Plattengröße:</b> eine virtuelle Platte liegt als ein Stück im
         Arbeitsspeicher des Tabs; je nach freiem Speicher scheitern schon 2 GB
         („Array buffer allocation failed“). Die Oberfläche prüft die Größe sofort
@@ -747,10 +930,10 @@
       <li><b>Frisch installierte Alpine-Platte startet in einer
         Neustart-Schleife:</b> der <code>hwdrivers</code>-Dienst ist noch aktiv —
         im Platten-Profil das Rezept „Für v86 herrichten“ ausführen
-        (<a href="#festplatte">Abschnitt 6</a>).</li>
+        (Abschnitt&nbsp;7).</li>
       <li><b>Schwarzer Bildschirm bei eigener ISO:</b> in aller Regel ein
         64-Bit-Abbild — die Prüfung vor dem Start sagt es
-        (<a href="#eigene-abbilder">Abschnitt 7</a>).</li>
+        (Abschnitt&nbsp;9).</li>
       <li><b>Per <code>file://</code> geöffnet:</b> WebAssembly und
         <code>fetch()</code> sind dann blockiert — die Seite über einen Webserver
         aufrufen (lokal: <code>start.bat</code>).</li>
@@ -761,44 +944,135 @@
     </ul>
   </section>
 
-  <!-- ─────────────────────── 11 · Lizenzen ─────────────────────── -->
+  <!-- ─────────────────────── 13 · Glossar ─────────────────────── -->
+  <section id="glossar">
+    <h2><span class="nr">13</span>Glossar<a class="nach-oben" href="#top">↑ nach oben</a></h2>
+    <dl class="glossar">
+      <dt>9p</dt>
+      <dd>Schlankes Dateisystem-Protokoll aus dem Betriebssystem Plan&nbsp;9; v86
+        nutzt es als Austauschordner zwischen Tab und Gast (<code>/mnt</code>).</dd>
+      <dt>bzImage</dt>
+      <dd>Das übliche Containerformat eines komprimierten Linux-Kernels. Sein
+        Kopf verrät unter anderem die Zielarchitektur
+        (<code>xloadflags</code>-Feld) — darauf stützt sich die ISO-Prüfung.</dd>
+      <dt>CORS</dt>
+      <dd>Cross-Origin Resource Sharing: der Freigabemechanismus, mit dem ein
+        Server Browser-Zugriffe von fremden Seiten erlaubt. Fehlt die Freigabe,
+        blockt der <i>Browser</i> die Antwort — nicht der Server die Anfrage.</dd>
+      <dt>DoH</dt>
+      <dd>DNS-over-HTTPS: Namensauflösung als gewöhnliche, verschlüsselte
+        Web-Anfrage. Im Fetch-Modus der einzige Weg, an DNS zu kommen, denn rohe
+        UDP-Pakete kennt der Browser nicht.</dd>
+      <dt>El Torito</dt>
+      <dd>Erweiterung von ISO9660, die CDs BIOS-startfähig macht; der
+        Überlieferung nach benannt nach dem Restaurant, in dem die Spezifikation
+        entworfen wurde — das ist keine Erfindung dieser Seite.</dd>
+      <dt>IndexedDB</dt>
+      <dd>Die eingebaute Datenbank des Browsers für größere strukturierte
+        Datenmengen; hier das Lager für virtuelle Festplatten
+        (Abschnitt&nbsp;7).</dd>
+      <dt>initramfs</dt>
+      <dd>Kleines Start-Dateisystem im Arbeitsspeicher, das der Kernel vor dem
+        eigentlichen Wurzeldateisystem lädt; enthält im Alpine-Profil bereits
+        alle Treiber, die v86 braucht.</dd>
+      <dt>isolinux</dt>
+      <dd>Bootloader der Syslinux-Familie für CD-Abbilder; zeigt die Bootmenüs
+        bzw. -Prompts von Tiny Core und DSL an — und lässt sich von außen keine
+        Kernel-Cmdline diktieren, was das Alpine-Profil zum direkten
+        Kernel-Start zwingt.</dd>
+      <dt>JIT</dt>
+      <dd>Just-in-time-Übersetzung: Maschinencode wird erst im Moment der
+        Ausführung in die Zielsprache übersetzt (hier: x86 → WebAssembly), statt
+        Befehl für Befehl interpretiert zu werden. Der Tempo-Unterschied ist der
+        zwischen Simultandolmetschen und Wörterbuch.</dd>
+      <dt>MIPS</dt>
+      <dd>Millionen (Gast-)Instruktionen pro Sekunde. Die Statusanzeige berechnet
+        sie aus dem Befehlszähler des Emulators — als Tacho gedacht, nicht als
+        Benchmark.</dd>
+      <dt>SharedArrayBuffer</dt>
+      <dd>Speicher, den sich mehrere Browser-Threads teilen; aus
+        Sicherheitsgründen nur auf cross-origin-isolierten Seiten verfügbar
+        (COOP/COEP-Kopfzeilen). Voraussetzung des 64-Bit-Modus.</dd>
+      <dt>TCG</dt>
+      <dd>Tiny Code Generator: QEMUs eingebauter Übersetzer, der Gastbefehle zur
+        Laufzeit in Code für die Wirtsplattform übersetzt. Die „Wirtsplattform“
+        ist hier selbst WebAssembly — daher der doppelte Übersetzungsweg des
+        64-Bit-Modus.</dd>
+      <dt>WISP</dt>
+      <dd>WebSocket-Protokoll, das mehrere TCP-Verbindungen über eine einzige
+        WebSocket-Verbindung zu einem Relay führt; Grundlage des Relay-Modus
+        (<code>wisps://…</code>).</dd>
+    </dl>
+  </section>
+
+  <!-- ─────────────────────── 14 · Quellen & Lizenzen ─────────────────────── -->
   <section id="lizenzen">
-    <h2><span class="nr">11</span>Quellen &amp; Lizenzen<a class="nach-oben" href="#top">↑ nach oben</a></h2>
+    <h2><span class="nr">14</span>Quellen &amp; Lizenzen<a class="nach-oben" href="#top">↑ nach oben</a></h2>
+
+    <h3><span class="nr">14.1</span>Quellen</h3>
+    <ol class="quellen">
+      <li id="q1">v86 — x86-Emulator in WebAssembly (BSD-2-Clause).
+        <a href="https://github.com/copy/v86" target="_blank" rel="noopener">github.com/copy/v86</a></li>
+      <li id="q2">QEMU Wasm — QEMU-Portierung nach WebAssembly (GPL-2.0).
+        <a href="https://github.com/ktock/qemu-wasm" target="_blank" rel="noopener">github.com/ktock/qemu-wasm</a></li>
+      <li id="q3">xterm.js — Terminal-Emulator für den Browser (MIT).
+        <a href="https://xtermjs.org/" target="_blank" rel="noopener">xtermjs.org</a></li>
+      <li id="q4">xterm-pty — PTY-Anbindung für xterm.js (MIT).
+        <a href="https://github.com/mame/xterm-pty" target="_blank" rel="noopener">github.com/mame/xterm-pty</a></li>
+      <li id="q5">Alpine Linux — offizielle x86-Releases.
+        <a href="https://dl-cdn.alpinelinux.org/alpine/latest-stable/releases/x86/" target="_blank" rel="noopener">dl-cdn.alpinelinux.org</a></li>
+      <li id="q6">Tiny Core Linux — Projektseite und Abbilder.
+        <a href="http://tinycorelinux.net/" target="_blank" rel="noopener">tinycorelinux.net</a></li>
+      <li id="q7">Damn Small Linux — Projektseite.
+        <a href="http://www.damnsmalllinux.org/" target="_blank" rel="noopener">damnsmalllinux.org</a></li>
+      <li id="q8">KolibriOS — Projektseite.
+        <a href="https://kolibrios.org/" target="_blank" rel="noopener">kolibrios.org</a></li>
+      <li id="q9">FreeDOS — Projektseite.
+        <a href="https://www.freedos.org/" target="_blank" rel="noopener">freedos.org</a></li>
+      <li id="q10">i.copy.sh — Abbild-Hosting des v86-Autors; Quelle des
+        Buildroot-Kernels und der v86-erprobten Abbilder.</li>
+    </ol>
+
+    <h3><span class="nr">14.2</span>Lizenzen</h3>
     <p>Eigener Code: frei verwendbar. Verwendete Komponenten:</p>
+    <p class="beschriftung"><b>Tab. 4:</b> Komponenten und Lizenzen.</p>
     <div class="tabelle"><table>
-      <tr><th>Bestandteil</th><th>Lizenz</th><th>Quelle</th></tr>
+      <tr><th>Bestandteil</th><th>Lizenz</th><th>Nachweis</th></tr>
       <tr>
-        <td><a href="https://github.com/copy/v86" target="_blank" rel="noopener">v86</a></td>
+        <td>v86 <a class="ref" href="#q1">[1]</a></td>
         <td>BSD-2-Clause</td>
         <td><code>vendor/LICENSE-v86</code></td>
       </tr>
       <tr>
-        <td><a href="https://github.com/ktock/qemu-wasm" target="_blank" rel="noopener">QEMU Wasm</a></td>
+        <td>QEMU Wasm <a class="ref" href="#q2">[2]</a></td>
         <td>GPL-2.0</td>
         <td>übersetzte GPL-Software; der Quellcode liegt öffentlich im verlinkten Repo</td>
       </tr>
       <tr>
-        <td><a href="https://xtermjs.org/" target="_blank" rel="noopener">xterm.js</a></td>
+        <td>xterm.js <a class="ref" href="#q3">[3]</a></td>
         <td>MIT</td>
         <td><code>vendor/xterm/LICENSE</code></td>
       </tr>
       <tr>
-        <td><a href="https://github.com/mame/xterm-pty" target="_blank" rel="noopener">xterm-pty</a></td>
+        <td>xterm-pty <a class="ref" href="#q4">[4]</a></td>
         <td>MIT</td>
         <td>Terminal-Anbindung des 64-Bit-Modus</td>
       </tr>
     </table></div>
-    <p><b>Herkunft der Abbilder:</b></p>
+
+    <h3><span class="nr">14.3</span>Herkunft der Abbilder</h3>
     <ul>
-      <li><b>Alpine Linux 3.24</b> — offizielle x86-ISO von
-        <code>dl-cdn.alpinelinux.org</code>; Kernel und initramfs werden daraus
-        herausgelöst (<a href="#sys-alpine">warum, siehe Abschnitt 3</a>).</li>
-      <li><b>Tiny Core Linux 10.1</b> — von
-        <a href="http://tinycorelinux.net/" target="_blank" rel="noopener">tinycorelinux.net</a>.</li>
-      <li><b>KolibriOS, FreeDOS und Damn Small Linux</b> — als v86-erprobte
-        Abbilder, wie sie auch der v86-Autor für seine Demos verwendet.</li>
+      <li><b>Alpine Linux 3.24</b> — offizielle x86-ISO
+        <a class="ref" href="#q5">[5]</a>; Kernel und initramfs werden daraus
+        herausgelöst (warum, siehe Abschnitt&nbsp;4.1).</li>
+      <li><b>Tiny Core Linux 10.1</b> — von tinycorelinux.net
+        <a class="ref" href="#q6">[6]</a>.</li>
+      <li><b>KolibriOS, FreeDOS und Damn Small Linux</b>
+        <a class="ref" href="#q8">[8]</a><a class="ref" href="#q9">[9]</a><a class="ref" href="#q7">[7]</a>
+        — als v86-erprobte Abbilder, wie sie auch der v86-Autor für seine Demos
+        verwendet <a class="ref" href="#q10">[10]</a>.</li>
       <li><b>Buildroot-Kernel</b> — vom Abbild-Hosting des v86-Autors
-        (<code>i.copy.sh</code>).</li>
+        <a class="ref" href="#q10">[10]</a>.</li>
     </ul>
     <p>
       Die Gastsysteme selbst stehen unter ihren jeweiligen Lizenzen (GPL u.&nbsp;a.).
