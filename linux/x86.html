@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BrowserLinux 32-Bit — Linux im Browser</title>
+<link rel="stylesheet" href="vendor/xterm/xterm.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🐧</text></svg>">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="prompt">user@browser</span><span class="sep">:</span><span class="path">~/linux</span><span class="sep">$</span>
+    <strong>BrowserLinux</strong>
+  </div>
+  <div class="badges">
+    <span class="badge ok" title="Es wird nichts an einen Server geschickt – der komplette x86-Rechner wird in WebAssembly in diesem Tab emuliert.">100&nbsp;% clientseitig</span>
+    <span class="badge" id="badge_state">bereit</span>
+    <a class="badge" id="badge_x64" href="x64.html" title="Echtes x86_64 über QEMU-Wasm – langsamer, dafür 64 Bit">64-Bit-Modus →</a>
+    <a class="badge" href="index.html" title="Zur Startseite">⌂ Start</a>
+  </div>
+</header>
+
+<div id="file_warning" class="warnbar" hidden>
+  <strong>Achtung:</strong> Die Seite wurde per <code>file://</code> geöffnet. WebAssembly und <code>fetch()</code> sind dann blockiert.
+  Bitte <code>start.bat</code> (bzw. <code>start.ps1</code>) ausführen und <code>http://localhost:8086</code> aufrufen.
+</div>
+
+<main class="layout">
+
+  <!-- ─────────────────────────── Steuerung ─────────────────────────── -->
+  <aside class="panel">
+
+    <section class="block">
+      <h2>1 · System</h2>
+      <select id="profile"></select>
+      <p class="hint" id="profile_hint"></p>
+
+      <div id="custom_box" hidden>
+        <label class="lbl" for="custom_file">Eigenes Abbild (ISO / IMG / bzImage)</label>
+        <input type="file" id="custom_file">
+        <label class="lbl" for="custom_kind">Einbinden als</label>
+        <select id="custom_kind">
+          <option value="cdrom">CD-ROM (.iso)</option>
+          <option value="hda">Festplatte (.img / .bin)</option>
+          <option value="fda">Diskette (.img)</option>
+          <option value="bzimage">Linux-Kernel (bzImage)</option>
+        </select>
+        <label class="lbl" for="custom_cmdline">Kernel-Cmdline (nur bei bzImage)</label>
+        <input type="text" id="custom_cmdline" value="tsc=reliable mitigations=off random.trust_cpu=on">
+        <div id="iso_report" class="iso_report" hidden></div>
+        <label class="chk" id="force_arch_box" hidden>
+          <input type="checkbox" id="force_arch"> trotzdem starten versuchen
+        </label>
+        <p class="hint">Die Datei bleibt lokal – sie wird nur in den Arbeitsspeicher des Tabs gelesen.</p>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>2 · Hardware</h2>
+      <label class="lbl" for="memory">Arbeitsspeicher</label>
+      <select id="memory">
+        <option value="32">32 MB</option>
+        <option value="64">64 MB</option>
+        <option value="128" selected>128 MB</option>
+        <option value="256">256 MB</option>
+        <option value="512">512 MB</option>
+        <option value="1024">1 GB</option>
+        <option value="2048">2 GB</option>
+      </select>
+
+      <label class="lbl" for="vga_memory">Grafikspeicher</label>
+      <select id="vga_memory">
+        <option value="2">2 MB</option>
+        <option value="8" selected>8 MB</option>
+        <option value="32">32 MB</option>
+      </select>
+
+      <label class="chk"><input type="checkbox" id="enable_audio"> PC-Lautsprecher &amp; Soundblaster</label>
+      <label class="chk"><input type="checkbox" id="enable_acpi"> ACPI (experimentell)</label>
+    </section>
+
+    <section class="block">
+      <h2>3 · Festplatte <span class="tag">bleibt erhalten</span></h2>
+      <select id="disk_mode">
+        <option value="none">keine Festplatte</option>
+        <option value="persist">persistent (IndexedDB)</option>
+        <option value="ram">nur im Arbeitsspeicher</option>
+      </select>
+
+      <div id="disk_opts" hidden>
+        <label class="lbl" for="disk_size">Größe</label>
+        <select id="disk_size">
+          <option value="512">512 MB</option>
+          <option value="1024" selected>1 GB</option>
+          <option value="1536">1,5 GB</option>
+          <option value="2048">2 GB</option>
+          <option value="4096">4 GB</option>
+        </select>
+        <p class="hint">
+          Die Platte liegt als ein Stück im Arbeitsspeicher des Tabs. Chrome vergibt
+          hier höchstens etwa 1,5 GB am Stück — größere Werte werden beim Auswählen
+          als „zu groß“ markiert.
+        </p>
+
+        <label class="lbl" for="disk_id">Name</label>
+        <input type="text" id="disk_id" value="alpine" spellcheck="false">
+
+        <label class="chk"><input type="checkbox" id="disk_autosave" checked> beim Beenden automatisch sichern</label>
+        <div class="btnrow">
+          <button id="btn_disk_save" disabled>💾 Platte sichern</button>
+          <button id="btn_disk_drop">🗑 löschen</button>
+        </div>
+        <p class="hint" id="disk_status">–</p>
+      </div>
+      <p class="hint">
+        Eine virtuelle Platte macht aus der Live-Sitzung ein echtes System:
+        installieren, Pakete nachladen, neu starten – alles bleibt.
+        Gesichert wird in den Browser-Speicher, nicht auf einen Server.
+      </p>
+    </section>
+
+    <section class="block">
+      <h2>4 · Netzwerk</h2>
+      <select id="net_mode">
+        <option value="off">aus</option>
+        <option value="fetch">Browser-Fetch – ohne Fremdserver</option>
+        <option value="relay">Relay – volles TCP/IP</option>
+      </select>
+
+      <div id="net_relay_box" hidden>
+        <label class="lbl" for="relay_url">Relay-Adresse</label>
+        <input type="text" id="relay_url" value="wisps://wisp.mercurywork.shop/" spellcheck="false">
+      </div>
+
+      <label class="lbl" for="net_card">Netzwerkkarte</label>
+      <select id="net_card">
+        <option value="ne2k">NE2000 – überall unterstützt</option>
+        <option value="virtio">virtio-net – schneller, moderne Kernel</option>
+      </select>
+
+      <div class="btnrow">
+        <button id="btn_net_up" disabled>🔌 Im Gast verbinden</button>
+        <button id="btn_net_test" disabled>🌐 testen</button>
+      </div>
+
+      <p class="hint" id="net_hint"></p>
+    </section>
+
+    <section class="block">
+      <h2>5 · Start</h2>
+      <label class="chk"><input type="checkbox" id="auto_start" checked> nach dem Booten selbst einrichten</label>
+      <p class="hint">
+        Tippt Anmeldung, Netz, Paketquellen und <code>curl</code> selbsttätig ein.
+        Der Tab sollte dabei im Vordergrund bleiben — im Hintergrund bremst der
+        Browser die Zeitgeber aus.
+      </p>
+      <p class="hint" id="auto_status" hidden></p>
+
+      <div class="btnrow">
+        <button id="btn_start" class="primary">▶ Booten</button>
+        <button id="btn_pause" disabled>⏸ Pause</button>
+      </div>
+      <div class="btnrow">
+        <button id="btn_reset" disabled>⟳ Reset</button>
+        <button id="btn_kill" disabled>■ Beenden</button>
+      </div>
+    </section>
+
+    <section class="block" id="recipe_block" hidden>
+      <h2>Rezepte</h2>
+      <div id="recipes" class="recipes"></div>
+      <p class="hint">Tippt fertige Befehlsfolgen in die laufende VM.</p>
+    </section>
+
+    <section class="block" id="runtime_block">
+      <h2>Werkzeuge</h2>
+      <div class="btnrow">
+        <button id="btn_fullscreen" disabled>⛶ Vollbild</button>
+        <button id="btn_screenshot" disabled>📷 Screenshot</button>
+      </div>
+      <div class="btnrow">
+        <button id="btn_save_state" disabled>💾 Zustand sichern</button>
+        <button id="btn_load_state" disabled>📂 Zustand laden</button>
+      </div>
+      <input type="file" id="state_file" hidden>
+
+      <label class="lbl" for="send_text">Befehl in die VM tippen</label>
+      <div class="btnrow">
+        <input type="text" id="send_text" placeholder="z. B. uname -a" spellcheck="false">
+        <button id="btn_send_text" disabled>↵</button>
+      </div>
+      <p class="hint">Geht an die gerade sichtbare Ansicht (VGA-Tastatur bzw. COM1).</p>
+
+      <label class="lbl" for="upload_file">Datei in die VM legen (9p)</label>
+      <input type="file" id="upload_file" disabled>
+      <div class="btnrow">
+        <input type="text" id="download_path" placeholder="/mnt/notizen.txt" spellcheck="false">
+        <button id="btn_download_file" disabled>⇩</button>
+      </div>
+      <p class="hint">
+        In der VM einhängen: <code>mount -t 9p -o trans=virtio host9p /mnt</code><br>
+        Hochgeladene Dateien landen unter <code>/mnt/&lt;dateiname&gt;</code>.
+      </p>
+    </section>
+
+    <section class="block meta">
+      <h2>Status</h2>
+      <dl class="stats">
+        <dt>Zustand</dt><dd id="stat_state">gestoppt</dd>
+        <dt>Laufzeit</dt><dd id="stat_uptime">–</dd>
+        <dt>Leistung</dt><dd id="stat_mips">–</dd>
+        <dt>Bildschirm</dt><dd id="stat_res">–</dd>
+      </dl>
+    </section>
+  </aside>
+
+  <!-- ─────────────────────────── Bühne ─────────────────────────── -->
+  <section class="stage">
+
+    <div id="notice" class="notice" hidden>
+      <span id="notice_text"></span>
+      <button id="notice_close" title="schließen">✕</button>
+    </div>
+
+    <div id="progress_wrap" class="progress" hidden>
+      <div class="progress_label"><span id="progress_name">lade …</span><span id="progress_pct">0 %</span></div>
+      <div class="progress_track"><div class="progress_bar" id="progress_bar"></div></div>
+    </div>
+
+    <div class="screen_frame">
+      <div class="screen_toolbar">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <div class="tabs">
+          <button class="tab active" data-view="vga" id="tab_vga">VGA-Bildschirm</button>
+          <button class="tab" data-view="serial" id="tab_serial">Serielle Konsole</button>
+        </div>
+        <span class="spacer"></span>
+        <span class="screen_title" id="screen_title">–</span>
+        <label class="zoom">Zoom
+          <select id="zoom">
+            <option value="0.75">75 %</option>
+            <option value="1" selected>100 %</option>
+            <option value="1.25">125 %</option>
+            <option value="1.5">150 %</option>
+            <option value="2">200 %</option>
+          </select>
+        </label>
+      </div>
+
+      <!-- Struktur exakt so von v86 erwartet: erstes <div> = Textmodus, <canvas> = Grafikmodus -->
+      <div id="screen_container">
+        <div class="vga_text"></div>
+        <canvas style="display:none"></canvas>
+      </div>
+
+      <!-- Serielle Konsole: xterm.js, versteht ANSI-Farben und Cursorbewegungen. -->
+      <div id="serial" hidden></div>
+
+      <div class="screen_empty" id="screen_empty">
+        <pre>
+   ____                                _     _
+  | __ ) _ __ _____      _____  ___ _ _| |   (_)_ __  _   ___  __
+  |  _ \| '__/ _ \ \ /\ / / __|/ _ \ '__| |   | | '_ \| | | \ \/ /
+  | |_) | | | (_) \ V  V /\__ \  __/ |  | |___| | | | | |_| |>  <
+  |____/|_|  \___/ \_/\_/ |___/\___|_|  |_____|_|_| |_|\__,_/_/\_\
+</pre>
+        <p>Ein vollständiger x86-PC in WebAssembly. Links ein System wählen und <strong>Booten</strong> drücken.</p>
+        <p class="tiny">Der emulierte Rechner läuft ausschließlich in diesem Browser-Tab – kein Backend, keine Übertragung.</p>
+        <p class="tiny">Tastatur und Maus gehen an die VM, sobald der Bildschirm angeklickt wurde.</p>
+      </div>
+    </div>
+
+    <details class="log">
+      <summary>Protokoll</summary>
+      <pre id="log"></pre>
+    </details>
+
+  </section>
+</main>
+
+<footer class="footer">
+  Emulation: <a href="https://github.com/copy/v86" target="_blank" rel="noopener">v86</a> (BSD-2-Clause) ·
+  Terminal: <a href="https://xtermjs.org/" target="_blank" rel="noopener">xterm.js</a> (MIT) ·
+  beides lokal in <code>vendor/</code> · Abbilder in <code>images/</code> · kein Server im Spiel.
+</footer>
+
+<script src="vendor/xterm/xterm.js"></script>
+<script src="vendor/libv86.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/isoinfo.js"></script>
+<script src="js/profiles.js"></script>
+<script>window.BL_WEB=true;</script>
+<script src="js/app.js"></script>
+</body>
+</html>

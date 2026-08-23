@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Ein vollständiger Linux-PC im Browser-Tab – 100 % clientseitig, ohne Server, ohne Installation. Alpine Linux mit apk oder Buildroot in Sekunden.">
+<title>BrowserLinux — Linux im Browser-Tab</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🐧</text></svg>">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="prompt">user@browser</span><span class="sep">:</span><span class="path">~</span><span class="sep">$</span>
+    <strong>BrowserLinux</strong>
+  </div>
+  <div class="badges">
+    <span class="badge ok" title="Kernel, BIOS und Emulator sind statische Dateien; gerechnet wird ausschließlich in deinem Browser-Tab.">100&nbsp;% clientseitig</span>
+    <a class="badge" href="https://clarkie.de/" title="Zurück zu clarkie.de">⌂ clarkie.de</a>
+  </div>
+</header>
+
+<main class="home">
+
+  <section class="home_intro">
+    <pre class="home_logo">
+   ____                                _     _
+  | __ ) _ __ _____      _____  ___ _ _| |   (_)_ __  _   ___  __
+  |  _ \| '__/ _ \ \ /\ / / __|/ _ \ '__| |   | | '_ \| | | \ \/ /
+  | |_) | | | (_) \ V  V /\__ \  __/ |  | |___| | | | | |_| |>  <
+  |____/|_|  \___/ \_/\_/ |___/\___|_|  |_____|_|_| |_|\__,_/_/\_\
+</pre>
+    <p>
+      Ein vollständiger x86-PC in einem Browser-Tab. Kein Konto, keine
+      Installation, kein Server: Kernel und Emulator sind statische Dateien,
+      gerechnet wird in <strong>WebAssembly</strong> auf deinem Gerät.
+    </p>
+  </section>
+
+  <div class="cards">
+
+    <a class="card recommended" href="x86.html?sys=alpine">
+      <div class="card_head">
+        <span class="card_kicker">Volles Linux</span>
+        <h2>Alpine Linux 3.24</h2>
+      </div>
+      <p class="card_lead">
+        Ein echtes Linux mit Paketverwaltung: <code>apk add bash curl git python3 …</code>.
+        Mit optionaler Festplatte bleibt alles im Browser erhalten.
+      </p>
+      <ul class="card_facts">
+        <li><b>apk</b> mit knapp 6000 Paketen (über Relay)</li>
+        <li>Login bis Prompt in <b>~30&nbsp;s</b></li>
+        <li>persistente Platte in <b>IndexedDB</b></li>
+        <li>erster Start lädt einmalig <b>~65&nbsp;MB</b></li>
+      </ul>
+      <span class="card_go">starten →</span>
+    </a>
+
+    <a class="card" href="x86.html?sys=buildroot">
+      <div class="card_head">
+        <span class="card_kicker">Blitzschnell</span>
+        <h2>Buildroot 6.8</h2>
+      </div>
+      <p class="card_lead">
+        Winziges Linux mit BusyBox-Shell – bootet in wenigen Sekunden. Ideal zum
+        schnellen Ausprobieren, wenn es kein volles System sein muss.
+      </p>
+      <ul class="card_facts">
+        <li>nur <b>10&nbsp;MB</b> – startet fast sofort</li>
+        <li>Shell auf serieller Konsole (xterm.js)</li>
+        <li>Lua, <code>ping</code>, <code>curl</code> an Bord</li>
+        <li>läuft auch auf schwächeren Geräten</li>
+      </ul>
+      <span class="card_go">starten →</span>
+    </a>
+  </div>
+
+  <section class="home_note">
+    <h3>So funktioniert es</h3>
+    <p>
+      <b>v86</b> emuliert einen kompletten 32-Bit-x86-Rechner und übersetzt dessen
+      Code zur Laufzeit nach WebAssembly – schnell genug, um damit zu arbeiten.
+      Tastatur und Maus gehen an die VM, sobald du den Bildschirm anklickst. Willst
+      du ins Netz, lässt sich in der Oberfläche ein <b>Relay</b> zuschalten (echtes
+      TCP/IP); dessen Betreiber sieht dann den Verkehr der VM – das steht auch so in
+      der App. Ohne Relay bleibt alles im Tab.
+    </p>
+    <h3>Läuft am besten …</h3>
+    <p>
+      … in aktuellem <b>Chrome, Edge oder Firefox am Desktop</b>. Auf dem Handy
+      funktioniert es, ist aber langsamer, und die Tastatur ist fummelig. Der Tab
+      sollte im Vordergrund bleiben – im Hintergrund drosselt der Browser die
+      Zeitgeber und der Bootvorgang stockt.
+    </p>
+    <h3>Es gibt noch mehr</h3>
+    <p>
+      Echtes <b>x86_64</b> über QEMU-Wasm, eine grafische <b>Damn-Small-Linux</b>-
+      Oberfläche und das Booten <b>eigener ISO-Abbilder</b> brauchen mehr Daten und
+      besondere Server-Kopfzeilen, als sich hier sinnvoll ausliefern lässt. Diese
+      Modi stecken in der lokal lauffähigen Vollversion auf
+      <a href="https://github.com/LichtClark" target="_blank" rel="noopener">GitHub</a>.
+    </p>
+  </section>
+
+  <div class="home_cta">
+    <a class="cta_btn" href="x86.html">▶ BrowserLinux starten</a>
+  </div>
+
+</main>
+
+<footer class="footer">
+  Emulation: <a href="https://github.com/copy/v86" target="_blank" rel="noopener">v86</a> (BSD-2-Clause) ·
+  Terminal: <a href="https://xtermjs.org/" target="_blank" rel="noopener">xterm.js</a> (MIT) ·
+  Alpine Linux (GPL/MIT) · Buildroot ·
+  <a href="https://clarkie.de/">clarkie.de</a>
+</footer>
+
+</body>
+</html>
