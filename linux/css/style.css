@@ -16,6 +16,17 @@
 
 * { box-sizing: border-box; }
 
+/* Nur fuer Screenreader sichtbar (visuell ausgeblendet, aber vorlesbar). */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 html, body {
   margin: 0;
   background: var(--bg);
@@ -48,7 +59,7 @@ a { color: var(--accent); }
 .path   { color: #60a5fa; }
 .sep    { color: var(--fg-dim); }
 
-.badges { display: flex; gap: 8px; align-items: center; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 
 .badge {
   border: 1px solid var(--line);
@@ -84,6 +95,11 @@ a { color: var(--accent); }
 
 @media (max-width: 980px) {
   .layout { grid-template-columns: 1fr; }
+  /* Der Bildschirm (die eigentliche Attraktion) gehoert nach oben – sonst klebt
+     das Terminal unter der kompletten Steuerung ganz am Seitenende. */
+  .stage { order: -1; }
+  /* Ohne den sticky-Vollhoehe-Reset wuerde die Steuerung einen Scroll-Trap bilden. */
+  .panel { position: static; max-height: none; overflow: visible; top: auto; }
 }
 
 .panel {
@@ -94,6 +110,7 @@ a { color: var(--accent); }
   position: sticky;
   top: 62px;
   max-height: calc(100vh - 78px);
+  max-height: calc(100dvh - 78px);
   overflow-y: auto;
 }
 
@@ -148,8 +165,13 @@ select, input[type=text], input[type=file], textarea {
 
 select:focus, input:focus, textarea:focus {
   outline: none;
-  border-color: var(--accent-dim);
-  box-shadow: 0 0 0 2px rgba(74, 222, 128, .12);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(74, 222, 128, .5);
+}
+/* Sichtbarer Fokusring auch fuer Knoepfe/Links (Tastaturbedienung, WCAG 2.4.7). */
+button:focus-visible, a:focus-visible, .tab:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 input[type=file] { padding: 6px; font-size: 12px; color: var(--fg-dim); }
@@ -296,7 +318,7 @@ button.danger { border-color: #6b2020; color: #fca5a5; background: #241214; }
 }
 
 .screen_toolbar {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
   padding: 8px 12px;
   background: #0e151c;
   border-bottom: 1px solid var(--line);
@@ -499,6 +521,17 @@ details summary .tiny { text-transform: none; letter-spacing: 0; margin-left: 8p
   font-size: 12px;
   border-top: 1px solid var(--line);
   text-align: center;
+}
+
+/* Touch-Geraete: Navigations- und Modus-Schalter auf ~44 px vergroessern. */
+@media (hover: none) and (pointer: coarse) {
+  a.badge, .tab {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .notice button { min-height: 36px; }
+  .screen_toolbar .tab { padding: 8px 14px; }
 }
 
 /* Scrollbars passend zum Rest */

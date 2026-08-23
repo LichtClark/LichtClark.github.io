@@ -11,6 +11,12 @@
 
   const $ = (id) => document.getElementById(id);
 
+  // Lokale Entwicklung (Datei fehlt -> fetch-assets-Hinweis) vs. gehostete
+  // Online-Version (kein PowerShell, keine tools/): Meldungen unterscheiden sich.
+  const isLocalDev = () =>
+    location.protocol === "file:" ||
+    ["localhost", "127.0.0.1", "[::1]"].includes(location.hostname);
+
   const el = {
     profile: $("profile"),
     profileHint: $("profile_hint"),
@@ -696,10 +702,17 @@
       let ok = false;
       try { ok = (await fetch(path, { method: "HEAD" })).ok; } catch (e) { ok = false; }
       if (!ok) {
+        if (isLocalDev()) {
+          throw new Error(
+            `Das Abbild "${path}" fehlt.\n\n` +
+            "Einmalig holen mit:\n    powershell -ExecutionPolicy Bypass -File tools\\fetch-assets.ps1" +
+            (profile.optional ? " -Extras" : "")
+          );
+        }
         throw new Error(
-          `Das Abbild "${path}" fehlt.\n\n` +
-          "Einmalig holen mit:\n    powershell -ExecutionPolicy Bypass -File tools\\fetch-assets.ps1" +
-          (profile.optional ? " -Extras" : "")
+          `Das Abbild „${path.split("/").pop()}“ liess sich nicht laden. ` +
+          "Vermutlich ein Verbindungsproblem — bitte die Seite neu laden. " +
+          "In der Online-Version stehen Alpine, Buildroot und „Eigenes Abbild“ zur Verfügung."
         );
       }
     }
@@ -1102,9 +1115,13 @@
   onNetModeChange();
   wire();
   // Online-Build: der 64-Bit-Modus wird nicht ausgeliefert, also den Link entfernen.
+  // Ausserdem keine fremde Relay-Adresse fuer anonyme Besucher vorbelegen — sonst
+  // liefe deren VM-Verkehr per Klick ueber einen Drittanbieter-Relay. Der Modus
+  // bleibt waehlbar (mit Warnung), nur ohne vorausgefuellten Fremd-Host.
   if (window.BL_WEB) {
     const x = document.getElementById("badge_x64");
     if (x) x.remove();
+    if (/mercurywork\.shop/.test(el.relayUrl.value)) el.relayUrl.value = "";
   }
   if (preflight()) {
     log("Bereit. v86 geladen, alles läuft lokal in diesem Tab.");

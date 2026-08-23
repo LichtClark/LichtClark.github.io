@@ -30,12 +30,14 @@
 
 <main class="layout">
 
+  <h1 class="sr-only">BrowserLinux — 32-Bit-Linux im Browser</h1>
+
   <!-- ─────────────────────────── Steuerung ─────────────────────────── -->
   <aside class="panel">
 
     <section class="block">
       <h2>1 · System</h2>
-      <select id="profile"></select>
+      <select id="profile" aria-label="Gastsystem wählen"></select>
       <p class="hint" id="profile_hint"></p>
 
       <div id="custom_box" hidden>
@@ -84,7 +86,7 @@
 
     <section class="block">
       <h2>3 · Festplatte <span class="tag">bleibt erhalten</span></h2>
-      <select id="disk_mode">
+      <select id="disk_mode" aria-label="Festplatten-Modus">
         <option value="none">keine Festplatte</option>
         <option value="persist">persistent (IndexedDB)</option>
         <option value="ram">nur im Arbeitsspeicher</option>
@@ -106,7 +108,7 @@
         </p>
 
         <label class="lbl" for="disk_id">Name</label>
-        <input type="text" id="disk_id" value="alpine" spellcheck="false">
+        <input type="text" id="disk_id" value="alpine" spellcheck="false" autocapitalize="off" autocorrect="off">
 
         <label class="chk"><input type="checkbox" id="disk_autosave" checked> beim Beenden automatisch sichern</label>
         <div class="btnrow">
@@ -124,7 +126,7 @@
 
     <section class="block">
       <h2>4 · Netzwerk</h2>
-      <select id="net_mode">
+      <select id="net_mode" aria-label="Netzwerk-Modus">
         <option value="off">aus</option>
         <option value="fetch">Browser-Fetch – ohne Fremdserver</option>
         <option value="relay">Relay – volles TCP/IP</option>
@@ -132,7 +134,7 @@
 
       <div id="net_relay_box" hidden>
         <label class="lbl" for="relay_url">Relay-Adresse</label>
-        <input type="text" id="relay_url" value="wisps://wisp.mercurywork.shop/" spellcheck="false">
+        <input type="text" id="relay_url" value="wisps://wisp.mercurywork.shop/" spellcheck="false" autocapitalize="off" autocorrect="off" inputmode="url">
       </div>
 
       <label class="lbl" for="net_card">Netzwerkkarte</label>
@@ -189,16 +191,17 @@
 
       <label class="lbl" for="send_text">Befehl in die VM tippen</label>
       <div class="btnrow">
-        <input type="text" id="send_text" placeholder="z. B. uname -a" spellcheck="false">
-        <button id="btn_send_text" disabled>↵</button>
+        <input type="text" id="send_text" placeholder="z. B. uname -a" spellcheck="false" autocapitalize="off" autocorrect="off">
+        <button id="btn_send_text" disabled aria-label="Befehl an die VM senden">↵</button>
       </div>
       <p class="hint">Geht an die gerade sichtbare Ansicht (VGA-Tastatur bzw. COM1).</p>
 
       <label class="lbl" for="upload_file">Datei in die VM legen (9p)</label>
       <input type="file" id="upload_file" disabled>
+      <label class="lbl" for="download_path">Datei aus der VM holen</label>
       <div class="btnrow">
-        <input type="text" id="download_path" placeholder="/mnt/notizen.txt" spellcheck="false">
-        <button id="btn_download_file" disabled>⇩</button>
+        <input type="text" id="download_path" placeholder="/mnt/notizen.txt" spellcheck="false" autocapitalize="off" autocorrect="off">
+        <button id="btn_download_file" disabled aria-label="Datei aus der VM herunterladen">⇩</button>
       </div>
       <p class="hint">
         In der VM einhängen: <code>mount -t 9p -o trans=virtio host9p /mnt</code><br>
@@ -267,7 +270,7 @@
   | |_) | | | (_) \ V  V /\__ \  __/ |  | |___| | | | | |_| |>  <
   |____/|_|  \___/ \_/\_/ |___/\___|_|  |_____|_|_| |_|\__,_/_/\_\
 </pre>
-        <p>Ein vollständiger x86-PC in WebAssembly. Links ein System wählen und <strong>Booten</strong> drücken.</p>
+        <p>Ein vollständiger x86-PC in WebAssembly. In der Steuerung ein System wählen und <strong>Booten</strong> drücken.</p>
         <p class="tiny">Der emulierte Rechner läuft ausschließlich in diesem Browser-Tab – kein Backend, keine Übertragung.</p>
         <p class="tiny">Tastatur und Maus gehen an die VM, sobald der Bildschirm angeklickt wurde.</p>
       </div>
