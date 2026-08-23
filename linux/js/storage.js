@@ -56,22 +56,36 @@ const DiskStore = (function () {
     });
   }
 
-  // Kurze, schnelle Prüfsumme (FNV-1a, 32 Bit) über einen Block.
-  // Reicht, um "unverändert" zu erkennen, und ist deutlich schneller als SHA.
+  // Schnelle 64-Bit-Prüfsumme (zwei unabhängige FNV-1a-Bahnen) über einen Block.
+  // Dient nur zur "unverändert?"-Erkennung: eine Kollision würde einen echten
+  // Schreibvorgang überspringen (= stiller Datenverlust), deshalb 64 statt 32 Bit
+  // — die Kollisionswahrscheinlichkeit sinkt von ~2^-32 auf ~2^-64 pro Block.
   function digest(bytes) {
-    let h = 0x811c9dc5;
-    // Nur jedes 7. Byte wäre zu lasch — hier voll, aber in 32-Bit-Schritten.
-    const view = new Uint32Array(bytes.buffer, bytes.byteOffset, bytes.byteLength >>> 2);
-    for (let i = 0; i < view.length; i++) {
-      h ^= view[i];
-      h = Math.imul(h, 0x01000193);
+    let h1 = 0x811c9dc5 | 0, h2 = 0xc59d1c81 | 0;
+    const aligned = (bytes.byteOffset & 3) === 0;
+    if (aligned) {
+      // Schnellpfad: 32-Bit-Wörter. bytes.byteOffset ist bei 4-MB-Blöcken stets
+      // 4-Byte-ausgerichtet; der Guard verhindert nur einen RangeError, falls
+      // sich die Blockgröße je ändert.
+      const view = new Uint32Array(bytes.buffer, bytes.byteOffset, bytes.byteLength >>> 2);
+      for (let i = 0; i < view.length; i++) {
+        const v = view[i];
+        h1 = Math.imul(h1 ^ v, 0x01000193);
+        h2 = Math.imul(h2 ^ v, 0x85ebca77);
+      }
+    } else {
+      for (let i = 0; i + 3 < bytes.byteLength; i += 4) {
+        const v = bytes[i] | (bytes[i + 1] << 8) | (bytes[i + 2] << 16) | (bytes[i + 3] << 24);
+        h1 = Math.imul(h1 ^ v, 0x01000193);
+        h2 = Math.imul(h2 ^ v, 0x85ebca77);
+      }
     }
     const rest = bytes.byteLength & 3;
     for (let i = bytes.byteLength - rest; i < bytes.byteLength; i++) {
-      h ^= bytes[i];
-      h = Math.imul(h, 0x01000193);
+      h1 = Math.imul(h1 ^ bytes[i], 0x01000193);
+      h2 = Math.imul(h2 ^ bytes[i], 0x85ebca77);
     }
-    return h >>> 0;
+    return (h1 >>> 0).toString(16).padStart(8, "0") + (h2 >>> 0).toString(16).padStart(8, "0");
   }
 
   return {
@@ -156,6 +170,16 @@ const DiskStore = (function () {
       const prev = await this.info(diskId);
       const oldDigests = (prev && prev.chunkSize === CHUNK_SIZE && prev.digests) || [];
       const digests = new Array(chunks);
+
+      // "in Arbeit"-Markierung setzen, solange noch eine gute vorherige Version
+      // existiert: bricht die Sicherung mitten drin ab (Quota, Tab zu), bleibt die
+      // Markierung stehen und das nächste Laden kann davor warnen. Die alten
+      // digests bleiben erhalten, damit die nächste Sicherung korrekt abgleicht.
+      if (prev && !prev.dirty) {
+        const { store, done } = tx(db, [STORE_META], "readwrite");
+        store(STORE_META).put({ ...prev, dirty: true }, diskId);
+        await done;
+      }
 
       let written = 0;
       let bytes = 0;

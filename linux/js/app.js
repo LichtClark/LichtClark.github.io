@@ -103,6 +103,7 @@
     fsAnnounced: false,
     autoLaeuft: false,
     autoAbbruch: false,
+    autoDone: false,   // pro Boot: verhindert, dass Pause/Weiter den Autostart erneut abspielt
     disk: null,        // { id, buffer, persist, size }
     isoInfo: null,     // Ergebnis der ISO-Analyse für "Eigenes Abbild"
     netActive: "off",
@@ -606,10 +607,25 @@
   }
 
   async function saveDisk() {
-    if (!state.disk) return;
-    const buf = findDiskBuffer() || state.disk.buffer;
+    if (!state.disk) return false;
+    // Nicht auf state.disk.buffer zurueckfallen: findet sich der beschreibbare
+    // v86-Puffer nicht, wuerde das den urspruenglichen (leeren) Puffer ueber die
+    // gute persistente Platte schreiben — stiller Totalverlust. Lieber abbrechen.
+    const buf = findDiskBuffer();
+    if (!buf) {
+      notify("err",
+        "Die Festplatte konnte nicht gesichert werden: der beschreibbare Puffer der " +
+        "VM war nicht auffindbar. Die gespeicherte Platte bleibt unangetastet.");
+      return false;
+    }
+    // CPU anhalten, damit ein konsistenter Stand gesichert wird: ohne
+    // Cross-Origin-Isolation laeuft v86 im Haupt-Thread und schreibt sonst
+    // zwischen den Speicher-Haeppchen weiter in den Puffer (zerrissenes Abbild).
+    const wasRunning = state.running;
+    if (wasRunning && state.emulator) { try { await state.emulator.stop(); } catch (_) {} }
     setBadge("sichere Festplatte …", "busy");
     el.btnDiskSave.disabled = true;
+    let ok = false;
     try {
       const res = await DiskStore.save(state.disk.id, buf, state.disk.id, (i, n) => {
         el.progressWrap.hidden = false;
@@ -620,11 +636,14 @@
       el.progressWrap.hidden = true;
       log(`Festplatte gesichert: ${res.written} von ${res.total} Blöcken geändert (${fmtBytes(res.bytes)}).`);
       await refreshDiskStatus();
+      ok = true;
     } catch (e) {
       notify("err", "Die Festplatte konnte nicht gesichert werden: " + e.message);
     }
+    if (wasRunning && state.emulator) { try { await state.emulator.run(); } catch (_) {} }
     el.btnDiskSave.disabled = !state.running;
     setBadge(state.running ? "läuft" : "bereit", state.running ? "ok" : "");
+    return ok;
   }
 
   // Zweistufig statt confirm(): der erste Klick fragt, der zweite löscht.
@@ -800,6 +819,7 @@
     setBadge("startet …", "busy");
     el.statState.textContent = "startet";
     state.fsAnnounced = false;
+    state.autoDone = false;
     log(`Starte ${currentProfile().name.split("·")[0].trim()} mit ${el.memory.value} MB RAM.`);
 
     const V86Class = window.V86 || window.V86Starter;
@@ -809,7 +829,21 @@
       return;
     }
 
-    const emu = new V86Class(cfg);
+    let emu;
+    try {
+      emu = new V86Class(cfg);
+    } catch (e) {
+      // z. B. WebAssembly-Instanziierung/Validierung fehlgeschlagen oder eine
+      // unmoegliche Konfiguration: sonst blieben ALLE Knoepfe deaktiviert und nur
+      // ein Reload half. Stattdessen sauber aufraeumen und Start wieder freigeben.
+      notify("err", "Der Emulator liess sich nicht starten: " + (e.message || e) +
+        ". Bitte erneut versuchen; ggf. eine kleinere Speichergroesse waehlen.");
+      el.progressWrap.hidden = true;
+      setBadge("Fehler", "err");
+      el.statState.textContent = "Fehler";
+      el.btnStart.disabled = false;
+      return;
+    }
     state.emulator = emu;
 
     emu.add_listener("download-progress", (e) => {
@@ -826,7 +860,23 @@
 
     emu.add_listener("download-error", (e) => {
       log(`Download fehlgeschlagen: ${e.file_name}`);
+      notify("err",
+        `Ein Abbild liess sich nicht laden (${(e.file_name || "").split("/").pop()}). ` +
+        "Bitte die Verbindung pruefen und erneut booten.");
       setBadge("Download-Fehler", "err");
+      // Halb initialisierten Emulator abraeumen, sonst haengt die Oberflaeche:
+      // Start bleibt deaktiviert und der Fortschrittsbalken stehen.
+      try { if (state.emulator) state.emulator.destroy(); } catch (_) {}
+      state.emulator = null;
+      state.running = false;
+      stopStats();
+      el.progressWrap.hidden = true;
+      el.screenEmpty.hidden = false;
+      el.btnStart.disabled = false;
+      el.btnPause.disabled = true;
+      el.btnReset.disabled = true;
+      el.btnKill.disabled = true;
+      setRuntimeButtons(false);
     });
 
     emu.add_listener("emulator-loaded", () => {
@@ -840,8 +890,13 @@
       setBadge("läuft", "ok");
       el.statState.textContent = "läuft";
       el.btnPause.textContent = "⏸ Pause";
+      el.btnPause.disabled = false;
+      el.btnReset.disabled = false;
       setRuntimeButtons(true);
-      if (el.autoStart.checked && !state.autoLaeuft) {
+      // Autostart nur einmal pro Boot: emulator-started feuert auch bei jedem
+      // Pause/Weiter, sonst wuerde er Login + Einrichtung erneut eintippen.
+      if (el.autoStart.checked && !state.autoLaeuft && !state.autoDone) {
+        state.autoDone = true;
         runAutostart(currentProfile());
       }
     });
@@ -870,9 +925,10 @@
     state.lastTick = performance.now();
     startStats();
 
+    // Waehrend des Ladens nur "Beenden" (= Abbrechen) freigeben; Pause/Reset
+    // erst, wenn der Emulator wirklich laeuft (sonst run()/stop() auf einer noch
+    // nicht gestarteten VM).
     el.btnKill.disabled = false;
-    el.btnPause.disabled = false;
-    el.btnReset.disabled = false;
   }
 
   function setRuntimeButtons(on) {
@@ -905,9 +961,24 @@
   async function kill() {
     if (!state.emulator) return;
     if (state.disk && state.disk.persist && el.diskAutosave.checked) {
-      await saveDisk();
+      // Scheitert die Auto-Sicherung, die VM NICHT zerstoeren — sonst waere der
+      // im Speicher liegende Platteninhalt endgueltig weg. Lieber weiterlaufen
+      // lassen, damit „Platte sichern“ erneut versucht werden kann.
+      const saved = await saveDisk();
+      if (!saved) {
+        notify("err",
+          "Beim Beenden liess sich die Festplatte nicht sichern — die VM läuft " +
+          "weiter, damit nichts verloren geht. Bitte „💾 Platte sichern“ erneut " +
+          "versuchen; zum Verwerfen die Auto-Sicherung abwählen und erneut beenden.");
+        return;
+      }
     }
+    // Extern gelieferte xterm-Instanz entsorgen (v86.destroy() raeumt nur seine
+    // eigenen Adapter auf) — sonst haeuft jeder Boot/Beenden-Zyklus Terminals an.
+    let serialTerm = null;
+    try { serialTerm = state.emulator.serial_adapter && state.emulator.serial_adapter.term; } catch (_) {}
     try { await state.emulator.destroy(); } catch (e) { /* egal */ }
+    try { if (serialTerm && serialTerm.dispose) serialTerm.dispose(); } catch (_) {}
     state.autoAbbruch = true;
     setAutoStatus("");
     state.emulator = null;
