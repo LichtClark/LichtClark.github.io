@@ -151,9 +151,12 @@
 
     function frame() {
         ctx.clearRect(0, 0, w, h);
-        if (!reduced) step();
         drawLinks();
         drawDots();
+        // Bei prefers-reduced-motion NICHT endlos weiterzeichnen: ein einziges
+        // statisches Bild genügt, spart CPU/Akku. Sonst normal weiter animieren.
+        if (reduced) return;
+        step();
         requestAnimationFrame(frame);
     }
 
@@ -169,6 +172,13 @@
     window.addEventListener('pointerleave', function () { hovered = false; });
     window.addEventListener('resize', resize);
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readTheme);
+    // Reduced-Motion zur Laufzeit umgeschaltet: Animation stoppen bzw. wieder starten.
+    window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', function (e) {
+        var wasReduced = reduced;
+        reduced = e.matches;
+        if (wasReduced && !reduced) frame(); // war eingefroren -> Schleife neu anwerfen
+        else if (reduced) frame();           // einen statischen Frame zeichnen
+    });
 
     readTheme();
     resize();

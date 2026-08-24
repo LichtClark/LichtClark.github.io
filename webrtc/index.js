@@ -18,7 +18,8 @@ document.getElementById("date").innerHTML =
 
   (datum.getDate() < 10 ? "0" + datum.getDate() : datum.getDate()) +
   "." +
-  (datum.getMonth() < 10 ? "0" + datum.getMonth() : datum.getMonth()) +
+  /* getMonth() ist 0-basiert (Januar=0) -> +1 fuer die echte Monatszahl */
+  ((datum.getMonth() + 1) < 10 ? "0" + (datum.getMonth() + 1) : (datum.getMonth() + 1)) +
   "." +
   datum.getFullYear();
 /*------------------------------------------------------------------------------------------------------------------------*/
@@ -122,7 +123,9 @@ fetch('https://get.geojs.io/v1/ip/geo.json')
 
 
 /*------------------------------------------------------------------------------------------------------------------------*/
-var RTCPeerConnection = /*window.RTCPeerConnection ||*/ window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+/* Erst die unpraefixierte Standard-API (moderne Browser: Chrome, Firefox, Safari),
+   danach die alten Praefix-Varianten als Fallback. */
+var RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
 
 if (RTCPeerConnection)(function() {
   var rtc = new RTCPeerConnection({
@@ -176,7 +179,7 @@ if (RTCPeerConnection)(function() {
   }
 })();
 else {
-  document.getElementById('list').nextSibling.textContent = "Error.";
+  document.getElementById('list').textContent = "WebRTC in diesem Browser nicht verfügbar";
 }
 /*------------------------------------------------------------------------------------------------------------------------*/
 var canvas = document.createElement('canvas');

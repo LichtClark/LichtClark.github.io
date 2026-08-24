@@ -497,7 +497,7 @@ html.home, body.home { height: 100%; }
 .drawer-btn {
     position: fixed;
     top: 14px; left: 14px;
-    z-index: 70;
+    z-index: 90; /* über dem geöffneten Drawer (80), damit das X sichtbar/klickbar bleibt */
     width: 42px; height: 42px;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
