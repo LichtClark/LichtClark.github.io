@@ -135,16 +135,17 @@ Keine abgerundeten Ecken, 1px-Rahmen, Versalien mit Sperrung in Überschriften.
    Kleinschreibung: alte Links wie `clarkie.de/Filme/` laufen danach ins Leere.
 2. **`webrtc/Datenschutzerklärung.html` heißt jetzt `webrtc/datenschutz.html`** — Umlaut
    im Dateinamen raus.
-3. **Datumsfehler in `webrtc/index.js` — bewusst nicht angefasst.** Das Skript baut das
-   Datum mit `getMonth()` ohne das nötige `+ 1`, zeigt also durchgehend den Vormonat
-   (heute 28.07. erscheint als 28.06.). Fehler steckt im Original; Fix wäre einzeilig,
-   ändert aber die Ausgabe — Entscheidung liegt bei dir.
+3. **Datumsfehler in `webrtc/index.js` — behoben (2026-08-24).** Das Skript baute das
+   Datum mit `getMonth()` ohne `+ 1` und zeigte durchgehend den Vormonat. Jetzt mit
+   `getMonth() + 1` korrigiert. Zugleich nutzt der WebRTC-Block wieder das
+   unpräfixierte `window.RTCPeerConnection` zuerst (Firefox/Safari-kompatibel).
 
-## Nicht übernommen
+## Entfernte Altlasten (2026-08-24)
 
-Aus dem Original-Repo blieben liegen, weil sie von keiner Seite verlinkt sind:
-`Sites/` (eine ältere Kopie von `Filme/`, `Setting/`, `webrtc/`), `other/friends/`,
-`xssjs/`, `test/`. Bei Bedarf einfach aus dem Repo dazukopieren.
+Aus dem Repo entfernt, weil von keiner Seite verlinkt und teils Reputations-/
+Datenschutzrisiko: `Sites/` (alte Kopie mit Falsch-Domain-Redirect), `other/friends/`
+(private Fremdfotos), `xssjs/` (XSS-Payload-Experimente), `test/` (curl|iex-Skript) und
+`csgo/test.txt` (als .txt getarnte .exe). Bei Bedarf über die Git-Historie wiederherstellbar.
 
 ## Lokal ansehen
 
