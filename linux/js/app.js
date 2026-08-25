@@ -399,6 +399,11 @@
 
   // ───────────────────────────── Netzwerk ────────────────────────────────────
 
+  // Voreingestellter WISP-Relay fuer den Modus "volles TCP/IP". Derselbe Wert
+  // steht als value im relay_url-Feld in x86.html — hier als Rueckfallebene, falls
+  // das Feld leer ist (etwa weil eine aeltere Fassung es geleert gespeichert hat).
+  const DEFAULT_RELAY = "wisps://wisp.mercurywork.shop/";
+
   /*
    * v86 kennt drei Backends (belegt in vendor/libv86.js):
    *   "fetch"            eigener TCP/IP-Stack im Browser, Verbindungen laufen über fetch().
@@ -417,8 +422,10 @@
     if (mode === "fetch") {
       return { type, relay_url: "fetch", dns_method: "doh", doh_server: "cloudflare-dns.com" };
     }
-    const url = el.relayUrl.value.trim();
-    if (!url) return null;
+    // Leeres Feld -> Standard-Relay, statt lautlos gar keine Netzwerkkarte zu
+    // bauen (das liess "volles TCP/IP" wirkungslos erscheinen). Welcher Relay
+    // tatsaechlich genutzt wird, steht beim Start im Protokoll.
+    const url = el.relayUrl.value.trim() || DEFAULT_RELAY;
     return { type, relay_url: url };
   }
 
@@ -1200,13 +1207,13 @@
   onNetModeChange();
   wire();
   // Online-Build: der 64-Bit-Modus wird nicht ausgeliefert, also den Link entfernen.
-  // Ausserdem keine fremde Relay-Adresse fuer anonyme Besucher vorbelegen — sonst
-  // liefe deren VM-Verkehr per Klick ueber einen Drittanbieter-Relay. Der Modus
-  // bleibt waehlbar (mit Warnung), nur ohne vorausgefuellten Fremd-Host.
+  // Die Relay-Adresse bleibt vorbelegt, damit "volles TCP/IP" auf Anhieb
+  // funktioniert. Der Modus ist ohnehin nicht die Voreinstellung (die ist "aus"),
+  // und beim Umschalten auf Relay warnt die Oberflaeche deutlich, dass der
+  // Betreiber des Relays den gesamten Verkehr der VM sieht.
   if (window.BL_WEB) {
     const x = document.getElementById("badge_x64");
     if (x) x.remove();
-    if (/mercurywork\.shop/.test(el.relayUrl.value)) el.relayUrl.value = "";
   }
   if (preflight()) {
     log("Bereit. v86 geladen, alles läuft lokal in diesem Tab.");
