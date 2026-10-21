@@ -45,7 +45,7 @@
             NAV.map(function (n) {
                 return '<a class="link-row' + (n[0] === section ? ' active' : '') + '" href="' + n[1] + '">' +
                        '<span class="link-ico">' + n[2] + '</span>' +
-                       '<span class="link-mid"><span class="link-title">' + n[3] + '</span>' +
+                       '<span class="link-mid"><span class="link-title">' + n[3] + '</span> ' +
                        '<span class="link-meta">' + n[4] + '</span></span></a>';
             }).join('') +
             '<div class="drawer-foot">' +
