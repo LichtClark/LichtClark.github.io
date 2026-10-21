@@ -1,2 +1,5 @@
 User-agent: *
 Disallow: /
+Disallow: /verwaltung/
+Disallow: /intern/
+Disallow: /backup-2026/
