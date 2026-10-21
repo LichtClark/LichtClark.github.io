@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de" class="home">
+<html lang="de">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -7,164 +7,39 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Clarkie.de</title>
 <link rel="icon" href="favicon.gif">
-<link rel="stylesheet" href="assets/style.css?v=20260824a">
+<link rel="stylesheet" href="assets/style.css?v=20261021a">
 </head>
-<body class="home" data-section="start" data-root="./">
+<body data-section="start" data-root="./">
 
 <canvas id="bgCanvas" aria-hidden="true"></canvas>
 
-<!-- ===== Seitenleiste ===== -->
-<button class="drawer-btn" id="drawerBtn" aria-expanded="false" aria-controls="drawer" aria-label="Menü öffnen">
-    <span></span><span></span><span></span>
-</button>
-<div class="scrim" id="scrim"></div>
+<div class="wrap">
 
-<aside class="drawer" id="drawer" aria-label="Seitenleiste">
-    <div class="drawer-h">Navigation</div>
+    <div class="masthead hero">
+        <h1>CLARKIE.DE<span class="caret">_</span></h1>
+        <div class="sub">Persönliche Seite · Statisch · Ohne Tracking</div>
+    </div>
 
-    <a class="link-row" href="Filme/">
-        <span class="link-ico">🎬</span>
-        <span class="link-mid">
-            <span class="link-title">Filme</span>
-            <span class="link-meta">Empfehlungen</span>
-        </span>
-    </a>
-    <a class="link-row" href="webrtc/" data-consent>
-        <span class="link-ico">🖥️</span>
-        <span class="link-mid">
-            <span class="link-title">System-Info</span>
-            <span class="link-meta">Browser-Analyse</span>
-        </span>
-    </a>
-    <a class="link-row" href="https://split.clarkie.de/" rel="noopener">
-        <span class="link-ico">💸</span>
-        <span class="link-mid">
-            <span class="link-title">Expense Splitter</span>
-            <span class="link-meta">split.clarkie.de</span>
-        </span>
-    </a>
-    <a class="link-row" href="linux/">
-        <span class="link-ico">🐧</span>
-        <span class="link-mid">
-            <span class="link-title">BrowserLinux</span>
-            <span class="link-meta">Linux im Browser-Tab</span>
-        </span>
-    </a>
-    <a class="link-row" href="https://github.com/LichtClark/LichtClark.github.io" rel="noopener">
-        <span class="link-ico">📦</span>
-        <span class="link-mid">
-            <span class="link-title">Quellcode</span>
-            <span class="link-meta">GitHub</span>
-        </span>
-    </a>
+    <!-- Navigation erzeugt assets/site.js — eine Quelle für alle Seiten -->
+    <nav class="nav"></nav>
 
-    <div class="drawer-foot">
-        <a href="webrtc/datenschutz.html">Datenschutz</a>
+    <div class="card">
+        <div class="card-h"><span>Über diese Seite</span></div>
+        <div class="card-body">
+            <p>Persönliche Seite von Clarkie — statisch und ohne Tracking.
+               Alle Bereiche erreichst du über die Leiste oben (auf dem Handy unten).</p>
+        </div>
+    </div>
+
+    <div class="foot">
+        &copy; <span data-year></span> Clarkie ·
+        <a href="https://webrtc.clarkie.de/datenschutz.html">Datenschutz</a> ·
         <a href="mailto:dasho@mail.clarkie.de">Kontakt</a>
-        <span>&copy; <span data-year></span> Clarkie</span>
     </div>
-</aside>
 
-<!-- ===== Mitte ===== -->
-<div class="home-shell">
-    <div class="home-inner">
-
-        <div class="home-mast" id="mast" role="button" tabindex="0" aria-controls="homeMenu" aria-expanded="false">
-            <h1>CLARKIE.DE<span class="caret">_</span></h1>
-            <div class="sub">Persönliche Seite · Statisch · Ohne Tracking</div>
-        </div>
-
-        <nav class="home-menu collapsed" id="homeMenu" aria-label="Hauptmenü">
-            <a class="link-row" href="Filme/">
-                <span class="link-ico">🎬</span>
-                <span class="link-mid">
-                    <span class="link-title">Filme</span>
-                    <span class="link-meta">Bewertete Thriller-Empfehlungen</span>
-                </span>
-                <span class="link-tag">Liste</span>
-            </a>
-            <a class="link-row" href="webrtc/" data-consent>
-                <span class="link-ico">🖥️</span>
-                <span class="link-mid">
-                    <span class="link-title">System-Info</span>
-                    <span class="link-meta">Was dein Browser über dich verrät</span>
-                </span>
-                <span class="link-tag">Live</span>
-            </a>
-            <a class="link-row" href="https://split.clarkie.de/" rel="noopener">
-                <span class="link-ico">💸</span>
-                <span class="link-mid">
-                    <span class="link-title">Expense Splitter</span>
-                    <span class="link-meta">Gruppenausgaben cent-genau aufteilen · split.clarkie.de</span>
-                </span>
-                <span class="link-tag">Projekt</span>
-            </a>
-            <a class="link-row" href="linux/">
-                <span class="link-ico">🐧</span>
-                <span class="link-mid">
-                    <span class="link-title">BrowserLinux</span>
-                    <span class="link-meta">Ein ganzer Linux-PC im Browser-Tab · v86 + WebAssembly</span>
-                </span>
-                <span class="link-tag">Projekt</span>
-            </a>
-            <a class="link-row" href="https://github.com/LichtClark/LichtClark.github.io" rel="noopener">
-                <span class="link-ico">📦</span>
-                <span class="link-mid">
-                    <span class="link-title">Quellcode</span>
-                    <span class="link-meta">github.com/LichtClark</span>
-                </span>
-                <span class="link-tag">Extern</span>
-            </a>
-        </nav>
-
-        <div class="home-hint" id="hint">Titel anklicken für das Menü</div>
-
-        <div class="home-foot">
-            &copy; <span data-year></span> Clarkie ·
-            <a href="webrtc/datenschutz.html">Datenschutz</a>
-        </div>
-
-    </div>
 </div>
 
 <script src="assets/bg.js?v=20260824a"></script>
-<script src="assets/site.js?v=20260824a"></script>
-<script>
-(function () {
-    /* --- Mittiges Menü: startet eingeklappt, Titel klappt es auf --- */
-    var mast = document.getElementById('mast');
-    var menu = document.getElementById('homeMenu');
-    var hint = document.getElementById('hint');
-
-    function toggleMenu() {
-        var open = menu.classList.toggle('collapsed') === false;
-        mast.setAttribute('aria-expanded', String(open));
-        hint.textContent = open ? 'Titel anklicken zum Schließen' : 'Titel anklicken für das Menü';
-    }
-    mast.addEventListener('click', toggleMenu);
-    mast.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleMenu(); }
-    });
-
-    /* --- Seitenleiste --- */
-    var btn = document.getElementById('drawerBtn');
-    var drawer = document.getElementById('drawer');
-    var scrim = document.getElementById('scrim');
-
-    function setDrawer(open) {
-        drawer.classList.toggle('open', open);
-        scrim.classList.toggle('open', open);
-        btn.setAttribute('aria-expanded', String(open));
-        btn.setAttribute('aria-label', open ? 'Menü schließen' : 'Menü öffnen');
-    }
-    btn.addEventListener('click', function () {
-        setDrawer(!drawer.classList.contains('open'));
-    });
-    scrim.addEventListener('click', function () { setDrawer(false); });
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') setDrawer(false);
-    });
-})();
-</script>
+<script src="assets/site.js?v=20261021a"></script>
 </body>
 </html>

@@ -11,6 +11,33 @@
     var body = document.body;
     var root = body.getAttribute('data-root') || './';
 
+    /* ---- 0) Einheitliche Navigation (EINE Quelle fuer alle Seiten) ------- */
+    /* Jede Seite bekommt exakt dieselbe Leiste; Ziele sind die Subdomains.   */
+    var NAV = [
+        ['start',  'https://clarkie.de/',        '🏠', 'Start'],
+        ['filme',  'https://filme.clarkie.de/',  '🎬', 'Filme'],
+        ['system', 'https://webrtc.clarkie.de/', '🖥️', 'System'],
+        ['linux',  'https://linux.clarkie.de/',  '🐧', 'Linux'],
+        ['split',  'https://split.clarkie.de/',  '💸', 'Splitter'],
+        ['code',   'https://github.com/LichtClark/LichtClark.github.io', '📦', 'Code']
+    ];
+    (function buildNav() {
+        var html = NAV.map(function (n) {
+            return '<a href="' + n[1] + '" data-nav="' + n[0] + '">' +
+                   '<span class="nav-ico">' + n[2] + '</span>' +
+                   '<span class="nav-lbl">' + n[3] + '</span></a>';
+        }).join('');
+        var nav = document.querySelector('nav.nav');
+        if (!nav) {
+            nav = document.createElement('nav');
+            nav.className = 'nav';
+            var mast = document.querySelector('.masthead, .home-mast');
+            if (mast && mast.parentNode) mast.parentNode.insertBefore(nav, mast.nextSibling);
+            else body.insertBefore(nav, body.firstChild);
+        }
+        nav.innerHTML = html;
+    })();
+
     /* ---- 1) Consent-Modal ------------------------------------------------ */
     var KEY = 'clarkie.consent.webrtc';
     var gates = document.querySelectorAll('[data-consent]');
@@ -29,7 +56,7 @@
         modal.removeAttribute('data-entry');
         body.style.overflow = '';
         /* Beim Direktaufruf ohne Zustimmung: zurück zur Startseite. */
-        if (wasEntry && !accepted()) window.location.href = root;
+        if (wasEntry && !accepted()) window.location.href = 'https://clarkie.de/';
     }
 
     /* Wird die Seite direkt aufgerufen (Lesezeichen, getippte URL), war der Weg
@@ -67,7 +94,7 @@
                 'in deinem Browser. Es wird nichts auf einem Server gespeichert.</p>' +
                 '<label class="consent-row" for="consentCheck">' +
                   '<input type="checkbox" id="consentCheck">' +
-                  '<span>Ich habe die <a href="' + root + 'webrtc/datenschutz.html" target="_blank" ' +
+                  '<span>Ich habe die <a href="https://webrtc.clarkie.de/datenschutz.html" target="_blank" ' +
                   'rel="noopener">Datenschutzerklärung</a> gelesen und akzeptiere sie.</span>' +
                 '</label>' +
                 '<button class="btn btn-primary btn-full" id="consentGo" disabled>' +
