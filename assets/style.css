@@ -399,8 +399,14 @@ hr { border: none; border-top: 1px dashed var(--border); margin: 14px 0; }
 .consent-row:hover { border-color: var(--up); }
 .consent-row input { width: auto; margin-top: 2px; accent-color: var(--up); flex-shrink: 0; }
 
-/* ===== Startseite ================================================ */
-/* Sternenhimmel hinter dem Inhalt (bg.js); .wrap liegt mit z-index:2 darüber. */
+/* ===== Startseite: Canvas + Drawer =============================== */
+body.home {
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
+html.home, body.home { height: 100%; }
+
 #bgCanvas {
     position: fixed;
     inset: 0;
@@ -409,19 +415,183 @@ hr { border: none; border-top: 1px dashed var(--border); margin: 14px 0; }
     z-index: 0;
     display: block;
 }
-/* Die Startseite nutzt dieselbe Vorlage wie alle Seiten, nur mit größerem Titel. */
-.masthead.hero {
-    padding: 18px 0;
-    margin-top: 8vh;
-    background: color-mix(in srgb, var(--bg) 72%, transparent);
+
+.home-shell {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    overflow-y: auto;
 }
-.masthead.hero h1 {
-    font-size: clamp(1.3rem, 6vw, 2.1rem);
+.home-inner { width: 100%; max-width: 520px; margin: auto; }
+
+.home-mast {
+    text-align: center;
+    border-top: 2px solid var(--accent);
+    border-bottom: 2px solid var(--accent);
+    padding: 14px 0;
+    margin-bottom: 14px;
+    background: color-mix(in srgb, var(--bg) 72%, transparent);
+    cursor: pointer;
+    user-select: none;
+}
+.home-mast h1 {
+    font-size: clamp(1.2rem, 6vw, 2rem);
     letter-spacing: .32em;
+    color: var(--bright);
+    font-weight: bold;
     text-indent: .32em;
 }
-.masthead .caret { color: var(--up); animation: blink 1.4s steps(1) infinite; }
+.home-mast .sub {
+    font-size: .64rem;
+    letter-spacing: 3px;
+    color: var(--dim);
+    text-transform: uppercase;
+    margin-top: 4px;
+}
+.home-mast .caret { color: var(--up); animation: blink 1.4s steps(1) infinite; }
 @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+.home-menu { background: color-mix(in srgb, var(--panel) 82%, transparent); border: 1px solid var(--border); }
+.home-menu .link-row {
+    background: transparent;
+    border: none;
+    border-left: 3px solid transparent;
+    border-bottom: 1px solid var(--border);
+    margin: 0;
+}
+.home-menu .link-row:last-child { border-bottom: none; }
+.home-menu .link-row:hover { border-left-color: var(--up); background: var(--panel2); }
+
+/* Menü zugeklappt: sanft ausblenden statt hart wegschalten.
+   visibility:hidden nimmt es zusätzlich aus Tab-Reihenfolge und Screenreader. */
+.home-menu {
+    max-height: 60vh;
+    overflow-y: auto;   /* passt der Inhalt nicht in 60vh, wird gescrollt */
+    opacity: 1;
+    visibility: visible;
+    transition: max-height .28s ease, opacity .2s ease, visibility 0s;
+}
+.home-menu.collapsed {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    border-color: transparent;
+    transition: max-height .28s ease, opacity .2s ease, visibility 0s linear .28s;
+}
+
+.home-hint {
+    text-align: center;
+    font-size: .62rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-top: 10px;
+}
+
+/* ===== Seitenleiste (Drawer) ===================================== */
+.drawer-btn {
+    position: fixed;
+    top: 14px; left: 14px;
+    z-index: 90; /* über dem geöffneten Drawer (80), damit das X sichtbar/klickbar bleibt */
+    width: 42px; height: 42px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 5px;
+    background: color-mix(in srgb, var(--panel) 80%, transparent);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: border-color .12s;
+}
+.drawer-btn:hover { border-color: var(--up); }
+.drawer-btn span { display: block; width: 20px; height: 2px; background: var(--text); transition: transform .25s, opacity .25s; }
+.drawer-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.drawer-btn[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.drawer-btn[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.drawer {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 262px;
+    max-width: 82vw;
+    z-index: 80;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+.drawer.open { transform: none; }
+.drawer-h {
+    font-size: .66rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--bright);
+    padding: 16px 14px 14px 62px;
+    background: var(--panel2);
+    border-bottom: 1px solid var(--border);
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+}
+.drawer .link-row {
+    background: transparent;
+    border: none;
+    border-left: 3px solid transparent;
+    border-bottom: 1px solid var(--border);
+    margin: 0;
+    padding: 12px 12px;
+    gap: 10px;
+}
+.drawer .link-row:hover { border-left-color: var(--up); background: var(--panel2); }
+.drawer .link-title { font-size: .82rem; }
+.drawer .link-meta { font-size: .6rem; }
+.drawer .link-tag { display: none; }
+.drawer-foot {
+    margin-top: auto;
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+    font-size: .58rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--dim);
+}
+.drawer-foot a { color: var(--dim); text-decoration: none; display: block; padding: 2px 0; }
+.drawer-foot a:hover { color: var(--up); }
+
+.scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 75;
+    background: rgba(0, 0, 0, .65);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+}
+.scrim.open { opacity: 1; pointer-events: auto; }
+
+.home-foot {
+    color: var(--dim);
+    font-size: .6rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    margin-top: 14px;
+}
+.home-foot a { color: var(--dim); text-decoration: none; }
+.home-foot a:hover { color: var(--up); }
+
+/* Aktiver Bereich in der Seitenleiste */
+.drawer .link-row.active { border-left-color: var(--up); background: var(--panel2); }
+.drawer .link-row.active .link-title { color: var(--up); }
+/* Unterseiten: auf schmalen Bildschirmen Platz für das ☰ oben links lassen */
+@media (max-width: 820px) { body:not(.home) .wrap { padding-top: 52px; } }
 
 /* ===== Fußzeile ================================================== */
 .foot {
@@ -439,6 +609,7 @@ hr { border: none; border-top: 1px dashed var(--border); margin: 14px 0; }
 
 @media (max-width: 480px) {
     body { padding: 8px; padding-bottom: calc(66px + env(safe-area-inset-bottom, 0px)); }
+    body.home { padding: 0; }
     .masthead h1 { font-size: .95rem; letter-spacing: 4px; }
     .stats { gap: 6px; grid-template-columns: repeat(2, 1fr); }
     .stat-value { font-size: .88rem; }

@@ -1,41 +1,72 @@
 /* ==========================================================================
    clarkie.de — gemeinsames Seitenskript
+   0) Seitenleiste (☰ links oben) — auf JEDER Seite gleich, eine Quelle
    1) Datenschutz-Hinweis vor der System-Info-Seite (einheitliches Modal,
       wird zentral hier erzeugt statt in jede Seite kopiert)
-   2) Aktiven Navigationspunkt markieren
    3) Jahreszahl in der Fußzeile
    ========================================================================== */
 (function () {
     'use strict';
 
     var body = document.body;
-    var root = body.getAttribute('data-root') || './';
 
-    /* ---- 0) Einheitliche Navigation (EINE Quelle fuer alle Seiten) ------- */
-    /* Jede Seite bekommt exakt dieselbe Leiste; Ziele sind die Subdomains.   */
+    /* ---- 0) Seitenleiste ------------------------------------------------- */
+    /* Ziele sind die Subdomains; der aktuelle Bereich (body data-section)
+       wird markiert. Die Startseite hat zusätzlich ihr Klapp-Menü.         */
     var NAV = [
-        ['start',  'https://clarkie.de/',        '🏠', 'Start'],
-        ['filme',  'https://filme.clarkie.de/',  '🎬', 'Filme'],
-        ['system', 'https://webrtc.clarkie.de/', '🖥️', 'System'],
-        ['linux',  'https://linux.clarkie.de/',  '🐧', 'Linux'],
-        ['split',  'https://split.clarkie.de/',  '💸', 'Splitter'],
-        ['code',   'https://github.com/LichtClark/LichtClark.github.io', '📦', 'Code']
+        ['start',  'https://clarkie.de/',        '🏠',       'Start',            'Startseite'],
+        ['filme',  'https://filme.clarkie.de/',  '🎬',       'Filme',            'Empfehlungen'],
+        ['system', 'https://webrtc.clarkie.de/', '🖥️', 'System-Info',      'Browser-Analyse'],
+        ['linux',  'https://linux.clarkie.de/',  '🐧',       'BrowserLinux',     'Linux im Browser-Tab'],
+        ['split',  'https://split.clarkie.de/',  '💸',       'Expense Splitter', 'split.clarkie.de'],
+        ['code',   'https://github.com/LichtClark/LichtClark.github.io', '📦', 'Quellcode', 'GitHub']
     ];
-    (function buildNav() {
-        var html = NAV.map(function (n) {
-            return '<a href="' + n[1] + '" data-nav="' + n[0] + '">' +
-                   '<span class="nav-ico">' + n[2] + '</span>' +
-                   '<span class="nav-lbl">' + n[3] + '</span></a>';
-        }).join('');
-        var nav = document.querySelector('nav.nav');
-        if (!nav) {
-            nav = document.createElement('nav');
-            nav.className = 'nav';
-            var mast = document.querySelector('.masthead, .home-mast');
-            if (mast && mast.parentNode) mast.parentNode.insertBefore(nav, mast.nextSibling);
-            else body.insertBefore(nav, body.firstChild);
+    (function buildDrawer() {
+        Array.prototype.forEach.call(document.querySelectorAll('nav.nav'), function (n) {
+            n.parentNode.removeChild(n);                 // alte Leisten-Platzhalter weg
+        });
+        var section = body.getAttribute('data-section');
+
+        var btn = document.createElement('button');
+        btn.className = 'drawer-btn';
+        btn.setAttribute('aria-expanded', 'false');
+        btn.setAttribute('aria-controls', 'drawer');
+        btn.setAttribute('aria-label', 'Menü öffnen');
+        btn.innerHTML = '<span></span><span></span><span></span>';
+
+        var scrim = document.createElement('div');
+        scrim.className = 'scrim';
+
+        var drawer = document.createElement('aside');
+        drawer.className = 'drawer';
+        drawer.id = 'drawer';
+        drawer.setAttribute('aria-label', 'Seitenleiste');
+        drawer.innerHTML = '<div class="drawer-h">Navigation</div>' +
+            NAV.map(function (n) {
+                return '<a class="link-row' + (n[0] === section ? ' active' : '') + '" href="' + n[1] + '">' +
+                       '<span class="link-ico">' + n[2] + '</span>' +
+                       '<span class="link-mid"><span class="link-title">' + n[3] + '</span>' +
+                       '<span class="link-meta">' + n[4] + '</span></span></a>';
+            }).join('') +
+            '<div class="drawer-foot">' +
+              '<a href="https://webrtc.clarkie.de/datenschutz.html">Datenschutz</a>' +
+              '<a href="mailto:dasho@mail.clarkie.de">Kontakt</a>' +
+              '<span>&copy; <span data-year></span> Clarkie</span>' +
+            '</div>';
+
+        body.insertBefore(drawer, body.firstChild);
+        body.insertBefore(scrim, drawer);
+        body.insertBefore(btn, scrim);
+
+        function setDrawer(open) {
+            drawer.classList.toggle('open', open);
+            scrim.classList.toggle('open', open);
+            btn.setAttribute('aria-expanded', String(open));
+            btn.setAttribute('aria-label', open ? 'Menü schließen' : 'Menü öffnen');
         }
-        nav.innerHTML = html;
+        btn.addEventListener('click', function () { setDrawer(!drawer.classList.contains('open')); });
+        scrim.addEventListener('click', function () { setDrawer(false); });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setDrawer(false); });
     })();
 
     /* ---- 1) Consent-Modal ------------------------------------------------ */
@@ -135,14 +166,6 @@
     }
 
     if (body.hasAttribute('data-consent-required')) askOnLoad();
-
-    /* ---- 2) Aktiver Navigationspunkt ------------------------------------- */
-    var section = body.getAttribute('data-section');
-    if (section) {
-        Array.prototype.forEach.call(document.querySelectorAll('.nav a[data-nav]'), function (a) {
-            if (a.getAttribute('data-nav') === section) a.classList.add('active');
-        });
-    }
 
     /* ---- 3) Jahreszahl ---------------------------------------------------- */
     Array.prototype.forEach.call(document.querySelectorAll('[data-year]'), function (el) {
