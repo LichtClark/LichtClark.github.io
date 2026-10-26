@@ -49,8 +49,9 @@
                        '<span class="link-meta">' + n[4] + '</span></span></a>';
             }).join('') +
             '<div class="drawer-foot">' +
-              '<a href="https://webrtc.clarkie.de/datenschutz.html">Datenschutz</a>' +
-              '<a href="mailto:dasho@mail.clarkie.de">Kontakt</a>' +
+              '<a href="https://clarkie.de/datenschutz/">Datenschutz</a>' +
+              '<a href="https://clarkie.de/impressum/">Impressum</a>' +
+              '<a href="mailto:kontakt@clarkie.de">Kontakt</a>' +
               '<span>&copy; <span data-year></span> Clarkie</span>' +
             '</div>';
 
