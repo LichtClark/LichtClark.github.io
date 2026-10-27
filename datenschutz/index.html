@@ -15,12 +15,12 @@
         <h1><a href="https://clarkie.de/">CLARKIE.DE</a></h1>
         <div class="sub">
             <span class="badge">DATENSCHUTZ</span>
-            <span>clarkie Login &amp; Dienste · Stand 26.10.2026</span>
+            <span>clarkie Login &amp; Dienste · Stand 27.10.2026</span>
         </div>
     </div>
 
     <div class="card">
-        <div class="card-h"><span>📄 Datenschutzerklärung</span><span class="link-tag">Stand 26.10.2026</span></div>
+        <div class="card-h"><span>📄 Datenschutzerklärung</span><span class="link-tag">Stand 27.10.2026</span></div>
         <div class="card-body prose">
 
             <p>clarkie.de ist ein privat betriebenes Projekt. Hier steht, welche Daten der Anmeldedienst
@@ -78,14 +78,16 @@
             <p>Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO; Protokolle und Missbrauchsschutz:
                Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem sicheren Betrieb).</p>
 
-            <h2>5. Captcha (Cloudflare Turnstile)</h2>
-            <p>Bei Anmeldung, Registrierung und „Passwort vergessen“ prüft Cloudflare Turnstile, ob ein Mensch
-               die Seite bedient. Dazu lädt Ihr Browser ein Skript von challenges.cloudflare.com; Cloudflare
-               verarbeitet dabei technische Daten wie IP-Adresse und Browsermerkmale. Es werden keine
-               Bilderrätsel gestellt und keine Werbe-Cookies gesetzt. Anbieter: Cloudflare, Inc., USA
-               (zertifiziert nach dem EU-US Data Privacy Framework).
-               <a href="https://www.cloudflare.com/de-de/privacypolicy/" rel="noopener">Datenschutz bei Cloudflare</a>.
-               Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (Schutz vor automatisierten Angriffen).</p>
+            <h2>5. Captcha (eigenes „clarkie Captcha“)</h2>
+            <p>Bei Anmeldung, Registrierung und „Passwort vergessen“ stellt die Seite eine kleine Aufgabe
+               (Bilder zuordnen oder Rechnen), um automatisierte Angriffe abzuwehren. Das Captcha läuft
+               vollständig auf dem eigenen Server; es wird kein Drittanbieter eingebunden. Verarbeitet werden
+               Ihre IP-Adresse (um Fehlversuche zu begrenzen) und die gestellte Aufgabe – nur im Arbeitsspeicher
+               und höchstens 20 Minuten, im Betriebsprotokoll nur gekürzt (ohne letzten Adressteil). Nach dem Lösen
+               setzt der Server das technisch notwendige Cookie <code>clarkie_captcha</code> (10 Minuten), damit
+               nach einem Tippfehler im Passwort nicht sofort die nächste Aufgabe kommt.
+               Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (Schutz vor automatisierten Angriffen); für das
+               Cookie § 25 Abs. 2 Nr. 2 TDDDG.</p>
 
             <h2>6. Zugang aus dem Internet über Cloudflare</h2>
             <p>Anfragen aus dem Internet an auth.clarkie.de und andere öffentlich erreichbare Adressen laufen
