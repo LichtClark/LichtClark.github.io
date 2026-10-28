@@ -122,7 +122,7 @@ Identisch zu ExpenseSplitter-Cloud, definiert in `assets/style.css`:
 --bg #000      --panel #0a0a0a   --border #2a2a2a
 --text #d8d8d8 --bright #fff     --dim #888
 --up #2fbb6e   --down #e23b3b    --neu #d6a43a
---mono 'Courier New'
+--mono 'Clarkie Mono' (eigene Schrift, assets/fonts), Ersatz 'Courier New'
 ```
 
 Keine abgerundeten Ecken, 1px-Rahmen, Versalien mit Sperrung in Überschriften.
